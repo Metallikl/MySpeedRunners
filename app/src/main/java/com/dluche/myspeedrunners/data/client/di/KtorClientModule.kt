@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -24,12 +24,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object KtorClientModule {
 
-    private const val BASE_URL = "https://www.speedrun.com/api/v1"
+    private const val BASE_URL = "https://www.speedrun.com/api/v1/"
 
     @Singleton
     @Provides
     fun provideKtorClient(): HttpClient{
-        return HttpClient(Android) {
+        return HttpClient(CIO) {
             expectSuccess = true
 
             install(Logging) {
