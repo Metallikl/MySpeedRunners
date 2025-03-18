@@ -2,9 +2,9 @@ package com.dluche.myspeedrunners.data.datasource
 
 import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
 
-internal interface RunnerDataSource {
+interface RunnersDataSource {
 
     suspend fun getRunners(): List<RunnerDto>?
 
-    suspend fun getRunners(id: String): RunnerDto?
+    suspend fun getRunner(id: String): RunnerDto?
 }
