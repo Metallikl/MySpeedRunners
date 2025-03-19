@@ -94,6 +94,8 @@ data class NameStyleDto(
     val colorFrom: ColorThemeDto? = null,
     @SerialName("color-to")
     val colorTo: ColorThemeDto? = null,
+    @SerialName("color")
+    val color: ColorThemeDto? = null,
     @SerialName("style")
     val style: String? = null
 )
