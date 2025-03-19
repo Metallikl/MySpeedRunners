@@ -33,7 +33,7 @@ data class DataDto(
     @SerialName("signup")
     val signup: String? = null,
     @SerialName("speedrunslive")
-    val speedrunslive: UriDto? = null,
+    val speedRunsLive: UriDto? = null,
     @SerialName("supporterAnimation")
     val supporterAnimation: Boolean? = null,
     @SerialName("twitch")
