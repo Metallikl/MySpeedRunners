@@ -1,10 +1,11 @@
 package com.dluche.myspeedrunners.domain.repository
 
-import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
+import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
+import com.dluche.myspeedrunners.domain.model.runner.Runner
 
 interface RunnersRepository {
 
-    suspend fun getRunners(): Result<List<RunnerDto>>
+    suspend fun getRunners(): Result<List<RunnerWrapperDto>>
 
-    suspend fun getRunner(id: String): Result<RunnerDto>
+    suspend fun getRunner(id: String): Result<Runner>
 }

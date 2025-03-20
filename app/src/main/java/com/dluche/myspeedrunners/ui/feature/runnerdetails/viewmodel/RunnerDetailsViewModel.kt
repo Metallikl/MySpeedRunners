@@ -1,10 +1,10 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
-import com.dluche.myspeedrunners.domain.repository.RunnersRepository
+import com.dluche.myspeedrunners.domain.usecase.GetRunnerUseCase
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,30 +14,43 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RunnerDetailsViewModel @Inject constructor(
-    private val repository: RunnersRepository
+    private val getRunnerUseCase: GetRunnerUseCase
 ) : ViewModel() {
 
-    private val _runnerState = MutableStateFlow<RunnerDto?>(null)
-    val runnerState = _runnerState.asStateFlow()
-
+    private val _uiState = MutableStateFlow<RunnerDetailsUiState>(RunnerDetailsUiState.Loading)
+    val uiState = _uiState.asStateFlow()
+    val runnerIdList = listOf<String>(
+        "kjp1v74j",
+        "ronaldo",
+        "dexs",
+        "Zycko",
+        "ArkhanLight",
+        "Oh_my_gourdness"
+    )
 
     init {
-        val id = "kjp1v74j"
+        dispatchEvent()
+    }
+
+    fun dispatchEvent(){
+        _uiState.update { RunnerDetailsUiState.Loading }
+        var id = try{runnerIdList.random()}catch (e: Exception){"kjp1v74j"}
         fetchRunner(id)
     }
 
     private fun fetchRunner(runnerId: String) {
         viewModelScope.launch {
-            repository.getRunner(runnerId)
+            getRunnerUseCase(runnerId)
                 .fold(
                     onSuccess = { runner ->
-                        _runnerState.update {
-                            runner
+                        _uiState.update {
+                            Success(runner = runner)
                         }
                     },
                     onFailure = { error ->
-                        // Trata o erro
-                        Log.e("RunnerDetailsViewModel", "Erro ao buscar runner", error)
+                        _uiState.update {
+                            RunnerDetailsUiState.Error(message = error.message ?: "Unknown error")
+                        }
                     }
                 )
         }

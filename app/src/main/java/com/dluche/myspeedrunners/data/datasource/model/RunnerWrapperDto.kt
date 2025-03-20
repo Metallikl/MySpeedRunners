@@ -5,13 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RunnerDto(
+data class RunnerWrapperDto(
     @SerialName("data")
-    val wrapper: DataDto? = null
+    val wrapper: RunnerDto? = null
 )
 
 @Serializable
-data class DataDto(
+data class RunnerDto(
     @SerialName("assets")
     val assets: AssetsDto? = null,
     @SerialName("hitbox")

@@ -1,10 +1,10 @@
 package com.dluche.myspeedrunners.data.datasource
 
-import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
+import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
 
 interface RunnersDataSource {
 
-    suspend fun getRunners(): List<RunnerDto>?
+    suspend fun getRunners(): List<RunnerWrapperDto>?
 
-    suspend fun getRunner(id: String): RunnerDto?
+    suspend fun getRunner(id: String): RunnerWrapperDto?
 }
