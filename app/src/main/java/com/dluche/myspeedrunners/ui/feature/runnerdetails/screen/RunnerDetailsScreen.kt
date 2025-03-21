@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -24,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -83,7 +87,7 @@ fun RunnerDetailsScreen(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize(),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier
@@ -102,7 +106,7 @@ fun RunnerDetailsScreen(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize(),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = uiState.message,
@@ -116,6 +120,141 @@ fun RunnerDetailsScreen(
 
 @Composable
 fun RunnerDetailsContent(modifier: Modifier = Modifier, runner: Runner, tryAgain: () -> Unit) {
+    val backgroundColor = getBackgroundColor(isSystemInDarkTheme(), runner)
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.horizontalGradient(backgroundColor)
+            )
+    ){
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AsyncImage(
+                model = runner.imageUrl
+                    ?: "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
+                contentDescription = "Runner Image",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.extraLarge.copy(
+                            bottomStart = CornerSize(0.dp),
+                            bottomEnd = CornerSize(0.dp)
+                        )
+                    )
+                    .clip(
+                        shape = MaterialTheme.shapes.extraLarge.copy(
+                            bottomStart = CornerSize(0.dp),
+                            bottomEnd = CornerSize(0.dp)
+                        )
+                    )
+                    .padding(16.dp)
+                ,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = runner.name,
+                    style = getRunnerNameTextStyle(runner.nameStyle),
+                )
+
+                runner.pronouns?.let {
+                    Text(
+                        text = "He/ Him",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                when {
+                    runner.region != null -> {
+                        Text(
+                            text = runner.region,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    runner.country != null -> {
+                        Text(
+                            text = runner.country,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                Button(onClick = tryAgain) {
+                    Text(text = "Tente outra vez")
+                }
+            }
+
+        }
+    }
+
+}
+
+
+@Composable
+fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color> {
+    val brushList = mutableListOf<Color>()
+    runner.nameStyle?.let{ nameStyle ->
+        when (nameStyle.style) {
+            NameStyleEnum.GRADIENT -> {
+                if (isDarkTheme) {
+                    if (nameStyle.colorFrom?.dark != null && nameStyle.colorTo?.dark != null) {
+                        brushList.add(Color(nameStyle.colorFrom.dark.toColorInt()))
+                        brushList.add(Color(nameStyle.colorTo.dark.toColorInt()))
+                    } else {
+                        brushList.add(MaterialTheme.colorScheme.onBackground)
+                    }
+                } else {
+                    if (nameStyle.colorFrom?.light != null && nameStyle.colorTo?.light != null) {
+                        brushList.add(Color(nameStyle.colorFrom.light.toColorInt()))
+                        brushList.add(Color(nameStyle.colorTo.light.toColorInt()))
+                    } else {
+                        brushList.add(MaterialTheme.colorScheme.onBackground)
+                    }
+                }
+            }
+
+            NameStyleEnum.SOLID -> {
+                if (isDarkTheme) {
+                    nameStyle.color?.dark?.let {
+                        brushList.add(Color(it.toColorInt()))
+                    }
+                } else {
+                    nameStyle.color?.light?.let{
+                        brushList.add(Color(it.toColorInt()))
+                    }
+                }
+            }
+
+            else -> brushList.add(MaterialTheme.colorScheme.onBackground)
+        }
+    }
+    if(brushList.isEmpty()){
+        brushList.add(MaterialTheme.colorScheme.onBackground)
+    }
+    if(brushList.size == 1){
+        //brushList.add(MaterialTheme.colorScheme.onBackground)
+        brushList.add(
+            brushList.first().copy(alpha = 0.7f)
+        )
+    }
+
+    return brushList
+}
+
+@Composable
+fun RunnerDetailsContents(modifier: Modifier = Modifier, runner: Runner, tryAgain: () -> Unit) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -123,7 +262,7 @@ fun RunnerDetailsContent(modifier: Modifier = Modifier, runner: Runner, tryAgain
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
                 model = runner.imageUrl
@@ -230,29 +369,6 @@ private fun getRunnerNameTextStyle(nameStyle: NameStyle?): TextStyle {
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-private fun RunnerDetailsScreenLoadingPreview() {
-    MySpeedRunnersTheme {
-        RunnerDetailsScreen(
-            uiState = RunnerDetailsUiState.Loading,
-            tryAgain = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun RunnerDetailsScreenErrorPreview() {
-    MySpeedRunnersTheme {
-        RunnerDetailsScreen(
-            uiState = RunnerDetailsUiState.Error("Ops, não encontramos o seu runner"),
-            tryAgain = {}
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun RunnerDetailsScreenSuccessPreview() {
@@ -286,3 +402,26 @@ private fun RunnerDetailsScreenSuccessPreview() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun RunnerDetailsScreenLoadingPreview() {
+    MySpeedRunnersTheme {
+        RunnerDetailsScreen(
+            uiState = RunnerDetailsUiState.Loading,
+            tryAgain = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RunnerDetailsScreenErrorPreview() {
+    MySpeedRunnersTheme {
+        RunnerDetailsScreen(
+            uiState = RunnerDetailsUiState.Error("Ops, não encontramos o seu runner"),
+            tryAgain = {}
+        )
+    }
+}
+
