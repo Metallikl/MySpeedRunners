@@ -6,27 +6,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.automirrored.outlined.StarHalf
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,36 +51,25 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
 @Composable
 fun RunnerDetailsRoute(
-    viewModel: RunnerDetailsViewModel = hiltViewModel()
+    viewModel: RunnerDetailsViewModel = hiltViewModel(),
+    onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
-        uiState.value, viewModel::dispatchEvent)
+        uiState = uiState.value,
+        onBackClick = onBackClick,
+        tryAgain = viewModel::dispatchEvent
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RunnerDetailsScreen(
     uiState: RunnerDetailsUiState,
+    onBackClick: () -> Unit,
     tryAgain: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Runner Details")
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                )
-
-            )
-        },
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) { paddingValues ->
         when (uiState) {
@@ -98,7 +89,12 @@ fun RunnerDetailsScreen(
             }
 
             is RunnerDetailsUiState.Success -> {
-                RunnerDetailsContent(Modifier.padding(paddingValues), uiState.runner,tryAgain)
+                RunnerDetailsContent(
+                    modifier = Modifier.padding(paddingValues),
+                    runner = uiState.runner,
+                    onBackClick = onBackClick,
+                    tryAgain = tryAgain
+                )
             }
 
             is RunnerDetailsUiState.Error -> {
@@ -119,7 +115,12 @@ fun RunnerDetailsScreen(
 }
 
 @Composable
-fun RunnerDetailsContent(modifier: Modifier = Modifier, runner: Runner, tryAgain: () -> Unit) {
+fun RunnerDetailsContent(
+    modifier: Modifier = Modifier,
+    runner: Runner,
+    tryAgain: () -> Unit,
+    onBackClick: () -> Unit
+) {
     val backgroundColor = getBackgroundColor(isSystemInDarkTheme(), runner)
     Box(
         modifier = modifier
@@ -133,6 +134,43 @@ fun RunnerDetailsContent(modifier: Modifier = Modifier, runner: Runner, tryAgain
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(
+                    onClick = {
+                        onBackClick
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(
+                    onClick = {
+                        onBackClick
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+
             AsyncImage(
                 model = runner.imageUrl
                     ?: "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
@@ -398,7 +436,8 @@ private fun RunnerDetailsScreenSuccessPreview() {
                     links = listOf()
                 )
             ),
-            tryAgain = {}
+            tryAgain = {},
+            onBackClick = {}
         )
     }
 }
@@ -409,7 +448,8 @@ private fun RunnerDetailsScreenLoadingPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState.Loading,
-            tryAgain = {}
+            tryAgain = {},
+            onBackClick = {  }
         )
     }
 }
@@ -420,7 +460,8 @@ private fun RunnerDetailsScreenErrorPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState.Error("Ops, não encontramos o seu runner"),
-            tryAgain = {}
+            tryAgain = {},
+            onBackClick = {}
         )
     }
 }
