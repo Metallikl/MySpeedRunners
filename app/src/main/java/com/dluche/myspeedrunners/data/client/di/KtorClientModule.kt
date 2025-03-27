@@ -51,19 +51,6 @@ object KtorClientModule {
                 url(BASE_URL)
                 contentType(ContentType.Application.Json)
             }
-            //Adiciona tratativa de exception customizada a todas as resquest.
-            HttpResponseValidator {
-//                handleResponseExceptionWithRequest { cause, _ ->
-//                    throw if (cause is ClientRequestException) {
-//                        val errorMessage = cause.response.bodyAsText()
-//                        NetworkException.ApiException(errorMessage, cause.response.status.value)
-//                    } else {
-//                        NetworkException.UnknownNetworkException(cause)
-//                    }
-//                }
-            }
         }
     }
-
-
 }
