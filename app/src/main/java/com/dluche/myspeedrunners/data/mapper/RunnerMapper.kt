@@ -1,7 +1,7 @@
 package com.dluche.myspeedrunners.data.mapper
 
 import com.dluche.myspeedrunners.data.datasource.model.ColorThemeDto
-import com.dluche.myspeedrunners.data.datasource.model.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
 import com.dluche.myspeedrunners.data.datasource.model.NameStyleDto
 import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.HITBOX
@@ -10,7 +10,7 @@ import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.TWITCH
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.TWITTER
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.YOUTUBE
 import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
-import com.dluche.myspeedrunners.domain.model.runner.RunnerLink
+import com.dluche.myspeedrunners.domain.model.common.LinkModel
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
@@ -74,9 +74,9 @@ private fun ColorThemeDto.mapColorTheme() = ColorTheme(
     dark = this.dark
 )
 
-private fun List<LinkDto>.mapToDomainLinks(): List<RunnerLink> {
+private fun List<LinkDto>.mapToDomainLinks(): List<LinkModel> {
     return this.map {
-        RunnerLink(
+        LinkModel(
             rel = it.rel,
             uri = it.uri
         )

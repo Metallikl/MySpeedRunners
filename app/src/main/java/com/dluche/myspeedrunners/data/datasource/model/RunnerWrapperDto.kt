@@ -1,6 +1,9 @@
 package com.dluche.myspeedrunners.data.datasource.model
 
 
+import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.common.NamesDto
+import com.dluche.myspeedrunners.data.datasource.model.common.UriDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

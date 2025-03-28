@@ -1,4 +1,4 @@
-package com.dluche.myspeedrunners.data.datasource
+package com.dluche.myspeedrunners.data.datasource.runner
 
 import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
 

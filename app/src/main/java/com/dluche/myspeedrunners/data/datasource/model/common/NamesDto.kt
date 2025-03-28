@@ -1,4 +1,4 @@
-package com.dluche.myspeedrunners.data.datasource.model
+package com.dluche.myspeedrunners.data.datasource.model.common
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
