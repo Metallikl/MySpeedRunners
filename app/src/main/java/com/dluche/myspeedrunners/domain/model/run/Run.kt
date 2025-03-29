@@ -1,23 +1,18 @@
 package com.dluche.myspeedrunners.domain.model.run
 
-import com.dluche.myspeedrunners.data.datasource.model.run.PlayerDto
-import com.dluche.myspeedrunners.data.datasource.model.run.SystemDto
-import com.dluche.myspeedrunners.data.datasource.model.run.TimesDto
 import com.dluche.myspeedrunners.domain.model.common.LinkModel
+import com.dluche.myspeedrunners.domain.model.game.Game
 
 data class Run(
-    val category: String?,
-    val comment: String?,
-    val date: String?,
-    val game: String?,
-    val id: String?,
-    val level: String?,
-    val links: List<LinkModel>?,
-    val players: List<PlayerDto>?,
-    val splits: String?,
-    val submitted: String?,
-    val system: SystemDto?,
-    val times: TimesDto?,
+    val category: String,
+    val comment: String,
+    val date: String,
+    val game: Game,
+    val id: String,
+    val links: List<LinkModel>,
+    val splits: String,
+    val submitted: String,
     val videos: List<String>,
-    val weblink: String?
+    val weblink: String,
+    val status: String
 )

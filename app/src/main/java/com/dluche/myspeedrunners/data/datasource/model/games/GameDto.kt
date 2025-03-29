@@ -31,7 +31,7 @@ data class GameDto(
     @SerialName("id")
     val id: String?,
     @SerialName("links")
-    val links: List<LinkDto?>?,
+    val links: List<LinkDto>?,
     @SerialName("names")
     val names: NamesDto?,
     @SerialName("platforms")

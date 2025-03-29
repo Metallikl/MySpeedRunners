@@ -1,4 +1,4 @@
-package com.dluche.myspeedrunners.domain.usecase
+package com.dluche.myspeedrunners.domain.usecase.runner
 
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.repository.RunnersRepository

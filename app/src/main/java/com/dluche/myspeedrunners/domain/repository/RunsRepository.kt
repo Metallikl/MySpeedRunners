@@ -1,11 +1,11 @@
 package com.dluche.myspeedrunners.domain.repository
 
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
-import com.dluche.myspeedrunners.data.datasource.model.run.RunWrapperDto
+import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
 
 interface RunsRepository {
 
-    suspend fun getRunnerRuns(runnerId: String,embedParams: EmbedParams?): RunWrapperDto
+    suspend fun getRunnerRuns(runnerId: String,embedParams: EmbedParams?): Result<PaginatedRun>
 
-    suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto
+    suspend fun getRuns(embedParams: EmbedParams?): Result<PaginatedRun>
 }

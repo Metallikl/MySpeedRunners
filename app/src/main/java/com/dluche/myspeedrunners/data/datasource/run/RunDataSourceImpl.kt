@@ -15,8 +15,8 @@ class RunDataSourceImpl @Inject constructor(
         runnerId: String,
         embedParams: EmbedParams?
     ): RunWrapperDto {
-        buildRunnerRunsUrl(runnerId, embedParams)
-        return client.get("$RUNNER_RUNS_URL/$runnerId").body()
+        val runParams = buildRunnerRunsUrl(runnerId, embedParams)
+        return client.get("$RUNNER_RUNS_URL/$runParams").body()
     }
 
     private fun buildRunnerRunsUrl(

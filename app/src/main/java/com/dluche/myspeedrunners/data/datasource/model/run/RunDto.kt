@@ -2,6 +2,7 @@ package com.dluche.myspeedrunners.data.datasource.model.run
 
 
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.games.GameDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,7 +15,7 @@ data class RunDto(
     @SerialName("date")
     val date: String?,
     @SerialName("game")
-    val game: String?,
+    val game: GameDto?,
     @SerialName("id")
     val id: String?,
     @SerialName("level")

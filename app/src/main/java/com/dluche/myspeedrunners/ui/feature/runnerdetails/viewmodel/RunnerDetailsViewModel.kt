@@ -2,7 +2,8 @@ package com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dluche.myspeedrunners.domain.usecase.GetRunnerUseCase
+import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RunnerDetailsViewModel @Inject constructor(
-    private val getRunnerUseCase: GetRunnerUseCase
+    private val getRunnerUseCase: GetRunnerUseCase,
+    private val getRunnerRunsUseCase: GetRunnerRunsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RunnerDetailsUiState>(RunnerDetailsUiState.Loading)
