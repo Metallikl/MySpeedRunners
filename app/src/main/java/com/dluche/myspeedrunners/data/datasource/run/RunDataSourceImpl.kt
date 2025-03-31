@@ -2,9 +2,11 @@ package com.dluche.myspeedrunners.data.datasource.run
 
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.data.datasource.model.run.RunWrapperDto
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.get
+import io.ktor.client.request.get
+
 import javax.inject.Inject
 
 class RunDataSourceImpl @Inject constructor(
@@ -13,20 +15,24 @@ class RunDataSourceImpl @Inject constructor(
 
     override suspend fun getRunnerRuns(
         runnerId: String,
-        embedParams: EmbedParams?
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
     ): RunWrapperDto {
-        val runParams = buildRunnerRunsUrl(runnerId, embedParams)
-        return client.get("$RUNNER_RUNS_URL/$runParams").body()
+        val runParams = buildRunnerRunsUrl(runnerId, embedParams, queryOrderBy)
+        return client.get("$RUNNER_RUNS_URL$runParams").body()
     }
 
     private fun buildRunnerRunsUrl(
         runnerId: String,
-        params: EmbedParams?
+        params: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
     ): String {
         val runnerInfo = if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else ""
         val embedInfo = buildEmbedInfo(params)
-        return runnerInfo + embedInfo
+        val orderBy = buildOrderByInfo(queryOrderBy)
+        return runnerInfo + embedInfo + orderBy
     }
+
 
     override suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto {
         return client.get(RUNNER_RUNS_URL + buildEmbedInfo(embedParams)).body()
@@ -40,9 +46,15 @@ class RunDataSourceImpl @Inject constructor(
         }
     }.orEmpty()
 
+    private fun buildOrderByInfo(orderBy: QueryOrderBy?) = orderBy?.let {
+        "&$ORDER_BY_PARAM=${it.fieldToOrderBy}&$DIRECTION_PARAM=${it.direction}"
+    }
+
     companion object {
         private const val RUNNER_RUNS_URL = "runs"
         private const val USER_PARAM = "user"
         private const val EMBED_PARAM = "embed"
+        private const val ORDER_BY_PARAM = "orderby"
+        private const val DIRECTION_PARAM = "direction"
     }
 }

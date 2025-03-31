@@ -9,45 +9,45 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GameDto(
     @SerialName("abbreviation")
-    val abbreviation: String?,
+    val abbreviation: String? = null,
     @SerialName("assets")
-    val assets: AssetsDto?,
+    val assets: AssetsDto? = null,
     @SerialName("boostDistinctDonors")
-    val boostDistinctDonors: Int?,
+    val boostDistinctDonors: Int? = null,
     @SerialName("boostReceived")
-    val boostReceived: Int?,
+    val boostReceived: Int? = null,
     @SerialName("created")
-    val created: String?,
+    val created: String? = null,
     @SerialName("developers")
-    val developers: List<String?>?,
+    val developers: List<String?>? = null,
     @SerialName("discord")
-    val discord: String?,
+    val discord: String? = null,
     @SerialName("engines")
-    val engines: List<String?>?,
+    val engines: List<String?>? = null,
     @SerialName("gametypes")
-    val gametypes: List<String?>?,
+    val gametypes: List<String?>? = null,
     @SerialName("genres")
-    val genres: List<String?>?,
+    val genres: List<String?>? = null,
     @SerialName("id")
-    val id: String?,
+    val id: String? = null,
     @SerialName("links")
-    val links: List<LinkDto>?,
+    val links: List<LinkDto>? = null,
     @SerialName("names")
-    val names: NamesDto?,
+    val names: NamesDto? = null,
     @SerialName("platforms")
-    val platforms: List<String?>?,
+    val platforms: List<String?>? = null,
     @SerialName("publishers")
-    val publishers: List<String?>?,
+    val publishers: List<String?>? = null,
     @SerialName("regions")
-    val regions: List<String?>?,
+    val regions: List<String?>? = null,
     @SerialName("release-date")
-    val releaseDate: String?,
+    val releaseDate: String? = null,
     @SerialName("released")
-    val released: Int?,
+    val released: Int? = null,
     @SerialName("romhack")
-    val romhack: Boolean?,
+    val romhack: Boolean? = null,
     @SerialName("ruleset")
-    val ruleset: RulesetDto?,
+    val ruleset: RulesetDto? = null,
     @SerialName("weblink")
-    val weblink: String?
+    val weblink: String? = null
 )

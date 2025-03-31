@@ -1,7 +1,10 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
@@ -34,9 +37,13 @@ class RunnerDetailsViewModel @Inject constructor(
         dispatchEvent()
     }
 
-    fun dispatchEvent(){
+    fun dispatchEvent() {
         _uiState.update { RunnerDetailsUiState.Loading }
-        var id = try{runnerIdList.random()}catch (e: Exception){"kjp1v74j"}
+        var id = try {
+            runnerIdList.random()
+        } catch (e: Exception) {
+            "kjp1v74j"
+        }
         fetchRunner(id)
     }
 
@@ -55,6 +62,17 @@ class RunnerDetailsViewModel @Inject constructor(
                         }
                     }
                 )
+            getRunnerRunsUseCase.invoke(
+                runnerId,
+                EmbedParams("game"),
+                QueryOrderBy("submitted", "desc")
+            )
+                .onSuccess({
+                    val le = it.data
+                })
+                .onFailure({
+                    Log.e("RunnerDetailsViewModel", "Error fetching runner runs", it)
+                })
         }
     }
 }

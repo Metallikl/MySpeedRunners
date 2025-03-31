@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GameWrapper(
+data class GameEmbedDto(
     @SerialName("data")
-    val data: List<GameDto>,
+    val data: GameDto,
 )

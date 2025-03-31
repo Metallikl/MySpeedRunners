@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StatusDto(
     @SerialName("examiner")
-    val examiner: String?,
+    val examiner: String? = null,
     @SerialName("status")
-    val status: String?,
+    val status: String? = null,
     @SerialName("verify-date")
-    val verifyDate: String?
+    val verifyDate: String? = null
 )

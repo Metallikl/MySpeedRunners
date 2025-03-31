@@ -4,6 +4,7 @@ import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.run.RunDataSource
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
 import com.dluche.myspeedrunners.domain.repository.RunsRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,12 +17,13 @@ class RunsRepositoryImpl @Inject constructor(
 ) : RunsRepository {
     override suspend fun getRunnerRuns(
         runnerId: String,
-        embedParams: EmbedParams?
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
     ): Result<PaginatedRun> {
         return withContext(dispatcher) {
             runCatching {
                 dataSource.getRunnerRuns(
-                    runnerId, embedParams
+                    runnerId, embedParams,queryOrderBy
                 ).asDomainModel()
             }
         }

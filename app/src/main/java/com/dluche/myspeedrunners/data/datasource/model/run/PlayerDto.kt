@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PlayerDto(
     @SerialName("id")
-    val id: String?,
+    val id: String? = null,
     @SerialName("rel")
-    val rel: String?,
+    val rel: String? = null,
     @SerialName("uri")
-    val uri: String?
+    val uri: String? = null
 )
