@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -11,14 +12,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.automirrored.outlined.StarHalf
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.filled.SocialDistance
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,18 +37,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
+import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
+import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Loading
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
@@ -72,8 +84,8 @@ fun RunnerDetailsScreen(
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) { paddingValues ->
-        when (uiState) {
-            RunnerDetailsUiState.Loading -> {
+        when (uiState.headerState) {
+            Loading -> {
                 Box(
                     modifier = Modifier
                         .padding(paddingValues)
@@ -88,16 +100,17 @@ fun RunnerDetailsScreen(
 
             }
 
-            is RunnerDetailsUiState.Success -> {
+            is RunnerDetailsUiState.HeaderState.Success -> {
                 RunnerDetailsContent(
                     modifier = Modifier.padding(paddingValues),
-                    runner = uiState.runner,
+                    runner = uiState.headerState.runner,
+                    runsState = uiState.runsState,
                     onBackClick = onBackClick,
                     tryAgain = tryAgain
                 )
             }
 
-            is RunnerDetailsUiState.Error -> {
+            is RunnerDetailsUiState.HeaderState.Error -> {
                 Box(
                     modifier = Modifier
                         .padding(paddingValues)
@@ -105,7 +118,7 @@ fun RunnerDetailsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = uiState.message,
+                        text = uiState.headerState.message,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -118,6 +131,7 @@ fun RunnerDetailsScreen(
 fun RunnerDetailsContent(
     modifier: Modifier = Modifier,
     runner: Runner,
+    runsState: RunnerDetailsUiState.RunsState,
     tryAgain: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -128,7 +142,7 @@ fun RunnerDetailsContent(
             .background(
                 brush = Brush.horizontalGradient(backgroundColor)
             )
-    ){
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -139,7 +153,7 @@ fun RunnerDetailsContent(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 IconButton(
                     onClick = {
                         onBackClick
@@ -196,8 +210,7 @@ fun RunnerDetailsContent(
                             bottomEnd = CornerSize(0.dp)
                         )
                     )
-                    .padding(16.dp)
-                ,
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -229,9 +242,18 @@ fun RunnerDetailsContent(
                     }
                 }
 
+//                runner.socialNetworks?.let { socialNetworks ->
+//                    SocialNetworkContent(socialNetworks)
+//                }
+
                 Button(onClick = tryAgain) {
                     Text(text = "Tente outra vez")
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                RunsStateHandler(runsState)
+
             }
 
         }
@@ -239,11 +261,112 @@ fun RunnerDetailsContent(
 
 }
 
+@Composable
+private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
+    when(runsState){
+        is RunnerDetailsUiState.RunsState.Error -> {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    imageVector = Icons.Outlined.ErrorOutline,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
+        }
+        RunnerDetailsUiState.RunsState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
+        }
+        is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
+    }
+
+}
+
+@Composable
+private fun RunsContainer(runs: List<Run>) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(runs) {
+            RunCard(
+                gameUrl = it.game.imageUrl,
+                gameName = it.game.name,
+                category = it.category,
+                status = it.status,
+                submitted = it.submitted,
+                onClick = {
+
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SocialNetworkContent(socialNetworks: List<SocialNetwork>) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(socialNetworks) {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(8.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .size(50.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        imageVector = Icons.Default.SocialDistance,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        text = it.name.name,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+
+    }
+}
+
 
 @Composable
 fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color> {
     val brushList = mutableListOf<Color>()
-    runner.nameStyle?.let{ nameStyle ->
+    runner.nameStyle?.let { nameStyle ->
         when (nameStyle.style) {
             NameStyleEnum.GRADIENT -> {
                 if (isDarkTheme) {
@@ -269,7 +392,7 @@ fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color>
                         brushList.add(Color(it.toColorInt()))
                     }
                 } else {
-                    nameStyle.color?.light?.let{
+                    nameStyle.color?.light?.let {
                         brushList.add(Color(it.toColorInt()))
                     }
                 }
@@ -278,10 +401,10 @@ fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color>
             else -> brushList.add(MaterialTheme.colorScheme.onBackground)
         }
     }
-    if(brushList.isEmpty()){
+    if (brushList.isEmpty()) {
         brushList.add(MaterialTheme.colorScheme.onBackground)
     }
-    if(brushList.size == 1){
+    if (brushList.size == 1) {
         //brushList.add(MaterialTheme.colorScheme.onBackground)
         brushList.add(
             brushList.first().copy(alpha = 0.7f)
@@ -412,29 +535,37 @@ private fun getRunnerNameTextStyle(nameStyle: NameStyle?): TextStyle {
 private fun RunnerDetailsScreenSuccessPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
-            uiState = RunnerDetailsUiState.Success(
-                Runner(
-                    id = "kjp1v74j",
-                    name = "Daniel Luche",
-                    pronouns = "He/ Him",
-                    japaneseName = "ダニエル・ルシェ",
-                    country = "Brazil",
-                    region = "São Paulo",
-                    iconUrl = "https://www.speedrun.com/static/user/kjp1v74j/icon.png?v=8db2d00",
-                    imageUrl = "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
-                    webLink = "https://www.speedrun.com/user/DanielLuche",
-                    socialNetworks = listOf(),
-                    nameStyle = NameStyle(
-                        style = NameStyleEnum.SOLID,
-                        color = ColorTheme(
-                            light = "#FF0000",
-                            dark = "#00FF00"
+            uiState = RunnerDetailsUiState(
+                headerState = Success(
+                    Runner(
+                        id = "kjp1v74j",
+                        name = "Daniel Luche",
+                        pronouns = "He/ Him",
+                        japaneseName = "ダニエル・ルシェ",
+                        country = "Brazil",
+                        region = "São Paulo",
+                        iconUrl = "https://www.speedrun.com/static/user/kjp1v74j/icon.png?v=8db2d00",
+                        imageUrl = "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
+                        webLink = "https://www.speedrun.com/user/DanielLuche",
+                        socialNetworks = listOf(
+                            SocialNetwork(
+                                SocialNetworkType.TWITTER,
+                                "https://www.speedrun.com/user/DanielLuche"
+                            )
                         ),
-                        colorFrom = null,
-                        colorTo = null
-                    ),
-                    links = listOf()
-                )
+                        nameStyle = NameStyle(
+                            style = NameStyleEnum.SOLID,
+                            color = ColorTheme(
+                                light = "#FF0000",
+                                dark = "#00FF00"
+                            ),
+                            colorFrom = null,
+                            colorTo = null
+                        ),
+                        links = listOf()
+                    )
+                ),
+                runsState = RunnerDetailsUiState.RunsState.Loading
             ),
             tryAgain = {},
             onBackClick = {}
@@ -447,9 +578,9 @@ private fun RunnerDetailsScreenSuccessPreview() {
 private fun RunnerDetailsScreenLoadingPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
-            uiState = RunnerDetailsUiState.Loading,
+            uiState = RunnerDetailsUiState(),
             tryAgain = {},
-            onBackClick = {  }
+            onBackClick = { }
         )
     }
 }
@@ -459,7 +590,7 @@ private fun RunnerDetailsScreenLoadingPreview() {
 private fun RunnerDetailsScreenErrorPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
-            uiState = RunnerDetailsUiState.Error("Ops, não encontramos o seu runner"),
+            uiState = RunnerDetailsUiState(headerState = RunnerDetailsUiState.HeaderState.Error("Ops, não encontramos o seu runner")),
             tryAgain = {},
             onBackClick = {}
         )

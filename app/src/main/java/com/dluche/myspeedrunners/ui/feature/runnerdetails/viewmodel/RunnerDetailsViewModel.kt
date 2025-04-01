@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
-import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,15 +22,16 @@ class RunnerDetailsViewModel @Inject constructor(
     private val getRunnerRunsUseCase: GetRunnerRunsUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<RunnerDetailsUiState>(RunnerDetailsUiState.Loading)
+    private val _uiState = MutableStateFlow(RunnerDetailsUiState())
     val uiState = _uiState.asStateFlow()
     val runnerIdList = listOf<String>(
         "kjp1v74j",
-        "ronaldo",
-        "dexs",
-        "Zycko",
-        "ArkhanLight",
-        "Oh_my_gourdness"
+//        "ronaldo",
+//        "dexs",
+//        "Zycko",
+//        "ArkhanLight",
+//        "Oh_my_gourdness",
+        "Neczin_"
     )
 
     init {
@@ -38,7 +39,9 @@ class RunnerDetailsViewModel @Inject constructor(
     }
 
     fun dispatchEvent() {
-        _uiState.update { RunnerDetailsUiState.Loading }
+        _uiState.update {
+            RunnerDetailsUiState()
+        }
         var id = try {
             runnerIdList.random()
         } catch (e: Exception) {
@@ -52,13 +55,19 @@ class RunnerDetailsViewModel @Inject constructor(
             getRunnerUseCase(runnerId)
                 .fold(
                     onSuccess = { runner ->
-                        _uiState.update {
-                            Success(runner = runner)
+                        _uiState.update { curState ->
+                            curState.copy(
+                                headerState = RunnerDetailsUiState.HeaderState.Success(runner = runner)
+                            )
                         }
                     },
                     onFailure = { error ->
-                        _uiState.update {
-                            RunnerDetailsUiState.Error(message = error.message ?: "Unknown error")
+                        _uiState.update { curState ->
+                            curState.copy(
+                                headerState = RunnerDetailsUiState.HeaderState.Error(
+                                    message = error.message ?: "Unknown error"
+                                )
+                            )
                         }
                     }
                 )
@@ -67,12 +76,28 @@ class RunnerDetailsViewModel @Inject constructor(
                 EmbedParams("game"),
                 QueryOrderBy("submitted", "desc")
             )
-                .onSuccess({
-                    val le = it.data
-                })
-                .onFailure({
-                    Log.e("RunnerDetailsViewModel", "Error fetching runner runs", it)
-                })
+                .onSuccess { handleRunsSuccess(it.data) }
+                .onFailure { handleRunsError(it) }
         }
     }
+
+    private fun handleRunsSuccess(runs: List<Run>) {
+        _uiState.update { curState ->
+            curState.copy(
+                runsState = RunnerDetailsUiState.RunsState.Success(runs = runs)
+            )
+        }
+    }
+
+    private fun handleRunsError(throwable: Throwable) {
+        _uiState.update { curState ->
+            curState.copy(
+                runsState = RunnerDetailsUiState.RunsState.Error(
+                    message = throwable.message ?: "Unknown error"
+                )
+            )
+        }
+        Log.e("RunnerDetailsViewModel", "Error fetching runner runs", throwable)
+    }
+
 }
