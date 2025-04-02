@@ -6,7 +6,7 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 fun RunDto.asDomainModel(): Run {
     return Run(
         id = this.id.orEmpty(),
-        category = this.category.orEmpty(),
+        category = this.categoryEmbed?.data.asDomainModel(),
         comment = this.comment.orEmpty(),
         date = this.date.orEmpty(),
         game = this.gameEmbedDto?.data.asDomainModel(),

@@ -1,10 +1,11 @@
 package com.dluche.myspeedrunners.domain.model.run
 
+import com.dluche.myspeedrunners.domain.model.category.Category
 import com.dluche.myspeedrunners.domain.model.common.LinkModel
 import com.dluche.myspeedrunners.domain.model.game.Game
 
 data class Run(
-    val category: String,
+    val category: Category,
     val comment: String,
     val date: String,
     val game: Game,

@@ -26,12 +26,12 @@ class RunnerDetailsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
     val runnerIdList = listOf<String>(
         "kjp1v74j",
-//        "ronaldo",
-//        "dexs",
-//        "Zycko",
-//        "ArkhanLight",
-//        "Oh_my_gourdness",
-        "Neczin_"
+        "dexs",
+        "Zycko",
+        "ArkhanLight",
+        "Oh_my_gourdness",
+        "Neczin_",
+        "Movisterium",
     )
 
     init {
@@ -73,8 +73,8 @@ class RunnerDetailsViewModel @Inject constructor(
                 )
             getRunnerRunsUseCase.invoke(
                 runnerId,
-                EmbedParams("game"),
-                QueryOrderBy("submitted", "desc")
+                EmbedParams("game","category"),
+                QueryOrderBy("date", "desc")
             )
                 .onSuccess { handleRunsSuccess(it.data) }
                 .onFailure { handleRunsError(it) }

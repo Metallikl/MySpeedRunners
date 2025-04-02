@@ -38,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -145,7 +144,7 @@ fun RunnerDetailsContent(
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -172,7 +171,7 @@ fun RunnerDetailsContent(
 
                 IconButton(
                     onClick = {
-                        onBackClick
+                        tryAgain()
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.background
@@ -219,51 +218,57 @@ fun RunnerDetailsContent(
                     style = getRunnerNameTextStyle(runner.nameStyle),
                 )
 
-                runner.pronouns?.let {
-                    Text(
-                        text = "He/ Him",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                when {
-                    runner.region != null -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    runner.pronouns?.let {
                         Text(
-                            text = runner.region,
+                            text = "He/ Him",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
 
-                    runner.country != null -> {
-                        Text(
-                            text = runner.country,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                    when {
+                        runner.region != null -> {
+                            Text(
+                                text = runner.region,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        runner.country != null -> {
+                            Text(
+                                text = runner.country,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
+
 
 //                runner.socialNetworks?.let { socialNetworks ->
 //                    SocialNetworkContent(socialNetworks)
 //                }
 
-                Button(onClick = tryAgain) {
-                    Text(text = "Tente outra vez")
-                }
+//                Button(onClick = tryAgain) {
+//                    Text(text = "Tente outra vez")
+//                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 RunsStateHandler(runsState)
-
             }
-
         }
     }
-
 }
 
 @Composable
 private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
-    when(runsState){
+    when (runsState) {
         is RunnerDetailsUiState.RunsState.Error -> {
             Box(
                 modifier = Modifier
@@ -279,6 +284,7 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
                 )
             }
         }
+
         RunnerDetailsUiState.RunsState.Loading -> {
             Box(
                 modifier = Modifier
@@ -292,6 +298,7 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
                 )
             }
         }
+
         is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
     }
 
@@ -307,9 +314,9 @@ private fun RunsContainer(runs: List<Run>) {
             RunCard(
                 gameUrl = it.game.imageUrl,
                 gameName = it.game.name,
-                category = it.category,
+                category = it.category.name,
                 status = it.status,
-                submitted = it.submitted,
+                submitted = it.date,
                 onClick = {
 
                 }
