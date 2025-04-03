@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideosDto(
     @SerialName("links")
-    val links: List<UriDto>?
+    val links: List<UriDto>? = null
 )

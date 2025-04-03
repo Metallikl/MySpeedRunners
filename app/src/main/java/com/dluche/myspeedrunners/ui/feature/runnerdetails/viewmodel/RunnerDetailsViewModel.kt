@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.Run
+import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
@@ -25,13 +26,15 @@ class RunnerDetailsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RunnerDetailsUiState())
     val uiState = _uiState.asStateFlow()
     val runnerIdList = listOf<String>(
-        "kjp1v74j",
+        "kjp1v74j",//LD
         "dexs",
         "Zycko",
         "ArkhanLight",
         "Oh_my_gourdness",
         "Neczin_",
         "Movisterium",
+        "Krolm",
+        "TiaDaCoxinhaBR"//TiaDaCoxinhaBR img gif
     )
 
     init {
@@ -55,25 +58,39 @@ class RunnerDetailsViewModel @Inject constructor(
             getRunnerUseCase(runnerId)
                 .fold(
                     onSuccess = { runner ->
-                        _uiState.update { curState ->
-                            curState.copy(
-                                headerState = RunnerDetailsUiState.HeaderState.Success(runner = runner)
-                            )
-                        }
+                        handleRunnerDetailsSuccess(runner)
                     },
                     onFailure = { error ->
-                        _uiState.update { curState ->
-                            curState.copy(
-                                headerState = RunnerDetailsUiState.HeaderState.Error(
-                                    message = error.message ?: "Unknown error"
-                                )
-                            )
-                        }
+                        handleRunnerDetailsError(error)
                     }
                 )
+        }
+    }
+
+    private fun handleRunnerDetailsSuccess(runner: Runner) {
+        _uiState.update { curState ->
+            curState.copy(
+                headerState = RunnerDetailsUiState.HeaderState.Success(runner = runner)
+            )
+        }
+        fetchRunnerRuns(runner.id)
+    }
+
+    private fun handleRunnerDetailsError(error: Throwable) {
+        _uiState.update { curState ->
+            curState.copy(
+                headerState = RunnerDetailsUiState.HeaderState.Error(
+                    message = error.message ?: "Unknown error"
+                )
+            )
+        }
+    }
+
+    private fun fetchRunnerRuns(runnerId: String) {
+        viewModelScope.launch {
             getRunnerRunsUseCase.invoke(
                 runnerId,
-                EmbedParams("game","category"),
+                EmbedParams("game", "category"),
                 QueryOrderBy("date", "desc")
             )
                 .onSuccess { handleRunsSuccess(it.data) }
