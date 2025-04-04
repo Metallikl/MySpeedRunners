@@ -1,6 +1,9 @@
 package com.dluche.myspeedrunners.data.datasource.model
 
 
+import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.common.NamesDto
+import com.dluche.myspeedrunners.data.datasource.model.common.UriDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -57,14 +60,6 @@ data class AssetsDto(
 )
 
 @Serializable
-data class LinkDto(
-    @SerialName("rel")
-    val rel: String? = null,
-    @SerialName("uri")
-    val uri: String? = null
-)
-
-@Serializable
 data class LocationDto(
     @SerialName("country")
     val country: CountryDto? = null,
@@ -109,16 +104,3 @@ data class ColorThemeDto(
     val light:String? = null
 )
 
-@Serializable
-data class NamesDto(
-    @SerialName("international")
-    val international: String? = null,
-    @SerialName("japanese")
-    val japanese: String? = null
-)
-
-@Serializable
-data class UriDto(
-    @SerialName("uri")
-    val uri: String? = null
-)

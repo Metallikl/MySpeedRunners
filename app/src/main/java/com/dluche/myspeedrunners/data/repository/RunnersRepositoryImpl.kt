@@ -1,7 +1,7 @@
 package com.dluche.myspeedrunners.data.repository
 
 import com.dluche.myspeedrunners.data.IoDispatcher
-import com.dluche.myspeedrunners.data.datasource.RunnersDataSource
+import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
 import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.runner.Runner
