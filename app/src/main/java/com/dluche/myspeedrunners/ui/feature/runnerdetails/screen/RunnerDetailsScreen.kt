@@ -1,5 +1,8 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.screen
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -50,11 +53,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,6 +81,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsU
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import androidx.core.net.toUri
 
 @Composable
 fun RunnerDetailsRoute(
@@ -417,16 +423,27 @@ private fun SocialNetworkContent(
     socialNetworks: List<SocialNetwork>,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         socialNetworks.forEach {
-            SocialNetworkItem(socialNetwork = it)
+            SocialNetworkItem(
+                socialNetwork = it,
+                onClick = {
+                    linkToWebpage(context, it)
+                }
+            )
         }
     }
+}
 
+fun linkToWebpage(context: Context, url: String) {
+    val openURL = Intent(Intent.ACTION_VIEW)
+    openURL.data = url.toUri()
+    context.startActivity(openURL)
 }
 
 
