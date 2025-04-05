@@ -13,16 +13,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.SocialDistance
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,22 +35,31 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
@@ -54,6 +68,9 @@ import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
 import com.dluche.myspeedrunners.ui.components.RunCard
+import com.dluche.myspeedrunners.ui.components.SocialNetworkItem
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Loading
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
@@ -99,7 +116,7 @@ fun RunnerDetailsScreen(
 
             }
 
-            is RunnerDetailsUiState.HeaderState.Success -> {
+            is Success -> {
                 RunnerDetailsContent(
                     modifier = Modifier.padding(paddingValues),
                     runner = uiState.headerState.runner,
@@ -190,7 +207,8 @@ fun RunnerDetailsContent(
                 contentDescription = "Runner Image",
                 modifier = Modifier
                     .size(150.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
 
             Column(
@@ -218,49 +236,71 @@ fun RunnerDetailsContent(
                     style = getRunnerNameTextStyle(runner.nameStyle),
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    runner.pronouns?.let {
-                        Text(
-                            text = "He/ Him",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                val tabItems = getTabList()
+                var selectedTabIndex by remember { mutableStateOf(0) }
+                val pagerState = rememberPagerState(pageCount = { tabItems.size })
 
-                    when {
-                        runner.region != null -> {
-                            Text(
-                                text = runner.region,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-
-                        runner.country != null -> {
-                            Text(
-                                text = runner.country,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+                LaunchedEffect(selectedTabIndex) {
+                    pagerState.animateScrollToPage(selectedTabIndex)
+                }
+                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+                    if (pagerState.isScrollInProgress.not()) {
+                        selectedTabIndex = pagerState.currentPage
                     }
                 }
 
+                TabRow(selectedTabIndex = selectedTabIndex) {
+                    tabItems.forEachIndexed { index, tabItem ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+//                            text = {
+//                                Text(
+//                                    text = tabItem.title,
+//                                    fontSize = 10.sp,
+//                                    color = MaterialTheme.colorScheme.onBackground
+//                                )
+//                            },
+                            icon = {
+                                Icon(
+                                    imageVector = if (selectedTabIndex == index) tabItem.selectedIcon else tabItem.unselectedIcon,
+                                    contentDescription = tabItem.title,
+                                    tint = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                        )
+                    }
+                }
 
-//                runner.socialNetworks?.let { socialNetworks ->
-//                    SocialNetworkContent(socialNetworks)
-//                }
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
 
-//                Button(onClick = tryAgain) {
-//                    Text(text = "Tente outra vez")
-//                }
+                    when (tabItems[selectedTabIndex].tabType) {
+                        RunnerDetailsTabType.SOCIAL_NETWORK -> {
+                            InfoContent(runner = runner)
+                        }
 
-                Spacer(modifier = Modifier.weight(1f))
+                        RunnerDetailsTabType.RUNS -> {
+                            RunsStateHandler(runsState)
+                        }
 
-                RunsStateHandler(runsState)
+                        RunnerDetailsTabType.GAMES -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Games",
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -307,7 +347,7 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
 @Composable
 private fun RunsContainer(runs: List<Run>) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(runs) {
@@ -326,47 +366,67 @@ private fun RunsContainer(runs: List<Run>) {
 }
 
 @Composable
-private fun SocialNetworkContent(socialNetworks: List<SocialNetwork>) {
-    LazyRow(
+private fun InfoContent(
+    runner: Runner
+) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(socialNetworks) {
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(8.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .size(50.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        imageVector = Icons.Default.SocialDistance,
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
-                    )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            runner.pronouns?.let {
+                Text(
+                    text = "He/ Him",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
+            when {
+                runner.region != null -> {
                     Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        text = it.name.name,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        text = runner.region,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                runner.country != null -> {
+                    Text(
+                        text = runner.country,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
         }
-
+        runner.socialNetworks?.let {
+            SocialNetworkContent(it)
+        }
     }
+
+}
+
+@Composable
+private fun SocialNetworkContent(
+    socialNetworks: List<SocialNetwork>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        socialNetworks.forEach {
+            SocialNetworkItem(socialNetwork = it)
+        }
+    }
+
 }
 
 
@@ -419,66 +479,6 @@ fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color>
     }
 
     return brushList
-}
-
-@Composable
-fun RunnerDetailsContents(modifier: Modifier = Modifier, runner: Runner, tryAgain: () -> Unit) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = runner.imageUrl
-                    ?: "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
-                contentDescription = "Runner Image",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(150.dp)
-            )
-
-            Column(
-                modifier = Modifier.fillMaxWidth(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = runner.name,
-                    style = getRunnerNameTextStyle(runner.nameStyle),
-                )
-
-                runner.pronouns?.let {
-                    Text(
-                        text = "He/ Him",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                when {
-                    runner.region != null -> {
-                        Text(
-                            text = runner.region,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-
-                    runner.country != null -> {
-                        Text(
-                            text = runner.country,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-
-                Button(onClick = tryAgain) {
-                    Text(text = "Tente outra vez")
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -536,6 +536,28 @@ private fun getRunnerNameTextStyle(nameStyle: NameStyle?): TextStyle {
         defaultTextStyle
     }
 }
+
+@Composable
+private fun getTabList() = listOf(
+    RunnerDetailsTabItem(
+        tabType = RunnerDetailsTabType.RUNS,
+        title = stringResource(R.string.runs_tab_label),
+        selectedIcon = Icons.AutoMirrored.Filled.DirectionsRun,
+        unselectedIcon = Icons.AutoMirrored.Outlined.DirectionsRun
+    ),
+    RunnerDetailsTabItem(
+        tabType = RunnerDetailsTabType.GAMES,
+        title = stringResource(R.string.games_tab_label),
+        selectedIcon = Icons.Filled.VideogameAsset,
+        unselectedIcon = Icons.Outlined.VideogameAsset
+    ),
+    RunnerDetailsTabItem(
+        tabType = RunnerDetailsTabType.SOCIAL_NETWORK,
+        title = stringResource(R.string.info_tab_label),
+        selectedIcon = Icons.Default.Info,
+        unselectedIcon = Icons.Outlined.Info
+    ),
+)
 
 @Preview(showBackground = true)
 @Composable
