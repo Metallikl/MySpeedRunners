@@ -3,6 +3,7 @@ package com.dluche.myspeedrunners.ui.fake
 import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
+import com.dluche.myspeedrunners.domain.model.runner.RoleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
@@ -41,6 +42,6 @@ val runner1 = Runner(
         colorTo = null
     ),
     links = listOf(),
-    role = "user",
+    role = RoleEnum.USER,
     signup = "2025-04-04"
 )

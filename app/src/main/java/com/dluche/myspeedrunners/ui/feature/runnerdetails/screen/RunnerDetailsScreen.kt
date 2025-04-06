@@ -63,6 +63,7 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.InfoContent
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.fake.runner1
@@ -352,7 +353,7 @@ private fun RunsContainer(runs: List<Run>) {
                 gameUrl = it.game.imageUrl,
                 gameName = it.game.name,
                 category = it.category.name,
-                status = it.status,
+                status = it.status.getTranslation(),
                 submitted = it.date,
                 onClick = {
 

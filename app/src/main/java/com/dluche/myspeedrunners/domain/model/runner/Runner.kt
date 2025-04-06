@@ -15,6 +15,6 @@ data class Runner(
     val socialNetworks: List<SocialNetwork>?,
     val nameStyle: NameStyle?,
     val links: List<LinkModel>?,
-    val role: String?,
+    val role: RoleEnum,
     val signup: String?
 )

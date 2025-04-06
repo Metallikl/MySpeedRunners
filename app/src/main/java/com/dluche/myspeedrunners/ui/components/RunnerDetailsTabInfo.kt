@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
+import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
@@ -43,33 +44,6 @@ fun InfoContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        runner.socialNetworks?.let {
-            SocialNetworkContent(it)
-        }
-
-        runner.pronouns?.let {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    Icons.Filled.PersonPin,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
         runner.location?.let {
             Row(
                 modifier = Modifier
@@ -97,7 +71,7 @@ fun InfoContent(
             }
         }
 
-        runner.role?.let {
+        runner.pronouns?.let {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,7 +80,7 @@ fun InfoContent(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Icon(
-                    Icons.Filled.Work,
+                    Icons.Filled.PersonPin,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.onSurface
@@ -118,6 +92,27 @@ fun InfoContent(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                Icons.Filled.Work,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = runner.role.getTranslation(),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         runner.signup?.let {
@@ -141,6 +136,10 @@ fun InfoContent(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+        }
+
+        runner.socialNetworks?.let {
+            SocialNetworkContent(it)
         }
     }
 }

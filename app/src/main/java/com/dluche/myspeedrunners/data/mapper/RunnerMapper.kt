@@ -6,6 +6,7 @@ import com.dluche.myspeedrunners.data.datasource.model.RunnerDto
 import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
+import com.dluche.myspeedrunners.domain.model.runner.RoleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.SPEEDRUNSLIVE
@@ -27,7 +28,7 @@ fun RunnerDto.asDomainModel() = Runner(
     socialNetworks = mapToDomainSocialNetworks(),
     nameStyle = nameStyle?.mapToDomainNameStyle(),
     links = links?.mapToDomainLinks(),
-    role = this.role,
+    role = RoleEnum.fromString(this.role),
     signup = this.signup?.formatToDate()
 )
 
