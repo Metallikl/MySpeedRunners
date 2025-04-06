@@ -1,8 +1,5 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.screen
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -53,27 +50,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
-import com.dluche.myspeedrunners.domain.model.runner.ColorTheme
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
-import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
-import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
+import com.dluche.myspeedrunners.ui.components.InfoContent
 import com.dluche.myspeedrunners.ui.components.RunCard
-import com.dluche.myspeedrunners.ui.components.SocialNetworkItem
+import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
@@ -81,7 +73,6 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsU
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
-import androidx.core.net.toUri
 
 @Composable
 fun RunnerDetailsRoute(
@@ -371,81 +362,6 @@ private fun RunsContainer(runs: List<Run>) {
     }
 }
 
-@Composable
-private fun InfoContent(
-    runner: Runner
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            runner.pronouns?.let {
-                Text(
-                    text = "He/ Him",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            when {
-                runner.region != null -> {
-                    Text(
-                        text = runner.region,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                runner.country != null -> {
-                    Text(
-                        text = runner.country,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
-        runner.socialNetworks?.let {
-            SocialNetworkContent(it)
-        }
-    }
-
-}
-
-@Composable
-private fun SocialNetworkContent(
-    socialNetworks: List<SocialNetwork>,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        socialNetworks.forEach {
-            SocialNetworkItem(
-                socialNetwork = it,
-                onClick = {
-                    linkToWebpage(context, it)
-                }
-            )
-        }
-    }
-}
-
-fun linkToWebpage(context: Context, url: String) {
-    val openURL = Intent(Intent.ACTION_VIEW)
-    openURL.data = url.toUri()
-    context.startActivity(openURL)
-}
-
 
 @Composable
 fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color> {
@@ -583,33 +499,7 @@ private fun RunnerDetailsScreenSuccessPreview() {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(
                 headerState = Success(
-                    Runner(
-                        id = "kjp1v74j",
-                        name = "Daniel Luche",
-                        pronouns = "He/ Him",
-                        japaneseName = "ダニエル・ルシェ",
-                        country = "Brazil",
-                        region = "São Paulo",
-                        iconUrl = "https://www.speedrun.com/static/user/kjp1v74j/icon.png?v=8db2d00",
-                        imageUrl = "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
-                        webLink = "https://www.speedrun.com/user/DanielLuche",
-                        socialNetworks = listOf(
-                            SocialNetwork(
-                                SocialNetworkType.TWITTER,
-                                "https://www.speedrun.com/user/DanielLuche"
-                            )
-                        ),
-                        nameStyle = NameStyle(
-                            style = NameStyleEnum.SOLID,
-                            color = ColorTheme(
-                                light = "#FF0000",
-                                dark = "#00FF00"
-                            ),
-                            colorFrom = null,
-                            colorTo = null
-                        ),
-                        links = listOf()
-                    )
+                    runner1
                 ),
                 runsState = RunnerDetailsUiState.RunsState.Loading
             ),

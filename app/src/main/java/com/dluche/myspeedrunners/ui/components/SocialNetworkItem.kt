@@ -7,14 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dluche.myspeedrunners.R
@@ -41,7 +37,7 @@ fun SocialNetworkItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         val (iconRes, color) = when(socialNetwork.name){
-            SocialNetworkType.TWITTER -> Pair(R.drawable.ic_twitter, MaterialTheme.colorScheme.onPrimary)
+            SocialNetworkType.TWITTER -> Pair(R.drawable.ic_twitter, MaterialTheme.colorScheme.onBackground)
             SocialNetworkType.YOUTUBE -> Pair(R.drawable.ic_youtube, youtubeColor)
             SocialNetworkType.TWITCH -> Pair(R.drawable.ic_twitch, twitchColor)
             else -> Pair(R.drawable.ic_broadcast,MaterialTheme.colorScheme.primary)

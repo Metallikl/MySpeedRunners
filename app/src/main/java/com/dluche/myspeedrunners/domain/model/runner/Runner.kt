@@ -7,12 +7,14 @@ data class Runner(
     val name: String,
     val pronouns: String?,
     val japaneseName: String?,
-    val country: String?,
-    val region: String?,
+    val location: String?,
+    val locationUrl: String?,
     val iconUrl: String?,
     val imageUrl: String?,
     val webLink: String?,
     val socialNetworks: List<SocialNetwork>?,
     val nameStyle: NameStyle?,
-    val links: List<LinkModel>?
+    val links: List<LinkModel>?,
+    val role: String?,
+    val signup: String?
 )
