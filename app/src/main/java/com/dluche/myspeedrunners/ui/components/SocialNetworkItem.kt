@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.dluche.myspeedrunners.ui.theme.speedrunColor
 import com.dluche.myspeedrunners.ui.theme.twitchColor
 import com.dluche.myspeedrunners.ui.theme.youtubeColor
 
@@ -30,17 +32,22 @@ fun SocialNetworkItem(
     Column(
         modifier = modifier
             .size(48.dp)
-            .clickable{
+            .clickable {
                 onClick(socialNetwork.url)
             },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        val (iconRes, color) = when(socialNetwork.name){
-            SocialNetworkType.TWITTER -> Pair(R.drawable.ic_twitter, MaterialTheme.colorScheme.onBackground)
+    ) {
+        val (iconRes, color) = when (socialNetwork.name) {
+            SocialNetworkType.TWITTER -> Pair(
+                R.drawable.ic_twitter,
+                MaterialTheme.colorScheme.onBackground
+            )
+
             SocialNetworkType.YOUTUBE -> Pair(R.drawable.ic_youtube, youtubeColor)
             SocialNetworkType.TWITCH -> Pair(R.drawable.ic_twitch, twitchColor)
-            else -> Pair(R.drawable.ic_broadcast,MaterialTheme.colorScheme.primary)
+            SocialNetworkType.SPEEDRUN_COM -> Pair(R.drawable.ic_trophy_solid, speedrunColor)
+            else -> Pair(R.drawable.ic_broadcast, MaterialTheme.colorScheme.primary)
         }
 
         Icon(
@@ -51,7 +58,6 @@ fun SocialNetworkItem(
             tint = color
         )
     }
-
 }
 
 @Preview

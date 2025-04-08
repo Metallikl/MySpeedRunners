@@ -410,7 +410,6 @@ fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color>
         brushList.add(MaterialTheme.colorScheme.onBackground)
     }
     if (brushList.size == 1) {
-        //brushList.add(MaterialTheme.colorScheme.onBackground)
         brushList.add(
             brushList.first().copy(alpha = 0.7f)
         )

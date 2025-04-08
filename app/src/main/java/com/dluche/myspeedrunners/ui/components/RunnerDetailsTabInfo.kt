@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
@@ -102,7 +103,7 @@ fun InfoContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                Icons.Filled.Work,
+                Icons.Filled.Badge,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onSurface

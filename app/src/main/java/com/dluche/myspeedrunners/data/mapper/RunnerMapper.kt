@@ -9,6 +9,7 @@ import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.RoleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
+import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.SPEEDRUNSLIVE
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.TWITCH
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.TWITTER
@@ -34,6 +35,11 @@ fun RunnerDto.asDomainModel() = Runner(
 
 private fun RunnerDto.mapToDomainSocialNetworks(): List<SocialNetwork> {
     val socialNetworkList = mutableListOf<SocialNetwork>()
+    weblink?.let{
+        socialNetworkList.add(
+            SocialNetwork(SocialNetworkType.SPEEDRUN_COM, it)
+        )
+    }
     twitch?.let {
         socialNetworkList.add(
             SocialNetwork(TWITCH, it.uri.orEmpty())
