@@ -43,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,6 +75,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsU
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RunnerDetailsRoute(
@@ -235,23 +237,25 @@ fun RunnerDetailsContent(
                 )
 
                 val tabItems = getTabList()
-                var selectedTabIndex by remember { mutableStateOf(0) }
+               // var selectedTabIndex by remember { mutableStateOf(0) }
                 val pagerState = rememberPagerState(pageCount = { tabItems.size })
+                val scope = rememberCoroutineScope()
 
-                LaunchedEffect(selectedTabIndex) {
-                    pagerState.animateScrollToPage(selectedTabIndex)
-                }
-                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-                    if (pagerState.isScrollInProgress.not()) {
-                        selectedTabIndex = pagerState.currentPage
-                    }
-                }
+//                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+//                    if (pagerState.currentPage == pagerState.targetPage) {
+//                        selectedTabIndex = pagerState.currentPage
+//                    }
+//                }
 
-                TabRow(selectedTabIndex = selectedTabIndex) {
+                TabRow(selectedTabIndex = pagerState.currentPage) {
                     tabItems.forEachIndexed { index, tabItem ->
                         Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
+                            selected = index == pagerState.currentPage,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
 //                            text = {
 //                                Text(
 //                                    text = tabItem.title,
@@ -261,7 +265,7 @@ fun RunnerDetailsContent(
 //                            },
                             icon = {
                                 Icon(
-                                    imageVector = if (selectedTabIndex == index) tabItem.selectedIcon else tabItem.unselectedIcon,
+                                    imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
                                     contentDescription = tabItem.title,
                                     tint = MaterialTheme.colorScheme.onBackground
                                 )
@@ -277,7 +281,7 @@ fun RunnerDetailsContent(
                         .weight(1f)
                 ) {
 
-                    when (tabItems[selectedTabIndex].tabType) {
+                    when (tabItems[pagerState.currentPage].tabType) {
                         RunnerDetailsTabType.SOCIAL_NETWORK -> {
                             InfoContent(runner = runner)
                         }
