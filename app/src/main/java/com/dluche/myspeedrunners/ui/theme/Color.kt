@@ -217,6 +217,10 @@ val surfaceContainerDarkHighContrast = Color(0xFF322F35)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3D3A40)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF49454C)
 
+val twitchColor = Color(0xFF9146FF)
+val youtubeColor = Color(0xFFc4302b)
+val speedrunColor = Color(0xFFc36f09)
+
 
 
 

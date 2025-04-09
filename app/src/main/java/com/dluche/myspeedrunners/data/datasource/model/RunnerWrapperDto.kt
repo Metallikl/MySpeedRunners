@@ -17,8 +17,6 @@ data class RunnerWrapperDto(
 data class RunnerDto(
     @SerialName("assets")
     val assets: AssetsDto? = null,
-    @SerialName("hitbox")
-    val hitbox: UriDto? = null,
     @SerialName("id")
     val id: String? = null,
     @SerialName("links")

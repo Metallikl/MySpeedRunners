@@ -4,6 +4,6 @@ enum class SocialNetworkType {
     TWITTER,
     TWITCH,
     YOUTUBE,
-    HITBOX,
-    SPEEDRUNSLIVE
+    SPEEDRUNSLIVE,
+    SPEEDRUN_COM
 }

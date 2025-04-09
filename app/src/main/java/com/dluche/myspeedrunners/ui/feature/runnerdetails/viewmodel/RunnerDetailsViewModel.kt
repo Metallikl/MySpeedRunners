@@ -34,7 +34,8 @@ class RunnerDetailsViewModel @Inject constructor(
         "Neczin_",
         "Movisterium",
         "Krolm",
-        "TiaDaCoxinhaBR"//TiaDaCoxinhaBR img gif
+        "TiaDaCoxinhaBR",//TiaDaCoxinhaBR img gif
+        "NooTzin"//TiaDaCoxinhaBR img gif
     )
 
     init {

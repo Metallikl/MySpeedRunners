@@ -85,7 +85,6 @@ fun RunCard(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-
             }
         }
     }
