@@ -67,6 +67,7 @@ import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.GameGridCard
 import com.dluche.myspeedrunners.ui.components.InfoContent
 import com.dluche.myspeedrunners.ui.components.RunCard
+import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
@@ -321,23 +322,20 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
             }
         }
 
-        RunnerDetailsUiState.RunsState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(100.dp)
-                )
-            }
-        }
+        RunnerDetailsUiState.RunsState.Loading -> RunsSkeletonList()
 
         is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
     }
 
+}
+
+@Composable
+fun RunsSkeletonList() {
+    Column {
+        for (i in 1..10) {
+            RunCardSkeleton()
+        }
+    }
 }
 
 @Composable

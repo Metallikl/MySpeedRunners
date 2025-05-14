@@ -1,56 +1,45 @@
 package com.dluche.myspeedrunners.ui.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun RunCard(
-    gameUrl: String,
-    gameName: String,
-    category: String,
-    status: String,
-    submitted: String,
+fun RunCardSkeleton(
     modifier: Modifier = Modifier,
-    contentDescription: String? = null,
-    onClick: () -> Unit
 ) {
-
     Card(
         modifier = modifier
+            .shimmer()
             .fillMaxWidth()
-            .clickable{
-                onClick()
-            }
-
+            .padding(bottom = 8.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = gameUrl,
-                contentDescription = contentDescription,
+            Box(
                 modifier = Modifier
-                    .size(100.dp),
-                contentScale = ContentScale.FillBounds
-                    
+                    .size(100.dp)
+                    .background(Color.LightGray)
             )
 
             Column(
@@ -60,28 +49,34 @@ fun RunCard(
                 ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = gameName,
-                    style = MaterialTheme.typography.titleMedium
+                Box(
+                    modifier = Modifier
+                        .width(154.dp)
+                        .height(20.dp)
+                        .background(Color.LightGray),
                 )
-                Text(
-                    text = category,
-                    style = MaterialTheme.typography.labelLarge
+                Box(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(20.dp)
+                        .background(Color.LightGray),
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = status,
-                        style = MaterialTheme.typography.labelMedium
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(20.dp)
+                            .background(Color.LightGray),
                     )
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = submitted,
-                        style = MaterialTheme.typography.labelMedium
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(20.dp)
+                            .background(Color.LightGray),
                     )
                 }
             }
@@ -93,13 +88,6 @@ fun RunCard(
 @Composable
 private fun RunCardPreview() {
     MySpeedRunnersTheme {
-        RunCard(
-            gameUrl = "https://www.speedrun.com/static/game/pd0qq31e/cover?v=8b6ea7d",
-            gameName = "Super Mario Odyssey",
-            category = "Any%",
-            status = "Verified",
-            submitted = "2021-01-01",
-            onClick = {},
-        )
+        RunCardSkeleton()
     }
 }
