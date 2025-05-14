@@ -272,19 +272,7 @@ fun RunnerDetailsContent(
                                 Icon(
                                     imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
                                     contentDescription = tabItem.title,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .drawWithCache {
-                                            onDrawWithContent {
-                                                drawContent()
-                                                drawRect(
-                                                    brush = Brush.horizontalGradient(backgroundColor),
-                                                    size = size,
-                                                    blendMode = BlendMode.Lighten//funciona no light , mas não no dark
-                                                )
-                                            }
-                                        },
-                                    tint = Color.Unspecified
+                                    tint = MaterialTheme.colorScheme.onBackground
                                 )
                             }
                         )
