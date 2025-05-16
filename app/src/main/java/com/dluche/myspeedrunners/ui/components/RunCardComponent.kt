@@ -1,7 +1,10 @@
 package com.dluche.myspeedrunners.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,13 +14,18 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun RunCard(
@@ -34,7 +42,7 @@ fun RunCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable{
+            .clickable {
                 onClick()
             }
 
@@ -44,20 +52,17 @@ fun RunCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = gameUrl,
+
+            RunImage(
+                gameUrl = gameUrl,
                 contentDescription = contentDescription,
-                modifier = Modifier
-                    .size(100.dp),
-                contentScale = ContentScale.FillBounds
-                    
+                size = 100.dp
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .padding(4.dp)
-                ,
+                    .padding(4.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
@@ -85,6 +90,45 @@ fun RunCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun RunImage(gameUrl: String, contentDescription: String?, size: Dp) {
+    val painter = rememberAsyncImagePainter(gameUrl)
+    val state = painter.state.collectAsState()
+
+    when (state.value) {
+        AsyncImagePainter.State.Empty,
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .size(size)
+                    .background(Color.LightGray)
+
+            )
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            //todo tratar o cenario de erro
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .background(Color.LightGray)
+
+            )
+        }
+
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = contentDescription,
+                modifier = Modifier
+                    .size(size),
+                contentScale = ContentScale.FillBounds
+            )
         }
     }
 }

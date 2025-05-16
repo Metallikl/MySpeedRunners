@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.compose.shimmer)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.compose.network)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
