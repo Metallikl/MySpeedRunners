@@ -2,7 +2,7 @@
     <string name="app_name">MySpeedRunners</string>
     <string name="runs_tab_label">Runs</string>
     <string name="info_tab_label">Info</string>
-    <string name="games_tab_label">Games</string>
+    <string name="games_tab_label">Moderador</string>
     <string name="pronous_he_him">He/ Him</string>
     <string name="role_user">Usuário</string>
     <string name="role_moderator">Moderador</string>
@@ -15,4 +15,6 @@
     <string name="run_status_verified">Verificada</string>
     <string name="run_status_reject">Rejeitada</string>
     <string name="run_status_unknown">Desconhecida</string>
+    <string name="no_runs_found_label">Nenhuma run encontrada</string>
+    <string name="no_moderated_games_label">Esse runner não modera nenhum jogo</string>
 </resources>
