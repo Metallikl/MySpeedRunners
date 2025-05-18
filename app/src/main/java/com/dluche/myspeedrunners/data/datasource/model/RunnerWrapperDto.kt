@@ -14,6 +14,12 @@ data class RunnerWrapperDto(
 )
 
 @Serializable
+data class RunnerSearchWrapperDto(
+    @SerialName("data")
+    val wrapper: List<RunnerDto>? = null
+)
+
+@Serializable
 data class RunnerDto(
     @SerialName("assets")
     val assets: AssetsDto? = null,

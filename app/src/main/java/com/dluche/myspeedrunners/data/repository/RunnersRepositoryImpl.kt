@@ -2,9 +2,10 @@ package com.dluche.myspeedrunners.data.repository
 
 import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
-import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
+import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.repository.RunnersRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -14,10 +15,16 @@ class RunnersRepositoryImpl @Inject constructor(
     private val runnersDataSource: RunnersDataSource,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : RunnersRepository {
-    override suspend fun getRunners(): Result<List<RunnerWrapperDto>> {
+    override suspend fun searchRunners(name: String?): Result<List<RunnerCard>> {
         return withContext(dispatcher) {
             runCatching {
-                runnersDataSource.getRunners() as List<RunnerWrapperDto>
+                val runnersList = mutableListOf<RunnerCard>()
+                runnersDataSource.searchRunners(name)?.wrapper?.map { runnerWrapper->
+                    runnerWrapper.let{
+                        runnersList.add(it.asCardDomainModel())
+                    }
+                }
+                runnersList
             }
         }
     }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.screen.RunnerDetailsRoute
+import com.dluche.myspeedrunners.ui.feature.runnersearch.screen.RunnersSearchRoute
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,7 +30,8 @@ class MainActivity : ComponentActivity() {
 //                    )
 //                }
 
-                RunnerDetailsRoute()
+                //RunnerDetailsRoute()
+                RunnersSearchRoute()
             }
         }
     }

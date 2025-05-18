@@ -17,4 +17,5 @@
     <string name="run_status_unknown">Unknown</string>
     <string name="no_runs_found_label">No runs found</string>
     <string name="no_moderated_games_label">This runner doesn\'t moderate any games</string>
+    <string name="count_result_found">results found</string>
 </resources>
