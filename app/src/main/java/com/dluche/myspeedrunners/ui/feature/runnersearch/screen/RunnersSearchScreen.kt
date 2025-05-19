@@ -42,12 +42,14 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 @Composable
 fun RunnersSearchRoute(
     viewModel: RunnersSearchViewModel = hiltViewModel(),
+    navigateToRunnerDetails: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnersSearchScreen(
         uiState = uiState.value,
         onEvent = viewModel::dispatchEvent,
+        navigateToRunnerDetails = navigateToRunnerDetails,
         onBackClick = onBackClick
     )
 }
@@ -56,6 +58,7 @@ fun RunnersSearchRoute(
 fun RunnersSearchScreen(
     uiState: RunnersSearchUiState,
     onEvent: (RunnersSearchEvents) -> Unit,
+    navigateToRunnerDetails: (String) -> Unit = {},
     onBackClick: () -> Unit,
 ) {
     Column(
@@ -120,13 +123,18 @@ fun RunnersSearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        RunnerListHandler(uiState.listState)
+        RunnerListHandler(listState = uiState.listState,
+            navigateToRunnerDetails = navigateToRunnerDetails
+        )
     }
     
 }
 
 @Composable
-fun RunnerListHandler(listState: RunnersSearchUiState.RunnersListUiState) {
+fun RunnerListHandler(
+    listState: RunnersSearchUiState.RunnersListUiState,
+    navigateToRunnerDetails: (String) -> Unit
+) {
 
     when(listState){
         is RunnersSearchUiState.RunnersListUiState.Error -> {
@@ -141,20 +149,26 @@ fun RunnerListHandler(listState: RunnersSearchUiState.RunnersListUiState) {
 
         }
         is RunnersSearchUiState.RunnersListUiState.Success -> {
-            RunnersListComponent(listState.runners)
+            RunnersListComponent(
+                runnersList = listState.runners,
+                navigateToRunnerDetails = navigateToRunnerDetails
+            )
         }
     }
 }
 
 @Composable
-fun RunnersListComponent(runnersList: List<RunnerCard>) {
+fun RunnersListComponent(runnersList: List<RunnerCard>, navigateToRunnerDetails: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ){
         items(runnersList.size){ runner ->
-            RunnerCardComponent(runnerCard = runnersList[runner])
+            RunnerCardComponent(
+                runnerCard = runnersList[runner],
+                onClick = { navigateToRunnerDetails(runnersList[runner].id) }
+            )
         }
     }
 }

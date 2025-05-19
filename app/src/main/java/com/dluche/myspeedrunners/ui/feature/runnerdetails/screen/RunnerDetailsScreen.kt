@@ -88,13 +88,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun RunnerDetailsRoute(
     viewModel: RunnerDetailsViewModel = hiltViewModel(),
+    runnerId: String = "",
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
         uiState = uiState.value,
         onBackClick = onBackClick,
-        tryAgain = viewModel::dispatchEvent
+        tryAgain = viewModel::dispatchRandom
     )
 }
 
@@ -193,7 +194,7 @@ fun RunnerDetailsContent(
             ) {
                 IconButton(
                     onClick = {
-                        onBackClick
+                        onBackClick()
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.background

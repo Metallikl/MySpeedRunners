@@ -1,8 +1,10 @@
 package com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.game.Game
@@ -11,6 +13,7 @@ import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
+import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +26,13 @@ import javax.inject.Inject
 class RunnerDetailsViewModel @Inject constructor(
     private val getRunnerUseCase: GetRunnerUseCase,
     private val getRunnerRunsUseCase: GetRunnerRunsUseCase,
-    private val getRunnerGamesUseCase: GetRunnerGamesUseCase
+    private val getRunnerGamesUseCase: GetRunnerGamesUseCase,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    private var runnerId: String = ""
     private val _uiState = MutableStateFlow(RunnerDetailsUiState())
     val uiState = _uiState.asStateFlow()
+
     val runnerIdList = listOf<String>(
         "kjp1v74j",//LD
         "dexs",
@@ -42,22 +47,28 @@ class RunnerDetailsViewModel @Inject constructor(
     )
 
     init {
-        dispatchEvent()
+        runnerId = savedStateHandle.toRoute<MySpeedRunnersRoutes.RunnerDetails>().runnerId
+        if (runnerId.isNotEmpty()) {
+            fetchRunner(runnerId)
+        } else {
+            dispatchRandom()
+        }
     }
 
-    fun dispatchEvent() {
-        _uiState.update {
-            RunnerDetailsUiState()
-        }
-        var id = try {
+    fun dispatchRandom() {
+        runnerId = try {
             runnerIdList.random()
         } catch (e: Exception) {
             "kjp1v74j"
         }
-        fetchRunner(id)
+        fetchRunner(runnerId)
     }
 
     private fun fetchRunner(runnerId: String) {
+        _uiState.update {
+            RunnerDetailsUiState()
+        }
+
         viewModelScope.launch {
             getRunnerUseCase(runnerId)
                 .fold(
