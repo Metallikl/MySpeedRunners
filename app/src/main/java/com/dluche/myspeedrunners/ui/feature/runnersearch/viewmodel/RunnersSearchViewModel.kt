@@ -36,7 +36,10 @@ class RunnersSearchViewModel @Inject constructor(
         typingJob?.cancel()
         typingJob = viewModelScope.launch {
             delay(500)
-            searchRunners(search)
+            when{
+                search.isEmpty() -> _uiState.update { it.copy(listState = RunnersListUiState.Initial) }
+                search.length >= 3 -> searchRunners(search)
+            }
         }
     }
 
@@ -46,14 +49,18 @@ class RunnersSearchViewModel @Inject constructor(
                 it.copy(listState = RunnersListUiState.Loading)
             }
             searchRunnersUseCase(search).fold(
-                onSuccess = { runnersCard->
+                onSuccess = { runnersCard ->
                     _uiState.update {
                         it.copy(listState = RunnersListUiState.Success(runnersCard))
                     }
                 },
-                onFailure = { failure->
+                onFailure = { failure ->
                     _uiState.update {
-                        it.copy(listState = RunnersListUiState.Error(failure.message ?: "Unknown error"))
+                        it.copy(
+                            listState = RunnersListUiState.Error(
+                                failure.message ?: "Unknown error"
+                            )
+                        )
                     }
                 }
             )

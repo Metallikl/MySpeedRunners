@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -138,14 +139,16 @@ fun RunnerImage(runnerCard: RunnerCard, size: Dp) {
                     modifier = Modifier
                         .shimmer()
                         .size(size)
+                        .clip(CircleShape)
                         .background(Color.LightGray)
+
                 )
             }
 
             is AsyncImagePainter.State.Error -> {
                 //todo tratar o cenario de erro
                 Image(
-                    imageVector = Icons.Default.AccountCircle,
+                    imageVector = Icons.Outlined.AccountCircle,
                     contentDescription = "Error loading image",
                     modifier = Modifier
                         .size(size),

@@ -1,7 +1,9 @@
 package com.dluche.myspeedrunners.ui.feature.runnersearch.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +16,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -38,6 +42,7 @@ import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEv
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import com.dluche.myspeedrunners.ui.feature.runnersearch.viewmodel.RunnersSearchViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun RunnersSearchRoute(
@@ -70,8 +75,7 @@ fun RunnersSearchScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.LightGray)
-                .padding(16.dp),
+                .padding(vertical = 8.dp),
         ) {
 
             Row(
@@ -94,40 +98,42 @@ fun RunnersSearchScreen(
                     )
                 }
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(CircleShape),
+                        .background(MaterialTheme.colorScheme.surface, CircleShape),
                     value = uiState.search,
                     onValueChange = {
                         onEvent(RunnersSearchEvents.UpdateSearch(it))
-                                    },
+                    },
                     label = { Text("Search") },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = "Search Icon"
                         )
-                    },
+                    }
                 )
             }
-            Text(
-                text = stringResource(R.string.count_result_found,"0"),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                textAlign = TextAlign.Center
-
-            )
+            if (uiState.listState is RunnersSearchUiState.RunnersListUiState.Success) {
+                Text(
+                    text = stringResource(R.string.count_result_found,uiState.listState.runners.size),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        RunnerListHandler(listState = uiState.listState,
+        RunnerListHandler(
+            listState = uiState.listState,
             navigateToRunnerDetails = navigateToRunnerDetails
         )
     }
-    
+
 }
 
 @Composable
@@ -136,7 +142,7 @@ fun RunnerListHandler(
     navigateToRunnerDetails: (String) -> Unit
 ) {
 
-    when(listState){
+    when (listState) {
         is RunnersSearchUiState.RunnersListUiState.Error -> {
             Text(
                 text = listState.message,
@@ -144,10 +150,12 @@ fun RunnerListHandler(
                 color = Color.Red,
             )
         }
+
         RunnersSearchUiState.RunnersListUiState.Initial,
         RunnersSearchUiState.RunnersListUiState.Loading -> {
-
+            RunnersListLoadingComponent()
         }
+
         is RunnersSearchUiState.RunnersListUiState.Success -> {
             RunnersListComponent(
                 runnersList = listState.runners,
@@ -163,12 +171,36 @@ fun RunnersListComponent(runnersList: List<RunnerCard>, navigateToRunnerDetails:
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
-    ){
-        items(runnersList.size){ runner ->
+    ) {
+        items(runnersList.size) { runner ->
             RunnerCardComponent(
                 runnerCard = runnersList[runner],
                 onClick = { navigateToRunnerDetails(runnersList[runner].id) }
             )
+        }
+    }
+}
+
+@Composable
+fun RunnersListLoadingComponent() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        items(15) { runner ->
+            Card(Modifier.padding(horizontal = 4.dp)){
+                Box(
+                    modifier = Modifier
+                        .shimmer()
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .border(1.dp, Color.LightGray, CircleShape)
+                        .background(Color.LightGray)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
         }
     }
 }

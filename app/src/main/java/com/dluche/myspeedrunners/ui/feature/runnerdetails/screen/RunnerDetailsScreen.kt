@@ -28,9 +28,11 @@ import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NoAccounts
 import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -348,7 +350,7 @@ fun RunnerImage(runner: Runner) {
 
         is AsyncImagePainter.State.Error -> {
             Image(
-                imageVector = Icons.Outlined.CloudOff,
+                imageVector = Icons.Outlined.NoAccounts,
                 contentDescription = "Runner Image",
                 modifier = Modifier
                     .size(100.dp)
