@@ -1,34 +1,37 @@
 package com.dluche.myspeedrunners.ui.feature.runnersearch.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,12 +40,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
+import com.dluche.myspeedrunners.extension.shimmerEffect
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEvents
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import com.dluche.myspeedrunners.ui.feature.runnersearch.viewmodel.RunnersSearchViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
-import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun RunnersSearchRoute(
@@ -106,7 +109,7 @@ fun RunnersSearchScreen(
                     onValueChange = {
                         onEvent(RunnersSearchEvents.UpdateSearch(it))
                     },
-                    label = { Text("Search") },
+                    placeholder = { Text(stringResource(R.string.search_runner)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Search,
@@ -117,7 +120,10 @@ fun RunnersSearchScreen(
             }
             if (uiState.listState is RunnersSearchUiState.RunnersListUiState.Success) {
                 Text(
-                    text = stringResource(R.string.count_result_found,uiState.listState.runners.size),
+                    text = stringResource(
+                        R.string.count_result_found,
+                        uiState.listState.runners.size
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
@@ -151,7 +157,9 @@ fun RunnerListHandler(
             )
         }
 
-        RunnersSearchUiState.RunnersListUiState.Initial,
+        RunnersSearchUiState.RunnersListUiState.Initial ->{
+            RunnerInitialComponent()
+        }
         RunnersSearchUiState.RunnersListUiState.Loading -> {
             RunnersListLoadingComponent()
         }
@@ -164,6 +172,39 @@ fun RunnerListHandler(
         }
     }
 }
+
+@Composable
+fun RunnerInitialComponent() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.7f)
+            .padding(8.dp)
+        ,contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                imageVector = Icons.Outlined.Search,
+                contentDescription = "Search Icon",
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.CenterHorizontally),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+            )
+            Text(
+                text = stringResource(R.string.search_runner),
+                modifier = Modifier
+                    .padding(8.dp),
+            )
+        }
+    }
+}
+
 
 @Composable
 fun RunnersListComponent(runnersList: List<RunnerCard>, navigateToRunnerDetails: (String) -> Unit) {
@@ -188,19 +229,18 @@ fun RunnersListLoadingComponent() {
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(15) { runner ->
-            Card(Modifier.padding(horizontal = 4.dp)){
-                Box(
-                    modifier = Modifier
-                        .shimmer()
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .border(1.dp, Color.LightGray, CircleShape)
-                        .background(Color.LightGray)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+        items(10) { runner ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.LightGray)
 
+                    .shimmerEffect()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
