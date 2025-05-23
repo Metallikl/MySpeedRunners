@@ -3,6 +3,7 @@ package com.dluche.myspeedrunners.data.datasource.model
 
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
 import com.dluche.myspeedrunners.data.datasource.model.common.NamesDto
+import com.dluche.myspeedrunners.data.datasource.model.common.PaginationDto
 import com.dluche.myspeedrunners.data.datasource.model.common.UriDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,6 +12,15 @@ import kotlinx.serialization.Serializable
 data class RunnerWrapperDto(
     @SerialName("data")
     val wrapper: RunnerDto? = null
+)
+
+@Serializable
+data class PaginatedRunnersWrapperDto(
+    @SerialName("data")
+    val wrapper: List<RunnerDto>? = null,
+    @SerialName("pagination")
+    val pagination: PaginationDto? = null
+
 )
 
 @Serializable

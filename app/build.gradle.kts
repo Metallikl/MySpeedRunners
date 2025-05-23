@@ -68,11 +68,12 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
     implementation(libs.compose.shimmer)
-
     implementation(libs.coil.compose)
     implementation(libs.coil.compose.network)
 
     implementation(libs.lottie.compose)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.paging.compose)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)

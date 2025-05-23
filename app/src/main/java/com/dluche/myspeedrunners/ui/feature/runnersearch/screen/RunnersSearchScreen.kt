@@ -33,11 +33,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.extension.shimmerEffect
@@ -46,6 +50,7 @@ import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEv
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import com.dluche.myspeedrunners.ui.feature.runnersearch.viewmodel.RunnersSearchViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun RunnersSearchRoute(
@@ -54,8 +59,10 @@ fun RunnersSearchRoute(
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val pagerRunnersList = viewModel.runners.collectAsLazyPagingItems()
     RunnersSearchScreen(
         uiState = uiState.value,
+        pagerRunnersList = pagerRunnersList,
         onEvent = viewModel::dispatchEvent,
         navigateToRunnerDetails = navigateToRunnerDetails,
         onBackClick = onBackClick
@@ -68,6 +75,7 @@ fun RunnersSearchScreen(
     onEvent: (RunnersSearchEvents) -> Unit,
     navigateToRunnerDetails: (String) -> Unit = {},
     onBackClick: () -> Unit,
+    pagerRunnersList: LazyPagingItems<RunnerCard>,
 ) {
     Column(
         Modifier
@@ -118,24 +126,24 @@ fun RunnersSearchScreen(
                     }
                 )
             }
-            if (uiState.listState is RunnersSearchUiState.RunnersListUiState.Success) {
-                Text(
-                    text = stringResource(
-                        R.string.count_result_found,
-                        uiState.listState.runners.size
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+//            if (uiState.listState is RunnersSearchUiState.RunnersListUiState.Success) {
+//                Text(
+//                    text = stringResource(
+//                        R.string.count_result_found,
+//                        uiState.listState.runners.size.
+//                    ),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(8.dp),
+//                    textAlign = TextAlign.Center
+//                )
+//            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         RunnerListHandler(
-            listState = uiState.listState,
+            listState = pagerRunnersList,
             navigateToRunnerDetails = navigateToRunnerDetails
         )
     }
@@ -144,31 +152,32 @@ fun RunnersSearchScreen(
 
 @Composable
 fun RunnerListHandler(
-    listState: RunnersSearchUiState.RunnersListUiState,
+    listState: LazyPagingItems<RunnerCard>,
     navigateToRunnerDetails: (String) -> Unit
 ) {
 
-    when (listState) {
-        is RunnersSearchUiState.RunnersListUiState.Error -> {
+    when (val state = listState.loadState.refresh) {
+        is LoadState.Error ->
             Text(
-                text = listState.message,
+                text = state.error.message ?: "Unknown error",
                 modifier = Modifier.fillMaxSize(),
                 color = Color.Red,
             )
-        }
 
-        RunnersSearchUiState.RunnersListUiState.Initial ->{
-            RunnerInitialComponent()
-        }
-        RunnersSearchUiState.RunnersListUiState.Loading -> {
+        LoadState.Loading -> {
             RunnersListLoadingComponent()
         }
 
-        is RunnersSearchUiState.RunnersListUiState.Success -> {
-            RunnersListComponent(
-                runnersList = listState.runners,
-                navigateToRunnerDetails = navigateToRunnerDetails
-            )
+        is LoadState.NotLoading -> {
+            if (listState.itemCount == 0) {
+                RunnerInitialComponent()
+            } else {
+
+                RunnersListComponent(
+                    runnersList = listState,
+                    navigateToRunnerDetails = navigateToRunnerDetails
+                )
+            }
         }
     }
 }
@@ -179,8 +188,7 @@ fun RunnerInitialComponent() {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.7f)
-            .padding(8.dp)
-        ,contentAlignment = Alignment.Center
+            .padding(8.dp), contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
@@ -205,19 +213,27 @@ fun RunnerInitialComponent() {
     }
 }
 
-
 @Composable
-fun RunnersListComponent(runnersList: List<RunnerCard>, navigateToRunnerDetails: (String) -> Unit) {
+fun RunnersListComponent(
+    runnersList: LazyPagingItems<RunnerCard>,
+    navigateToRunnerDetails: (String) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(runnersList.size) { runner ->
-            RunnerCardComponent(
-                runnerCard = runnersList[runner],
-                onClick = { navigateToRunnerDetails(runnersList[runner].id) }
-            )
+        items(
+            count = runnersList.itemCount,
+            key = { idx -> runnersList[idx]?.id.orEmpty() }
+        ) { idx ->
+            runnersList[idx]?.let {
+                RunnerCardComponent(
+                    runnerCard = it,
+                    onClick = { navigateToRunnerDetails(it.id) }
+                )
+            }
+
         }
     }
 }
@@ -251,13 +267,24 @@ fun RunnersListLoadingComponent() {
 )
 @Composable
 private fun RunnersSearchScreenPreview() {
+    val pagerRunnersList = flowOf(
+        PagingData.from(
+            listOf<RunnerCard>(),
+            sourceLoadStates = LoadStates(
+                refresh = LoadState.NotLoading(false),
+                prepend = LoadState.NotLoading(false),
+                append = LoadState.NotLoading(false)
+            )
+        )
+    ).collectAsLazyPagingItems()
     MySpeedRunnersTheme {
         RunnersSearchScreen(
             RunnersSearchUiState(
                 search = "Ronaldo"
             ),
             onEvent = {},
-            onBackClick = {}
+            onBackClick = {},
+            pagerRunnersList = pagerRunnersList
         )
     }
 }
