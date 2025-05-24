@@ -14,7 +14,7 @@ class RunnersPagingSource @Inject constructor(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, RunnerCard> {
         return try {
-            val offset: Int = params.key ?: 20
+            val offset: Int = params.key ?: 0
 
             val data = runnersDataSource.searchRunners(query, offset)
             val nextKey = data?.pagination?.let { pagination ->
