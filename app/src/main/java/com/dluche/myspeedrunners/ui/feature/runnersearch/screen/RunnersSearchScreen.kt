@@ -19,11 +19,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.ResetTv
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -50,7 +53,7 @@ import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEv
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import com.dluche.myspeedrunners.ui.feature.runnersearch.viewmodel.RunnersSearchViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun RunnersSearchRoute(
@@ -59,10 +62,8 @@ fun RunnersSearchRoute(
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val pagerRunnersList = viewModel.runners.collectAsLazyPagingItems()
     RunnersSearchScreen(
         uiState = uiState.value,
-        pagerRunnersList = pagerRunnersList,
         onEvent = viewModel::dispatchEvent,
         navigateToRunnerDetails = navigateToRunnerDetails,
         onBackClick = onBackClick
@@ -75,7 +76,6 @@ fun RunnersSearchScreen(
     onEvent: (RunnersSearchEvents) -> Unit,
     navigateToRunnerDetails: (String) -> Unit = {},
     onBackClick: () -> Unit,
-    pagerRunnersList: LazyPagingItems<RunnerCard>,
 ) {
     Column(
         Modifier
@@ -143,43 +143,11 @@ fun RunnersSearchScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         RunnerListHandler(
-            listState = pagerRunnersList,
+            runnerPagingState = uiState.runners,
             navigateToRunnerDetails = navigateToRunnerDetails
         )
     }
 
-}
-
-@Composable
-fun RunnerListHandler(
-    listState: LazyPagingItems<RunnerCard>,
-    navigateToRunnerDetails: (String) -> Unit
-) {
-
-    when (val state = listState.loadState.refresh) {
-        is LoadState.Error ->
-            Text(
-                text = state.error.message ?: "Unknown error",
-                modifier = Modifier.fillMaxSize(),
-                color = Color.Red,
-            )
-
-        LoadState.Loading -> {
-            RunnersListLoadingComponent()
-        }
-
-        is LoadState.NotLoading -> {
-            if (listState.itemCount == 0) {
-                RunnerInitialComponent()
-            } else {
-
-                RunnersListComponent(
-                    runnersList = listState,
-                    navigateToRunnerDetails = navigateToRunnerDetails
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -233,7 +201,74 @@ fun RunnersListComponent(
                     onClick = { navigateToRunnerDetails(it.id) }
                 )
             }
+        }
+        item{
+            when (runnersList.loadState.append) {
+                is LoadState.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
 
+                    ) {
+                      OutlinedButton(onClick = { runnersList.retry() }) {
+                          Icon(
+                              imageVector = Icons.Outlined.Refresh,
+                              contentDescription = "Refresh Icon"
+                          )
+
+                          Spacer(modifier = Modifier.size(8.dp))
+
+                          Text(text = stringResource(R.string.retry))
+                      }
+                    }
+                }
+
+                LoadState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is LoadState.NotLoading -> {}
+            }
+        }
+    }
+}
+
+@Composable
+fun RunnerListHandler(
+    navigateToRunnerDetails: (String) -> Unit,
+    runnerPagingState: MutableStateFlow<PagingData<RunnerCard>>
+) {
+    val listState = runnerPagingState.collectAsLazyPagingItems()
+
+    when (val state = listState.loadState.refresh) {
+        is LoadState.Error ->
+            Text(
+                text = state.error.message ?: "Unknown error",
+                modifier = Modifier.fillMaxSize(),
+                color = Color.Red,
+            )
+
+        LoadState.Loading -> {
+            RunnersListLoadingComponent()
+        }
+
+        is LoadState.NotLoading -> {
+            if (listState.itemCount == 0) {
+                RunnerInitialComponent()
+            } else {
+                RunnersListComponent(
+                    runnersList = listState,
+                    navigateToRunnerDetails = navigateToRunnerDetails
+                )
+            }
         }
     }
 }
@@ -267,16 +302,6 @@ fun RunnersListLoadingComponent() {
 )
 @Composable
 private fun RunnersSearchScreenPreview() {
-    val pagerRunnersList = flowOf(
-        PagingData.from(
-            listOf<RunnerCard>(),
-            sourceLoadStates = LoadStates(
-                refresh = LoadState.NotLoading(false),
-                prepend = LoadState.NotLoading(false),
-                append = LoadState.NotLoading(false)
-            )
-        )
-    ).collectAsLazyPagingItems()
     MySpeedRunnersTheme {
         RunnersSearchScreen(
             RunnersSearchUiState(
@@ -284,7 +309,6 @@ private fun RunnersSearchScreenPreview() {
             ),
             onEvent = {},
             onBackClick = {},
-            pagerRunnersList = pagerRunnersList
         )
     }
 }

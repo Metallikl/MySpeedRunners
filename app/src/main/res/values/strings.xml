@@ -19,4 +19,6 @@
     <string name="no_moderated_games_label">This runner doesn\'t moderate any games</string>
     <string name="count_result_found">results found</string>
     <string name="search_runner">Search runner</string>
+    <string name="error_something_went_wrong_lbl">Something went wrong</string>
+    <string name="retry">Retry</string>
 </resources>
