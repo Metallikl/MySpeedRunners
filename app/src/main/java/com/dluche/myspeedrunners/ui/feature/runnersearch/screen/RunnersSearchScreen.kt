@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.ResetTv
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -48,6 +47,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.extension.shimmerEffect
+import com.dluche.myspeedrunners.ui.components.AnimatedLottieContent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEvents
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
@@ -250,11 +250,44 @@ fun RunnerListHandler(
 
     when (val state = listState.loadState.refresh) {
         is LoadState.Error ->
-            Text(
-                text = state.error.message ?: "Unknown error",
-                modifier = Modifier.fillMaxSize(),
-                color = Color.Red,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f),
+                contentAlignment = Alignment.Center
+            ){
+                Column(
+                    modifier =
+                        Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AnimatedLottieContent(
+                        modifier = Modifier.size(150.dp),
+                        resId = R.raw.error_full
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = stringResource(R.string.error_something_went_wrong_lbl),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedButton(onClick = { listState.refresh() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = "Refresh Icon"
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        Text(text = stringResource(R.string.retry))
+                    }
+                }
+            }
 
         LoadState.Loading -> {
             RunnersListLoadingComponent()
