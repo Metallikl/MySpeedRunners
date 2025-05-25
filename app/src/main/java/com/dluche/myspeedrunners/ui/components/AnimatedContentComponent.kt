@@ -16,14 +16,15 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 @Composable
 fun AnimatedLottieContent(
     modifier: Modifier = Modifier,
-    @RawRes resId: Int = R.raw.lottie_empty_list
+    @RawRes resId: Int = R.raw.lottie_empty_list,
+    iterations: Int = LottieConstants.IterateForever
 ) {
     val composition by  rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId)
     )
     val progress by animateLottieCompositionAsState(
         composition = composition,
-        iterations = LottieConstants.IterateForever,
+        iterations = iterations,
         isPlaying = true
     )
 

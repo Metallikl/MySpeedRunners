@@ -36,24 +36,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
+import com.dluche.myspeedrunners.extension.HandleStates
 import com.dluche.myspeedrunners.extension.shimmerEffect
-import com.dluche.myspeedrunners.ui.components.AnimatedLottieContent
+import com.dluche.myspeedrunners.ui.components.PagingRefreshError
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEvents
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import com.dluche.myspeedrunners.ui.feature.runnersearch.viewmodel.RunnersSearchViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun RunnersSearchRoute(
@@ -77,6 +76,7 @@ fun RunnersSearchScreen(
     navigateToRunnerDetails: (String) -> Unit = {},
     onBackClick: () -> Unit,
 ) {
+    val runnerPagingState = uiState.runners.collectAsLazyPagingItems()
     Column(
         Modifier
             .fillMaxSize()
@@ -126,24 +126,24 @@ fun RunnersSearchScreen(
                     }
                 )
             }
-//            if (uiState.listState is RunnersSearchUiState.RunnersListUiState.Success) {
-//                Text(
-//                    text = stringResource(
-//                        R.string.count_result_found,
-//                        uiState.listState.runners.size.
-//                    ),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp),
-//                    textAlign = TextAlign.Center
-//                )
-//            }
+            if (runnerPagingState.itemCount > 0) {
+                Text(
+                    text = stringResource(
+                        R.string.count_result_found,
+                        runnerPagingState.itemCount
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         RunnerListHandler(
-            runnerPagingState = uiState.runners,
+            runnerPagingState = runnerPagingState,
             navigateToRunnerDetails = navigateToRunnerDetails
         )
     }
@@ -202,29 +202,10 @@ fun RunnersListComponent(
                 )
             }
         }
-        item{
-            when (runnersList.loadState.append) {
-                is LoadState.Error -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-
-                    ) {
-                      OutlinedButton(onClick = { runnersList.retry() }) {
-                          Icon(
-                              imageVector = Icons.Outlined.Refresh,
-                              contentDescription = "Refresh Icon"
-                          )
-
-                          Spacer(modifier = Modifier.size(8.dp))
-
-                          Text(text = stringResource(R.string.retry))
-                      }
-                    }
-                }
-
-                LoadState.Loading -> {
+        item {
+            runnersList.loadState.append.HandleStates(
+                errorContent = { PagingAppendError(runnersList) },
+                loadingContent = {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -234,74 +215,59 @@ fun RunnersListComponent(
                         CircularProgressIndicator()
                     }
                 }
-
-                is LoadState.NotLoading -> {}
-            }
+            )
         }
     }
 }
 
 @Composable
 fun RunnerListHandler(
-    navigateToRunnerDetails: (String) -> Unit,
-    runnerPagingState: MutableStateFlow<PagingData<RunnerCard>>
+    runnerPagingState: LazyPagingItems<RunnerCard>,
+    navigateToRunnerDetails: (String) -> Unit
 ) {
-    val listState = runnerPagingState.collectAsLazyPagingItems()
-
-    when (val state = listState.loadState.refresh) {
-        is LoadState.Error ->
-            Box(
+    runnerPagingState.loadState.refresh.HandleStates(
+        errorContent = {
+            PagingRefreshError(
+                onRetry = { runnerPagingState.refresh() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.9f),
-                contentAlignment = Alignment.Center
-            ){
-                Column(
-                    modifier =
-                        Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AnimatedLottieContent(
-                        modifier = Modifier.size(150.dp),
-                        resId = R.raw.error_full
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.error_something_went_wrong_lbl),
-                        color = MaterialTheme.colorScheme.error,
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedButton(onClick = { listState.refresh() }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Refresh,
-                            contentDescription = "Refresh Icon"
-                        )
-
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        Text(text = stringResource(R.string.retry))
-                    }
-                }
-            }
-
-        LoadState.Loading -> {
+                interaction = 1
+            )
+        },
+        loadingContent = {
             RunnersListLoadingComponent()
-        }
-
-        is LoadState.NotLoading -> {
-            if (listState.itemCount == 0) {
+        },
+        notLoadingContent = {
+            if (runnerPagingState.itemCount == 0) {
                 RunnerInitialComponent()
             } else {
                 RunnersListComponent(
-                    runnersList = listState,
+                    runnersList = runnerPagingState,
                     navigateToRunnerDetails = navigateToRunnerDetails
                 )
             }
+        }
+    )
+}
+
+@Composable
+private fun PagingAppendError(runnersList: LazyPagingItems<RunnerCard>) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+
+    ) {
+        OutlinedButton(onClick = { runnersList.retry() }) {
+            Icon(
+                imageVector = Icons.Outlined.Refresh,
+                contentDescription = "Refresh Icon"
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            Text(text = stringResource(R.string.retry))
         }
     }
 }
