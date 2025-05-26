@@ -14,6 +14,7 @@ import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uievent.RunnerDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +54,23 @@ class RunnerDetailsViewModel @Inject constructor(
         } else {
             dispatchRandom()
         }
+    }
+
+    fun dispatchEvent(event: RunnerDetailsEvents) {
+        when(event){
+            RunnerDetailsEvents.RefreshFullContent -> {
+                fetchRunner(runnerId)
+            }
+
+            RunnerDetailsEvents.RunsRetry -> {
+                fetchRunnerRuns(runnerId)
+            }
+
+            RunnerDetailsEvents.GamesRetry -> {
+                fetchRunnerGames(runnerId)
+            }
+        }
+
     }
 
     fun dispatchRandom() {
@@ -104,6 +122,11 @@ class RunnerDetailsViewModel @Inject constructor(
 
     private fun fetchRunnerRuns(runnerId: String) {
         viewModelScope.launch {
+            _uiState.update { curState ->
+                curState.copy(
+                    runsState = RunnerDetailsUiState.RunsState.Loading
+                )
+            }
             getRunnerRunsUseCase.invoke(
                 runnerId,
                 EmbedParams("game", "category"),

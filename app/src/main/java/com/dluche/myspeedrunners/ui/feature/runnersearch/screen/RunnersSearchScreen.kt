@@ -47,7 +47,7 @@ import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.extension.HandleStates
 import com.dluche.myspeedrunners.extension.shimmerEffect
-import com.dluche.myspeedrunners.ui.components.PagingRefreshError
+import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEvents
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
@@ -227,7 +227,7 @@ fun RunnerListHandler(
 ) {
     runnerPagingState.loadState.refresh.HandleStates(
         errorContent = {
-            PagingRefreshError(
+            GenericErrorWithButtonComponent(
                 onRetry = { runnerPagingState.refresh() },
                 modifier = Modifier
                     .fillMaxWidth()

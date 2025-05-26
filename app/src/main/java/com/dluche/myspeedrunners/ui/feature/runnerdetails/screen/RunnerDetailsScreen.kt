@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NoAccounts
 import androidx.compose.material.icons.outlined.VideogameAsset
@@ -72,12 +71,14 @@ import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.GameGridCard
 import com.dluche.myspeedrunners.ui.components.InfoContent
+import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.fake.runnerPlaceholder
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uievent.RunnerDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Loading
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
@@ -90,14 +91,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun RunnerDetailsRoute(
     viewModel: RunnerDetailsViewModel = hiltViewModel(),
-    runnerId: String = "",
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
         uiState = uiState.value,
         onBackClick = onBackClick,
-        tryAgain = viewModel::dispatchRandom
+        onDispatchEvent = { viewModel.dispatchEvent(it) }
     )
 }
 
@@ -106,24 +106,13 @@ fun RunnerDetailsRoute(
 fun RunnerDetailsScreen(
     uiState: RunnerDetailsUiState,
     onBackClick: () -> Unit,
-    tryAgain: () -> Unit
+    onDispatchEvent: (RunnerDetailsEvents) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) { paddingValues ->
         when (uiState.headerState) {
             Loading -> {
-//                Box(
-//                    modifier = Modifier
-//                        .padding(paddingValues)
-//                        .fillMaxSize(),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    CircularProgressIndicator(
-//                        modifier = Modifier
-//                            .size(100.dp)
-//                    )
-//                }
                 RunnerDetailsContent(
                     state = uiState.headerState,
                     modifier = Modifier.padding(paddingValues),
@@ -131,9 +120,8 @@ fun RunnerDetailsScreen(
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
                     onBackClick = onBackClick,
-                    tryAgain = tryAgain
+                    onDispatchEvents = onDispatchEvent
                 )
-
             }
 
             is Success -> {
@@ -144,22 +132,18 @@ fun RunnerDetailsScreen(
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
                     onBackClick = onBackClick,
-                    tryAgain = tryAgain
+                    onDispatchEvents = onDispatchEvent
                 )
             }
 
             is RunnerDetailsUiState.HeaderState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = uiState.headerState.message,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+                GenericErrorWithButtonComponent(
+                    onRetry = {
+                        onDispatchEvent(RunnerDetailsEvents.RefreshFullContent)
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    interaction = 1
+                )
             }
         }
     }
@@ -172,7 +156,7 @@ fun RunnerDetailsContent(
     runner: Runner,
     runsState: RunnerDetailsUiState.RunsState,
     gamesState: RunnerDetailsUiState.GamesState,
-    tryAgain: () -> Unit,
+    onDispatchEvents: (RunnerDetailsEvents) -> Unit,
     onBackClick: () -> Unit,
 ) {
     val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
@@ -213,7 +197,7 @@ fun RunnerDetailsContent(
 
                 IconButton(
                     onClick = {
-                        tryAgain()
+                        onDispatchEvents(RunnerDetailsEvents.RefreshFullContent)
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.background
@@ -307,11 +291,11 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.RUNS -> {
-                            RunsStateHandler(runsState)
+                            RunsStateHandler(runsState,onDispatchEvents)
                         }
 
                         RunnerDetailsTabType.GAMES -> {
-                            GamesStateHandler(gamesState)
+                            GamesStateHandler(gamesState,onDispatchEvents)
                         }
                     }
                 }
@@ -365,22 +349,17 @@ fun RunnerImage(runner: Runner) {
 }
 
 @Composable
-private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
+private fun RunsStateHandler(
+    runsState: RunnerDetailsUiState.RunsState,
+    onDispatchEvents: (RunnerDetailsEvents) -> Unit
+) {
     when (runsState) {
         is RunnerDetailsUiState.RunsState.Error -> {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    imageVector = Icons.Outlined.ErrorOutline,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(100.dp)
-                )
-            }
+            GenericErrorWithButtonComponent(
+                onRetry = { onDispatchEvents(RunnerDetailsEvents.RunsRetry) },
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
+            )
         }
 
         RunnerDetailsUiState.RunsState.Loading -> RunsSkeletonList()
@@ -435,7 +414,7 @@ private fun EmptyListComponent(label: String) {
 
     ) {
         Text(
-            text = label ,
+            text = label,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -443,22 +422,19 @@ private fun EmptyListComponent(label: String) {
 }
 
 @Composable
-private fun GamesStateHandler(gamesState: RunnerDetailsUiState.GamesState) {
+private fun GamesStateHandler(
+    gamesState: RunnerDetailsUiState.GamesState,
+    onDispatchEvent: (RunnerDetailsEvents) -> Unit
+) {
     when (gamesState) {
         is RunnerDetailsUiState.GamesState.Error -> {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    imageVector = Icons.Outlined.ErrorOutline,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(100.dp)
-                )
-            }
+            GenericErrorWithButtonComponent(
+                onRetry = {
+                    onDispatchEvent(RunnerDetailsEvents.GamesRetry)
+                },
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
+            )
         }
 
         RunnerDetailsUiState.GamesState.Loading -> {
@@ -482,7 +458,7 @@ private fun GamesStateHandler(gamesState: RunnerDetailsUiState.GamesState) {
 
 @Composable
 private fun GamesContainer(games: List<Game>) {
-    if(games.isNotEmpty()) {
+    if (games.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp),
             modifier = Modifier.fillMaxSize(),
@@ -494,60 +470,9 @@ private fun GamesContainer(games: List<Game>) {
                 )
             }
         }
-    } else{
+    } else {
         EmptyListComponent(stringResource(R.string.no_moderated_games_label))
     }
-}
-
-
-@Composable
-fun getBackgroundColor(isDarkTheme: Boolean, runner: Runner): MutableList<Color> {
-    val brushList = mutableListOf<Color>()
-    runner.nameStyle?.let { nameStyle ->
-        when (nameStyle.style) {
-            NameStyleEnum.GRADIENT -> {
-                if (isDarkTheme) {
-                    if (nameStyle.colorFrom?.dark != null && nameStyle.colorTo?.dark != null) {
-                        brushList.add(Color(nameStyle.colorFrom.dark.toColorInt()))
-                        brushList.add(Color(nameStyle.colorTo.dark.toColorInt()))
-                    } else {
-                        brushList.add(MaterialTheme.colorScheme.onBackground)
-                    }
-                } else {
-                    if (nameStyle.colorFrom?.light != null && nameStyle.colorTo?.light != null) {
-                        brushList.add(Color(nameStyle.colorFrom.light.toColorInt()))
-                        brushList.add(Color(nameStyle.colorTo.light.toColorInt()))
-                    } else {
-                        brushList.add(MaterialTheme.colorScheme.onBackground)
-                    }
-                }
-            }
-
-            NameStyleEnum.SOLID -> {
-                if (isDarkTheme) {
-                    nameStyle.color?.dark?.let {
-                        brushList.add(Color(it.toColorInt()))
-                    }
-                } else {
-                    nameStyle.color?.light?.let {
-                        brushList.add(Color(it.toColorInt()))
-                    }
-                }
-            }
-
-            else -> brushList.add(MaterialTheme.colorScheme.onBackground)
-        }
-    }
-    if (brushList.isEmpty()) {
-        brushList.add(MaterialTheme.colorScheme.onBackground)
-    }
-    if (brushList.size == 1) {
-        brushList.add(
-            brushList.first().copy(alpha = 0.7f)
-        )
-    }
-
-    return brushList
 }
 
 @Composable
@@ -639,7 +564,7 @@ private fun RunnerDetailsScreenSuccessPreview() {
                 ),
                 runsState = RunnerDetailsUiState.RunsState.Loading
             ),
-            tryAgain = {},
+            onDispatchEvent = {},
             onBackClick = {}
         )
     }
@@ -651,7 +576,7 @@ private fun RunnerDetailsScreenLoadingPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(),
-            tryAgain = {},
+            onDispatchEvent = {},
             onBackClick = { }
         )
     }
@@ -663,7 +588,7 @@ private fun RunnerDetailsScreenErrorPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(headerState = RunnerDetailsUiState.HeaderState.Error("Ops, não encontramos o seu runner")),
-            tryAgain = {},
+            onDispatchEvent = {},
             onBackClick = {}
         )
     }
