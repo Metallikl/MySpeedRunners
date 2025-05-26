@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -351,7 +352,7 @@ fun RunnerImage(runner: Runner) {
 
             is AsyncImagePainter.State.Error -> {
                 Image(
-                    imageVector = Icons.Outlined.NoAccounts,
+                    painter =  painterResource(R.drawable.ic_no_profile_img),
                     contentDescription = "Runner Image",
                     modifier = Modifier
                         .size(100.dp)

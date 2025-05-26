@@ -146,16 +146,15 @@ fun RunnerImage(runnerCard: RunnerCard, size: Dp) {
             }
 
             is AsyncImagePainter.State.Error -> {
-                //todo tratar o cenario de erro
+                //todo tratar o cenario de erro 2733204114
                 Image(
-                    imageVector = Icons.Outlined.AccountCircle,
+                    painter =  painterResource(R.drawable.ic_no_profile_img),
                     contentDescription = "Error loading image",
                     modifier = Modifier
                         .size(size),
                     colorFilter = ColorFilter.tint(
                         MaterialTheme.colorScheme.onSurface
                     )
-
                 )
             }
 
