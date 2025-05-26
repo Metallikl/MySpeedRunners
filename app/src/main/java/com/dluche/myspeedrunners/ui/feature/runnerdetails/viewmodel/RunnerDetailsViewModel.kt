@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class RunnerDetailsViewModel @Inject constructor(
     private val getRunnerUseCase: GetRunnerUseCase,
     private val getRunnerRunsUseCase: GetRunnerRunsUseCase,
+    private val getRunnerGamesUseCase: GetRunnerGamesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RunnerDetailsUiState())
@@ -75,6 +78,7 @@ class RunnerDetailsViewModel @Inject constructor(
             )
         }
         fetchRunnerRuns(runner.id)
+        fetchRunnerGames(runner.id)
     }
 
     private fun handleRunnerDetailsError(error: Throwable) {
@@ -118,4 +122,35 @@ class RunnerDetailsViewModel @Inject constructor(
         Log.e("RunnerDetailsViewModel", "Error fetching runner runs", throwable)
     }
 
+    private fun fetchRunnerGames(runnerId: String) {
+        _uiState.update { curState ->
+            curState.copy(
+                gamesState = RunnerDetailsUiState.GamesState.Loading
+            )
+        }
+        viewModelScope.launch {
+            getRunnerGamesUseCase(runnerId)
+                .onSuccess { handleGamesSuccess(it) }
+                .onFailure { handleGamesError(it) }
+        }
+    }
+
+    private fun handleGamesSuccess(games: List<Game>){
+        _uiState.update { curState ->
+            curState.copy(
+                gamesState = RunnerDetailsUiState.GamesState.Success(games = games)
+            )
+        }
+    }
+
+    private fun handleGamesError(throwable: Throwable) {
+        _uiState.update { curState ->
+            curState.copy(
+                gamesState = RunnerDetailsUiState.GamesState.Error(
+                    message = throwable.message ?: "Unknown error"
+                )
+            )
+        }
+        Log.e("RunnerDetailsViewModel", "Error fetching runner runs", throwable)
+    }
 }

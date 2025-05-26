@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.VideogameAsset
@@ -39,34 +43,37 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.R
+import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.extension.getTranslation
+import com.dluche.myspeedrunners.ui.components.GameGridCard
 import com.dluche.myspeedrunners.ui.components.InfoContent
 import com.dluche.myspeedrunners.ui.components.RunCard
+import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
@@ -75,6 +82,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsU
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 
 @Composable
@@ -102,25 +110,36 @@ fun RunnerDetailsScreen(
     ) { paddingValues ->
         when (uiState.headerState) {
             Loading -> {
-                Box(
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(100.dp)
-                    )
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .padding(paddingValues)
+//                        .fillMaxSize(),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    CircularProgressIndicator(
+//                        modifier = Modifier
+//                            .size(100.dp)
+//                    )
+//                }
+                RunnerDetailsContent(
+                    state = uiState.headerState,
+                    modifier = Modifier.padding(paddingValues),
+                    runner = runner1.copy(imageUrl = null),//rever
+                    runsState = uiState.runsState,
+                    gamesState = uiState.gamesState,
+                    onBackClick = onBackClick,
+                    tryAgain = tryAgain
+                )
 
             }
 
             is Success -> {
                 RunnerDetailsContent(
+                    state = uiState.headerState,
                     modifier = Modifier.padding(paddingValues),
                     runner = uiState.headerState.runner,
                     runsState = uiState.runsState,
+                    gamesState = uiState.gamesState,
                     onBackClick = onBackClick,
                     tryAgain = tryAgain
                 )
@@ -145,11 +164,13 @@ fun RunnerDetailsScreen(
 
 @Composable
 fun RunnerDetailsContent(
+    state: RunnerDetailsUiState.HeaderState,
     modifier: Modifier = Modifier,
     runner: Runner,
     runsState: RunnerDetailsUiState.RunsState,
+    gamesState: RunnerDetailsUiState.GamesState,
     tryAgain: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val backgroundColor = getBackgroundColor(isSystemInDarkTheme(), runner)
     Box(
@@ -201,15 +222,7 @@ fun RunnerDetailsContent(
                 }
             }
 
-            AsyncImage(
-                model = runner.imageUrl
-                    ?: "https://www.speedrun.com/static/user/kjp1v74j/image.png?v=8db2d00",
-                contentDescription = "Runner Image",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            RunnerImage(runner)
 
             Column(
                 modifier = Modifier
@@ -231,21 +244,24 @@ fun RunnerDetailsContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = runner.name,
-                    style = getRunnerNameTextStyle(runner.nameStyle),
-                )
+
+                if (state == Loading) {
+                    Box(
+                        modifier = Modifier
+                            .shimmer()
+                            .size(100.dp, 20.dp)
+                            .background(Color.LightGray)
+                    )
+                } else {
+                    Text(
+                        text = runner.name,
+                        style = getRunnerNameTextStyle(runner.nameStyle),
+                    )
+                }
 
                 val tabItems = getTabList()
-               // var selectedTabIndex by remember { mutableStateOf(0) }
                 val pagerState = rememberPagerState(pageCount = { tabItems.size })
                 val scope = rememberCoroutineScope()
-
-//                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-//                    if (pagerState.currentPage == pagerState.targetPage) {
-//                        selectedTabIndex = pagerState.currentPage
-//                    }
-//                }
 
                 TabRow(selectedTabIndex = pagerState.currentPage) {
                     tabItems.forEachIndexed { index, tabItem ->
@@ -256,13 +272,13 @@ fun RunnerDetailsContent(
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-//                            text = {
-//                                Text(
-//                                    text = tabItem.title,
-//                                    fontSize = 10.sp,
-//                                    color = MaterialTheme.colorScheme.onBackground
-//                                )
-//                            },
+                            text = {
+                                Text(
+                                    text = tabItem.title,
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            },
                             icon = {
                                 Icon(
                                     imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
@@ -291,19 +307,55 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.GAMES -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Games",
-                                    style = MaterialTheme.typography.headlineSmall
-                                )
-                            }
+                            GamesStateHandler(gamesState)
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun RunnerImage(runner: Runner) {
+    val painter = rememberAsyncImagePainter(runner.imageUrl)
+    val state = painter.state.collectAsState()
+
+    when (state.value) {
+        AsyncImagePainter.State.Empty,
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .size(150.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
+
+            )
+        }
+
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = "Runner Image",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            Image(
+                imageVector = Icons.Outlined.CloudOff,
+                contentDescription = "Runner Image",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(8.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+            )
         }
     }
 }
@@ -327,7 +379,85 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
             }
         }
 
-        RunnerDetailsUiState.RunsState.Loading -> {
+        RunnerDetailsUiState.RunsState.Loading -> RunsSkeletonList()
+
+        is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
+    }
+
+}
+
+@Composable
+fun RunsSkeletonList() {
+    Column {
+        for (i in 1..10) {
+            RunCardSkeleton()
+        }
+    }
+}
+
+@Composable
+private fun RunsContainer(runs: List<Run>) {
+    if (runs.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(runs) {
+                RunCard(
+                    gameUrl = it.game.imageUrl,
+                    gameName = it.game.name,
+                    category = it.category.name,
+                    status = it.status.getTranslation(),
+                    submitted = it.date,
+                    onClick = {
+
+                    }
+                )
+            }
+        }
+    } else {
+        EmptyListComponent(stringResource(R.string.no_runs_found_label))
+    }
+}
+
+@Composable
+private fun EmptyListComponent(label: String) {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize(),
+        contentAlignment = Alignment.Center
+
+
+    ) {
+        Text(
+            text = label ,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Composable
+private fun GamesStateHandler(gamesState: RunnerDetailsUiState.GamesState) {
+    when (gamesState) {
+        is RunnerDetailsUiState.GamesState.Error -> {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    imageVector = Icons.Outlined.ErrorOutline,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
+        }
+
+        RunnerDetailsUiState.GamesState.Loading -> {
             Box(
                 modifier = Modifier
                     .padding(16.dp)
@@ -341,29 +471,27 @@ private fun RunsStateHandler(runsState: RunnerDetailsUiState.RunsState) {
             }
         }
 
-        is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
+        is RunnerDetailsUiState.GamesState.Success -> GamesContainer(gamesState.games)
     }
 
 }
 
 @Composable
-private fun RunsContainer(runs: List<Run>) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(runs) {
-            RunCard(
-                gameUrl = it.game.imageUrl,
-                gameName = it.game.name,
-                category = it.category.name,
-                status = it.status.getTranslation(),
-                submitted = it.date,
-                onClick = {
-
-                }
-            )
+private fun GamesContainer(games: List<Game>) {
+    if(games.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(games) { game ->
+                GameGridCard(
+                    game,
+                    onClick = {}
+                )
+            }
         }
+    } else{
+        EmptyListComponent(stringResource(R.string.no_moderated_games_label))
     }
 }
 
