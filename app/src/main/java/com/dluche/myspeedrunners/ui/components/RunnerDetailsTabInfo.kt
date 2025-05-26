@@ -2,6 +2,7 @@ package com.dluche.myspeedrunners.ui.components
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -25,16 +27,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
+import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
 @Composable
-fun InfoContent(
+fun RunnerDetailsInfo(
     runner: Runner,
     modifier: Modifier = Modifier
 ) {
@@ -44,7 +48,10 @@ fun InfoContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        runner.location?.let {
+        runner.location.RunWithNotNullNorEmpty { locationName ->
+            val painter = rememberAsyncImagePainter(runner.locationUrl)
+            val locationUrlState = painter.state.collectAsState()
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,25 +60,32 @@ fun InfoContent(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                AsyncImage(
-                    model = runner.locationUrl,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    placeholder = painterResource(id = R.drawable.ic_map_marker_radius),
-                    error = painterResource(id = R.drawable.ic_map_marker_radius),
-                    colorFilter = if (runner.locationUrl == null) {
-                        ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
-                    } else null
-                )
+                when(locationUrlState.value){
+                    is AsyncImagePainter.State.Success -> {
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                    else ->{
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_map_marker_radius),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                        )
+                    }
+                }
 
                 Text(
-                    text = runner.location,
+                    text = locationName,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
 
-        runner.pronouns?.let {
+        runner.pronouns.RunWithNotNullNorEmpty{ pronouns ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -88,7 +102,7 @@ fun InfoContent(
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = it,
+                    text = pronouns,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -176,7 +190,7 @@ fun linkToWebpage(context: Context, url: String) {
 @Composable
 private fun RunnerDetailsTabInfoPreview() {
     MySpeedRunnersTheme {
-        InfoContent(
+        RunnerDetailsInfo(
             runner1
         )
     }

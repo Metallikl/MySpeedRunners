@@ -50,7 +50,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -71,7 +70,7 @@ import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.GameGridCard
-import com.dluche.myspeedrunners.ui.components.InfoContent
+import com.dluche.myspeedrunners.ui.components.RunnerDetailsInfo
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
@@ -288,7 +287,7 @@ fun RunnerDetailsContent(
 
                     when (tabItems[pagerState.currentPage].tabType) {
                         RunnerDetailsTabType.SOCIAL_NETWORK -> {
-                            InfoContent(runner = runner)
+                            RunnerDetailsInfo(runner = runner)
                         }
 
                         RunnerDetailsTabType.RUNS -> {
