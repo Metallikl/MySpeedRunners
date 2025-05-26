@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -210,7 +211,7 @@ fun RunnerDetailsContent(
                 }
             }
 
-            RunnerImage(runner)
+            RunnerImageHandler(state, runner)
 
             Column(
                 modifier = Modifier
@@ -291,11 +292,11 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.RUNS -> {
-                            RunsStateHandler(runsState,onDispatchEvents)
+                            RunsStateHandler(runsState, onDispatchEvents)
                         }
 
                         RunnerDetailsTabType.GAMES -> {
-                            GamesStateHandler(gamesState,onDispatchEvents)
+                            GamesStateHandler(gamesState, onDispatchEvents)
                         }
                     }
                 }
@@ -305,47 +306,63 @@ fun RunnerDetailsContent(
 }
 
 @Composable
-fun RunnerImage(runner: Runner) {
-    val painter = rememberAsyncImagePainter(runner.imageUrl)
-    val state = painter.state.collectAsState()
-
-    when (state.value) {
-        AsyncImagePainter.State.Empty,
-        is AsyncImagePainter.State.Loading -> {
-            Box(
-                modifier = Modifier
-                    .shimmer()
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray)
-
-            )
-        }
-
-        is AsyncImagePainter.State.Success -> {
-            Image(
-                painter = painter,
-                contentDescription = "Runner Image",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        is AsyncImagePainter.State.Error -> {
-            Image(
-                imageVector = Icons.Outlined.NoAccounts,
-                contentDescription = "Runner Image",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(8.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
-            )
-        }
+fun RunnerImageHandler(headerState: RunnerDetailsUiState.HeaderState, runner: Runner) {
+    if (headerState == Loading) {
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .size(150.dp)
+                .clip(CircleShape)
+                .background(Color.Gray)
+        )
+    } else {
+        RunnerImage(runner)
     }
+}
+
+
+@Composable
+fun RunnerImage(runner: Runner) {
+        val painter = rememberAsyncImagePainter(runner.imageUrl)
+        val state = painter.state.collectAsState()
+
+        when (state.value) {
+            AsyncImagePainter.State.Empty,
+            is AsyncImagePainter.State.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .shimmer()
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray)
+
+                )
+            }
+
+            is AsyncImagePainter.State.Success -> {
+                Image(
+                    painter = painter,
+                    contentDescription = "Runner Image",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            is AsyncImagePainter.State.Error -> {
+                Image(
+                    imageVector = Icons.Outlined.NoAccounts,
+                    contentDescription = "Runner Image",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                )
+            }
+        }
 }
 
 @Composable
