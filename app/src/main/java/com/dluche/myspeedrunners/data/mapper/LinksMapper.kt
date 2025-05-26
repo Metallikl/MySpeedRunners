@@ -11,3 +11,10 @@ fun List<LinkDto>.mapToDomainLinks(): List<LinkModel> {
         )
     }
 }
+
+fun LinkDto.mapToDomainLink(): LinkModel {
+    return LinkModel(
+            rel = this.rel,
+            uri = this.uri
+        )
+}

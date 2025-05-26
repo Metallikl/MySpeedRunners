@@ -28,8 +28,6 @@ import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NoAccounts
@@ -77,6 +75,7 @@ import com.dluche.myspeedrunners.ui.components.InfoContent
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.fake.runner1
+import com.dluche.myspeedrunners.ui.fake.runnerPlaceholder
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
@@ -84,6 +83,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsU
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.dluche.myspeedrunners.ui.utils.getRunnerGradientColor
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 
@@ -127,7 +127,7 @@ fun RunnerDetailsScreen(
                 RunnerDetailsContent(
                     state = uiState.headerState,
                     modifier = Modifier.padding(paddingValues),
-                    runner = runner1.copy(imageUrl = null),//rever
+                    runner = runnerPlaceholder,//rever
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
                     onBackClick = onBackClick,
@@ -175,12 +175,13 @@ fun RunnerDetailsContent(
     tryAgain: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    val backgroundColor = getBackgroundColor(isSystemInDarkTheme(), runner)
+    val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(
-                brush = Brush.horizontalGradient(backgroundColor)
+                brush = backgroundColor
             )
     ) {
         Column(

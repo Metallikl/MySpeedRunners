@@ -11,7 +11,7 @@ data class Run(
     val game: Game,
     val id: String,
     val links: List<LinkModel>,
-    val splits: String,
+    val splits: LinkModel?,
     val submitted: String,
     val videos: List<String>,
     val weblink: String,

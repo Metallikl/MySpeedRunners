@@ -26,7 +26,7 @@ data class RunDto(
     @SerialName("players")
     val players: List<PlayerDto>? = null,
     @SerialName("splits")
-    val splits: String? = null,
+    val splits: LinkDto? = null,
     @SerialName("status")
     val status: StatusDto? = null,
     @SerialName("submitted")
