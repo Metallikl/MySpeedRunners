@@ -17,4 +17,8 @@
     <string name="run_status_unknown">Desconhecida</string>
     <string name="no_runs_found_label">Nenhuma run encontrada</string>
     <string name="no_moderated_games_label">Esse runner não modera nenhum jogo</string>
+    <string name="count_result_found">%1$s resultados encontrados</string>
+    <string name="search_runner">Buscar runner</string>
+    <string name="error_something_went_wrong_lbl">Algo deu errado!</string>
+    <string name="retry">Tentar novamente</string>
 </resources>

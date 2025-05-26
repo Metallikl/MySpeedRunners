@@ -45,3 +45,28 @@ val runner1 = Runner(
     role = RoleEnum.USER,
     signup = "2025-04-04"
 )
+
+val runnerPlaceholder = Runner(
+    id = "",
+    name = "",
+    pronouns = "",
+    japaneseName = "",
+    location = "",
+    locationUrl = "",
+    iconUrl = "",
+    imageUrl = "",
+    webLink = "",
+    socialNetworks = emptyList(),
+    nameStyle = NameStyle(
+        style = NameStyleEnum.SOLID,
+        color = ColorTheme(
+            light = "#D3D3D3",
+            dark = "#D3D3D3"
+        ),
+        colorFrom = null,
+        colorTo = null
+    ),
+    links = listOf(),
+    role = RoleEnum.USER,
+    signup = ""
+)

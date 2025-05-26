@@ -6,6 +6,8 @@ import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -24,5 +26,9 @@ interface UseCaseModule {
 
     @Binds
     fun bindGetRunnerGamesUseCase(getRunnerGamesUseCase: GetRunnerGamesUseCaseImpl): GetRunnerGamesUseCase
+
+    @Binds
+    fun bindSearchRunnersUseCase(searchRunnersUseCase: SearchRunnersUseCaseImpl): SearchRunnersUseCase
+
 
 }

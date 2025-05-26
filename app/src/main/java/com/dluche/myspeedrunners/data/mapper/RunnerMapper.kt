@@ -8,6 +8,7 @@ import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.RoleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetwork
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
 import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType.SPEEDRUNSLIVE
@@ -32,6 +33,21 @@ fun RunnerDto.asDomainModel() = Runner(
     role = RoleEnum.fromString(this.role),
     signup = this.signup?.formatToDate()
 )
+
+fun RunnerDto.asCardDomainModel() = RunnerCard(
+    id = this.id.orEmpty(),
+    name = this.names?.international.orEmpty(),
+    pronouns = this.pronouns,
+    japaneseName = this.names?.japanese,
+    location = getLocation(),
+    locationUrl = getLocationUrl(),
+    imageUrl = this.assets?.image?.uri,
+    nameStyle = nameStyle?.mapToDomainNameStyle(),
+    role = RoleEnum.fromString(this.role),
+    signup = this.signup?.formatToDate()
+)
+
+
 
 private fun RunnerDto.mapToDomainSocialNetworks(): List<SocialNetwork> {
     val socialNetworkList = mutableListOf<SocialNetwork>()
