@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.data.datasource.run
 
+import com.dluche.myspeedrunners.data.datasource.model.run.RunSingleWrapperDto
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.data.datasource.model.run.RunWrapperDto
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
@@ -36,6 +37,14 @@ class RunDataSourceImpl @Inject constructor(
 
     override suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto {
         return client.get(RUNNER_RUNS_URL + buildEmbedInfo(embedParams)).body()
+    }
+
+
+    override suspend fun getRunById(
+        runId: String,
+        embedParams: EmbedParams?
+    ): RunSingleWrapperDto {
+        return client.get(RUNNER_RUNS_URL +"/" + runId +"?" + buildEmbedInfo(embedParams)).body()
     }
 
     private fun buildEmbedInfo(params: EmbedParams?): String = params?.let {

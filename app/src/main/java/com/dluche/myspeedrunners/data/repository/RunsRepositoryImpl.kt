@@ -1,11 +1,13 @@
 package com.dluche.myspeedrunners.data.repository
 
+import android.util.Log
 import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.run.RunDataSource
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.repository.RunsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -33,6 +35,22 @@ class RunsRepositoryImpl @Inject constructor(
         return withContext(dispatcher) {
             runCatching {
                 dataSource.getRuns(embedParams).asDomainModel()
+            }
+        }
+    }
+
+    override suspend fun getRunById(
+        runId: String,
+        embedParams: EmbedParams?
+    ): Result<Run> {
+        return withContext(dispatcher) {
+            runCatching {
+                dataSource.getRunById(
+                    runId,embedParams
+                ).data?.asDomainModel() ?: run{
+                    Log.d("runId", "run is null")
+                    throw Exception("RunnerNotFound")
+                }
             }
         }
     }
