@@ -21,4 +21,5 @@
     <string name="search_runner">Search runner</string>
     <string name="error_something_went_wrong_lbl">Something went wrong</string>
     <string name="retry">Retry</string>
+    <string name="category_label">Category</string>
 </resources>

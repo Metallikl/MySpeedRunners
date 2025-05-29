@@ -31,6 +31,9 @@ fun MySpeedRunnersNavHost() {
 
         composable<RunnerDetails> {
             RunnerDetailsRoute(
+                navigateToRunDetails = { runId ->
+                    navController.navigate(RunDetails(runId))
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }

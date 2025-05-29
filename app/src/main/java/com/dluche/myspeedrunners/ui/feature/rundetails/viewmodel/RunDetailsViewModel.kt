@@ -3,6 +3,9 @@ package com.dluche.myspeedrunners.ui.feature.rundetails.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.CATEGORY
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunByIdUseCase
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
@@ -34,7 +37,10 @@ class RunDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { RunDetailsUiState.Loading }
 
-            getRunByIdUseCase(runId)
+            getRunByIdUseCase(
+                runId,
+                EmbedParams(GAMES, CATEGORY)
+            )
                 .onSuccess {
                     handleRunSuccess(it)
                 }.onFailure {
