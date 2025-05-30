@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.feature.rundetails.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -33,8 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +50,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleState
+import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
@@ -89,7 +96,9 @@ fun RunDetailsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.2f)),
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0f))
+                    .padding(end = 16.dp)
+                ,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
 
@@ -108,15 +117,17 @@ fun RunDetailsScreen(
                     )
                 }
 
+                GameNameComponent(uiState)
             }
+            val scrollState = rememberScrollState()
+
             Column(
                 modifier = Modifier
+                    .verticalScroll(scrollState)
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
             ) {
                 GameCoverComponent(uiState)
-
-                GameNameComponent(uiState)
 
                 CategoryComponent(uiState)
 
@@ -221,9 +232,9 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun GameNameComponent(uiState: RunDetailsUiState) {
-    Card(
-        modifier = Modifier
+fun GameNameComponent(uiState: RunDetailsUiState,modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
     ) {
@@ -231,7 +242,7 @@ fun GameNameComponent(uiState: RunDetailsUiState) {
         if (uiState is RunDetailsUiState.Success) {
             Text(
                 text = uiState.run.game.name,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
@@ -245,7 +256,7 @@ fun GameNameComponent(uiState: RunDetailsUiState) {
                     .fillMaxWidth()
                     .height(32.dp)
                     .background(Color.Gray)
-                    .align(Alignment.CenterHorizontally)
+
             )
         }
     }
@@ -254,37 +265,60 @@ fun GameNameComponent(uiState: RunDetailsUiState) {
 @Composable
 fun CategoryComponent(uiState: RunDetailsUiState) {
     if (uiState is RunDetailsUiState.Success) {
-        Text(
-            text = stringResource(R.string.category_label),
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier
-                .wrapContentWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = CircleShape.copy(
-                        bottomStart = CornerSize(0.dp),
-                        bottomEnd = CornerSize(0.dp)
-                    )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = CardDefaults.cardColors().containerColor.copy(
+                    alpha = 0.5f
                 )
-                .padding(8.dp),
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+            ),
+           // border = BorderStroke(1.dp, Color.Magenta)
+        ) {
 
-        Text(
-            text = uiState.run.category.name,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = CircleShape.copy(
-                        topStart = CornerSize(0.dp),
-                    )
+            Text(
+                text = stringResource(R.string.category_label),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(8.dp),
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = uiState.run.category.name,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            uiState.run.category.rules.RunWithNotNullNorEmpty {
+                Text(
+                    text = stringResource(R.string.rules_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
                 )
-                .padding(8.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+
+                Text(
+                    text = uiState.run.category.rules,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
 
     } else {
         Box(
