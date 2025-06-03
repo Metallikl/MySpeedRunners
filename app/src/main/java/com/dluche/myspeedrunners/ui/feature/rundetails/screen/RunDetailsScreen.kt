@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -52,11 +53,13 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleState
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
+import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.rundetails.viewmodel.RunDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
+import okhttp3.internal.wait
 
 @Composable
 fun RunDetailsRoute(onBackClick: () -> Unit) {
@@ -97,8 +100,7 @@ fun RunDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background.copy(alpha = 0f))
-                    .padding(end = 16.dp)
-                ,
+                    .padding(end = 16.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
 
@@ -129,6 +131,8 @@ fun RunDetailsScreen(
             ) {
                 GameCoverComponent(uiState)
 
+                RunStatusContainer(uiState)
+
                 CategoryComponent(uiState)
 
                 if (uiState is RunDetailsUiState.Error) {
@@ -138,6 +142,40 @@ fun RunDetailsScreen(
                         },
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun RunStatusContainer(uiState: RunDetailsUiState) {
+    when (uiState) {
+        RunDetailsUiState.Initial,
+        RunDetailsUiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .fillMaxWidth(0.5f)
+                    .background(MaterialTheme.colorScheme.background, CircleShape)
+                    .padding(vertical = 16.dp)
+            )
+        }
+
+        is RunDetailsUiState.Error -> {
+
+        }
+
+        is RunDetailsUiState.Success -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                ,
+                contentAlignment = Alignment.Center,
+            ) {
+                RunStatusComponent(
+                    uiState.run.status
+                )
             }
         }
     }
@@ -232,7 +270,7 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun GameNameComponent(uiState: RunDetailsUiState,modifier: Modifier = Modifier) {
+fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -272,7 +310,7 @@ fun CategoryComponent(uiState: RunDetailsUiState) {
                     alpha = 0.5f
                 )
             ),
-           // border = BorderStroke(1.dp, Color.Magenta)
+            // border = BorderStroke(1.dp, Color.Magenta)
         ) {
 
             Text(
@@ -297,7 +335,7 @@ fun CategoryComponent(uiState: RunDetailsUiState) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            uiState.run.category.rules.RunWithNotNullNorEmpty {
+            uiState.run.category.rules.RunWithNotNullNorEmpty { rules ->
                 Text(
                     text = stringResource(R.string.rules_label),
                     style = MaterialTheme.typography.titleSmall,
@@ -310,7 +348,29 @@ fun CategoryComponent(uiState: RunDetailsUiState) {
                 )
 
                 Text(
-                    text = uiState.run.category.rules,
+                    text = rules,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            uiState.run.comment.RunWithNotNullNorEmpty { commentText ->
+                Text(
+                    text = stringResource(R.string.comment_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = commentText,
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier
                         .fillMaxWidth()
