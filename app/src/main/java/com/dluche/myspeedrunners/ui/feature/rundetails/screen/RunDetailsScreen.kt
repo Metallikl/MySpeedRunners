@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -119,7 +121,8 @@ fun RunDetailsScreen(
                 modifier = Modifier
                     .verticalScroll(scrollState)
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 GameCoverComponent(uiState)
 
@@ -177,7 +180,7 @@ fun RunStatusContainer(uiState: RunDetailsUiState) {
                         .align(Alignment.CenterHorizontally),
                 )
 
-                uiState.run.primaryTime.RunWithNotNullNorEmpty { time->
+                uiState.run.primaryTime.RunWithNotNullNorEmpty { time ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -293,9 +296,8 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .padding(vertical = 16.dp),
-
-        ) {
+            .padding(vertical = 16.dp)
+    ) {
         if (uiState is RunDetailsUiState.Success) {
             val coverPainter = rememberAsyncImagePainter(uiState.run.game.imageUrl)
             val coverPainterState = coverPainter.state.collectAsState()
@@ -305,8 +307,9 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
                     Image(
                         painter = coverPainter,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
+                        modifier = Modifier.fillMaxSize().aspectRatio(2f),
+                        contentScale = ContentScale.FillBounds,
+
                     )
                 }
             )
@@ -364,8 +367,7 @@ fun ContentComponent(uiState: RunDetailsUiState) {
             )
         ) {
             Column(
-                modifier = Modifier.
-                padding(8.dp)
+                modifier = Modifier.padding(8.dp)
             ) {
                 RunStatusContainer(uiState)
 
