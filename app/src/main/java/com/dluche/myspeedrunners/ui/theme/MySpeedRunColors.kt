@@ -18,4 +18,8 @@ object MySpeedRunColors {
     val onWarning = Color(0xFFFFFDE7)
     val warningContainer = Color(0xFFFFE093)
     val onWarningContainer = Color(0xFF261A00)
+
+    val verifiedGreen = Color(0xFF22C55E)
+    val newYellow = Color(0xFFEAB308)
+    val rejectedRed = Color(0xFFEF4444)
 }

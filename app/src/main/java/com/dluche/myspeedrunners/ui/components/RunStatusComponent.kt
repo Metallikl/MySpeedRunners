@@ -1,19 +1,18 @@
 package com.dluche.myspeedrunners.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material.icons.outlined.NotInterested
-import androidx.compose.material.icons.outlined.Stars
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,55 +40,51 @@ fun RunStatusComponent(
 ) {
     val text = runStatus.getTranslation()
     var color by remember { mutableStateOf(MySpeedRunColors.warning) }
-    var background by remember { mutableStateOf(MySpeedRunColors.warningContainer) }
     var icon: ImageVector by remember { mutableStateOf(Icons.Filled.Star) }
 
     when (runStatus) {
         RunStatusEnum.NEW -> {
-            color = MySpeedRunColors.warning
-            background = MySpeedRunColors.warningContainer
-            icon = Icons.Outlined.Stars
+            color = MySpeedRunColors.newYellow
+            icon = Icons.Filled.Stars
         }
 
         RunStatusEnum.VERIFIED -> {
-            color = MySpeedRunColors.success
-            background = MySpeedRunColors.successContainer
-            icon = Icons.Outlined.CheckCircle
+            color = MySpeedRunColors.verifiedGreen
+            icon = Icons.Filled.CheckCircle
         }
+
         RunStatusEnum.REJECTED -> {
-            color = MySpeedRunColors.error
-            background = MySpeedRunColors.errorContainer
-            icon = Icons.Outlined.ErrorOutline
+            color = MySpeedRunColors.rejectedRed
+            icon = Icons.Filled.Error
         }
+
         RunStatusEnum.UNKNOWN -> {
             color = Color.Gray
-            background = Color.LightGray
             icon = Icons.Outlined.NotInterested
         }
     }
 
     Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .border(1.dp, color, CircleShape)
-            .background(background.copy(alpha = 0.9f), CircleShape)
-            .padding(8.dp),
+        modifier = modifier
+            .wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
-    ){
+    ) {
 
         Icon(
             imageVector = icon,
             contentDescription = text,
             tint = color,
-            modifier = Modifier.padding(end = 4.dp)
+            modifier = Modifier
+                .size(24.dp)
+                .padding(end = 4.dp)
         )
 
         Text(
-           text = text,
+            text = text,
             color = color,
+            style = MaterialTheme.typography.labelSmall
         )
-
     }
 
 
@@ -99,7 +94,7 @@ fun RunStatusComponent(
 @Composable
 private fun RunStatusComponentPreview(
     @PreviewParameter(RunStatusPreviewParam::class)
-    runStaTus : RunStatusEnum
+    runStaTus: RunStatusEnum
 ) {
     MySpeedRunnersTheme {
         RunStatusComponent(

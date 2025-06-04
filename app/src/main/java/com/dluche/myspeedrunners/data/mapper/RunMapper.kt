@@ -5,6 +5,8 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
 import com.dluche.myspeedrunners.extension.formatToDate
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration
+import kotlin.times
 
 fun RunDto.asDomainModel(): Run {
     return Run(
@@ -18,6 +20,12 @@ fun RunDto.asDomainModel(): Run {
         submitted = this.submitted?.formatToDate().orEmpty(),
         videos = this.videos?.links?.asStringList().orEmpty(),
         weblink = this.weblink.orEmpty(),
-        status = RunStatusEnum.fromString(this.status?.status)
+        status = RunStatusEnum.fromString(this.status?.status),
+        primaryTime = getPrimaryTime(this.times?.primary)
     )
+}
+
+private fun getPrimaryTime(primary: String?): String {
+    if(primary.isNullOrEmpty()) return ""
+    return Duration.parseIsoStringOrNull(primary)?.toString().orEmpty()
 }

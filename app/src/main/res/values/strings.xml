@@ -24,4 +24,7 @@
     <string name="category_label">Category</string>
     <string name="rules_label">Rule</string>
     <string name="comment_label">Comment</string>
+    <string name="status_label">Status</string>
+    <string name="submitted_label">Submitted</string>
+    <string name="time_label">Time</string>
 </resources>

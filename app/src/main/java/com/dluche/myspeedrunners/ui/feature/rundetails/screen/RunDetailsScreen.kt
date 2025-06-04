@@ -1,6 +1,5 @@
 package com.dluche.myspeedrunners.ui.feature.rundetails.screen
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,25 +10,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,10 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,12 +46,12 @@ import com.dluche.myspeedrunners.extension.HandleState
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
+import com.dluche.myspeedrunners.ui.fake.run1
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.rundetails.viewmodel.RunDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
-import okhttp3.internal.wait
 
 @Composable
 fun RunDetailsRoute(onBackClick: () -> Unit) {
@@ -131,9 +123,7 @@ fun RunDetailsScreen(
             ) {
                 GameCoverComponent(uiState)
 
-                RunStatusContainer(uiState)
-
-                CategoryComponent(uiState)
+                ContentComponent(uiState)
 
                 if (uiState is RunDetailsUiState.Error) {
                     GenericErrorWithButtonComponent(
@@ -166,16 +156,78 @@ fun RunStatusContainer(uiState: RunDetailsUiState) {
         }
 
         is RunDetailsUiState.Success -> {
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-                ,
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                }
                 RunStatusComponent(
-                    uiState.run.status
+                    runStatus = uiState.run.status,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp)
+                        .align(Alignment.CenterHorizontally),
                 )
+
+                uiState.run.primaryTime.RunWithNotNullNorEmpty { time->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        Text(
+                            text = stringResource(R.string.time_label),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .wrapContentWidth(),
+                            fontWeight = Bold
+                        )
+
+                        Text(
+                            modifier = Modifier
+                                .wrapContentWidth(),
+                            text = time,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Text(
+                        text = stringResource(R.string.submitted_label),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .wrapContentWidth(),
+                        fontWeight = Bold
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .wrapContentWidth(),
+                        text = uiState.run.submitted,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         }
     }
@@ -294,90 +346,34 @@ fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier)
                     .fillMaxWidth()
                     .height(32.dp)
                     .background(Color.Gray)
-
             )
         }
     }
 }
 
 @Composable
-fun CategoryComponent(uiState: RunDetailsUiState) {
+fun ContentComponent(uiState: RunDetailsUiState) {
     if (uiState is RunDetailsUiState.Success) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = CardDefaults.cardColors().containerColor.copy(
                     alpha = 0.5f
                 )
-            ),
-            // border = BorderStroke(1.dp, Color.Magenta)
+            )
         ) {
+            Column(
+                modifier = Modifier.
+                padding(8.dp)
+            ) {
+                RunStatusContainer(uiState)
 
-            Text(
-                text = stringResource(R.string.category_label),
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(8.dp),
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            )
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = uiState.run.category.name,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            uiState.run.category.rules.RunWithNotNullNorEmpty { rules ->
-                Text(
-                    text = stringResource(R.string.rules_label),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(8.dp),
-                    textAlign = TextAlign.Start,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = rules,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                CategoryContainer(uiState)
             }
 
-            uiState.run.comment.RunWithNotNullNorEmpty { commentText ->
-                Text(
-                    text = stringResource(R.string.comment_label),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(8.dp),
-                    textAlign = TextAlign.Start,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = commentText,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
         }
 
     } else {
@@ -391,12 +387,77 @@ fun CategoryComponent(uiState: RunDetailsUiState) {
     }
 }
 
+@Composable
+private fun CategoryContainer(uiState: RunDetailsUiState.Success) {
+    Text(
+        text = stringResource(R.string.category_label),
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier
+            .wrapContentWidth(),
+        textAlign = TextAlign.Start,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontWeight = Bold
+    )
+
+    Text(
+        text = uiState.run.category.name,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.onSurface
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    uiState.run.category.rules.RunWithNotNullNorEmpty { rules ->
+        Text(
+            text = stringResource(R.string.rules_label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .wrapContentWidth(),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = Bold
+        )
+
+        Text(
+            text = rules,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    uiState.run.comment.RunWithNotNullNorEmpty { commentText ->
+        Text(
+            text = stringResource(R.string.comment_label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .wrapContentWidth(),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = Bold
+        )
+
+        Text(
+            text = commentText,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun RunDetailsScreenPreview() {
     MySpeedRunnersTheme {
         RunDetailsScreen(
-            uiState = RunDetailsUiState.Initial,
+            uiState = RunDetailsUiState.Success(run1),
             onDispatchEvent = {},
             onBackClick = {},
         )

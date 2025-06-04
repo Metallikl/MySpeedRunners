@@ -68,7 +68,6 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
-import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.GameGridCard
 import com.dluche.myspeedrunners.ui.components.RunnerDetailsInfo
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
@@ -419,7 +418,7 @@ private fun RunsContainer(
                     gameUrl = it.game.imageUrl,
                     gameName = it.game.name,
                     category = it.category.name,
-                    status = it.status.getTranslation(),
+                    status = it.status,
                     submitted = it.date,
                     onClick = {
                         navigateToRunDetails(it.id)
