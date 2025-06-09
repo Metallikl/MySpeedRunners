@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -46,8 +50,10 @@ import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleState
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
+import com.dluche.myspeedrunners.extension.urlToEmbedded
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
+import com.dluche.myspeedrunners.ui.components.RunWebViewContent
 import com.dluche.myspeedrunners.ui.fake.run1
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
@@ -307,7 +313,7 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
                     Image(
                         painter = coverPainter,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().aspectRatio(2f),
+                        modifier = Modifier.fillMaxSize().aspectRatio(16 / 9f),
                         contentScale = ContentScale.FillBounds,
 
                     )
@@ -346,6 +352,7 @@ fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier)
             Box(
                 modifier = Modifier
                     .shimmer()
+                    .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
                     .height(32.dp)
                     .background(Color.Gray)
@@ -359,7 +366,8 @@ fun ContentComponent(uiState: RunDetailsUiState) {
     if (uiState is RunDetailsUiState.Success) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = CardDefaults.cardColors().containerColor.copy(
                     alpha = 0.5f
@@ -374,18 +382,39 @@ fun ContentComponent(uiState: RunDetailsUiState) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 CategoryContainer(uiState)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                RunLinksContent(uiState)
             }
-
         }
-
     } else {
         Box(
             modifier = Modifier
                 .shimmer()
+                .clip(RoundedCornerShape(8.dp))
                 .fillMaxWidth()
-                .height(32.dp)
+                .height(400.dp)
                 .background(Color.Gray)
         )
+    }
+}
+
+@Composable
+fun RunLinksContent(uiState: RunDetailsUiState.Success) {
+    uiState.run.videos.RunWithNotNullNorEmpty { links ->
+        links.forEach {
+            RunWebViewContent(
+                url = it.urlToEmbedded(),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .height(200.dp),
+                showUrlText = true,
+
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 
