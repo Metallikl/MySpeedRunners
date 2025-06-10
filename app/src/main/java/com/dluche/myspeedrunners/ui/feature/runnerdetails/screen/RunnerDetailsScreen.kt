@@ -91,14 +91,16 @@ import kotlinx.coroutines.launch
 fun RunnerDetailsRoute(
     viewModel: RunnerDetailsViewModel = hiltViewModel(),
     navigateToRunDetails: (String) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    navigateToGameDetails:  (String) -> Unit = {},
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
         uiState = uiState.value,
         navigateToRunDetails = navigateToRunDetails,
         onBackClick = onBackClick,
-        onDispatchEvent = { viewModel.dispatchEvent(it) }
+        onDispatchEvent = { viewModel.dispatchEvent(it) },
+        navigateToGameDetails = navigateToGameDetails
     )
 }
 
@@ -109,6 +111,7 @@ fun RunnerDetailsScreen(
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
     onDispatchEvent: (RunnerDetailsEvents) -> Unit,
+    navigateToGameDetails: (String) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
@@ -121,9 +124,10 @@ fun RunnerDetailsScreen(
                     runner = runnerPlaceholder,//rever
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
+                    onDispatchEvents = onDispatchEvent,
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
-                    onDispatchEvents = onDispatchEvent
+                    navigateToGameDetails = navigateToGameDetails
                 )
             }
 
@@ -137,6 +141,7 @@ fun RunnerDetailsScreen(
                     onDispatchEvents = onDispatchEvent,
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
+                    navigateToGameDetails = navigateToGameDetails
                 )
             }
 
@@ -163,6 +168,7 @@ fun RunnerDetailsContent(
     onDispatchEvents: (RunnerDetailsEvents) -> Unit,
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
+    navigateToGameDetails: (String) -> Unit,
 ) {
     val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
 
@@ -300,7 +306,7 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.GAMES -> {
-                            GamesStateHandler(gamesState, onDispatchEvents)
+                            GamesStateHandler(gamesState, onDispatchEvents,navigateToGameDetails)
                         }
                     }
                 }
@@ -452,7 +458,8 @@ private fun EmptyListComponent(label: String) {
 @Composable
 private fun GamesStateHandler(
     gamesState: RunnerDetailsUiState.GamesState,
-    onDispatchEvent: (RunnerDetailsEvents) -> Unit
+    onDispatchEvent: (RunnerDetailsEvents) -> Unit,
+    navigateToGameDetails: (String) -> Unit
 ) {
     when (gamesState) {
         is RunnerDetailsUiState.GamesState.Error -> {
@@ -479,13 +486,13 @@ private fun GamesStateHandler(
             }
         }
 
-        is RunnerDetailsUiState.GamesState.Success -> GamesContainer(gamesState.games)
+        is RunnerDetailsUiState.GamesState.Success -> GamesContainer(gamesState.games,navigateToGameDetails)
     }
 
 }
 
 @Composable
-private fun GamesContainer(games: List<Game>) {
+private fun GamesContainer(games: List<Game>, navigateToGameDetails: (String) -> Unit) {
     if (games.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp),
@@ -494,7 +501,7 @@ private fun GamesContainer(games: List<Game>) {
             items(games) { game ->
                 GameGridCard(
                     game,
-                    onClick = {}
+                    onClick = {navigateToGameDetails(game.id)}
                 )
             }
         }
@@ -592,9 +599,10 @@ private fun RunnerDetailsScreenSuccessPreview() {
                 ),
                 runsState = RunnerDetailsUiState.RunsState.Loading
             ),
+            navigateToRunDetails = { },
             onBackClick = {},
             onDispatchEvent = {},
-            navigateToRunDetails = { }
+            navigateToGameDetails = {}
         )
     }
 }
@@ -605,9 +613,10 @@ private fun RunnerDetailsScreenLoadingPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(),
+            navigateToRunDetails = { },
             onBackClick = { },
-            onDispatchEvent = {},
-            navigateToRunDetails = { }
+            onDispatchEvent = { },
+            navigateToGameDetails = { }
         )
     }
 }
@@ -618,9 +627,10 @@ private fun RunnerDetailsScreenErrorPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(headerState = RunnerDetailsUiState.HeaderState.Error("Ops, não encontramos o seu runner")),
+            navigateToRunDetails = {},
             onBackClick = {},
             onDispatchEvent = {},
-            navigateToRunDetails = {}
+            navigateToGameDetails = {}
         )
     }
 }

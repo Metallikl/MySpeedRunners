@@ -24,6 +24,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,18 +35,33 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.ui.components.BackgroundImageComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState
+import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun GameDetailsRoute() {
-    GameDetailsScreen()
+fun GameDetailsRoute(onBackClick: () -> Unit) {
+
+    val viewModel = hiltViewModel<GameDetailsViewModel>()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    GameDetailsScreen(
+        uiState = uiState.value,
+        onDispatchEvent = { viewModel.dispatchEvent(it) },
+        onBackClick = onBackClick
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.dispatchEvent(GameDetailsEvents.LoadGameDetails)
+    }
 }
 
 @Composable
@@ -108,7 +125,7 @@ fun GameDetailsScreen(
                 if (uiState is GameDetailsUiState.Error) {
                     GenericErrorWithButtonComponent(
                         onRetry = {
-                            onDispatchEvent(GameDetailsEvents.LoadRunDetails)
+                            onDispatchEvent(GameDetailsEvents.LoadGameDetails)
                         },
                     )
                 }

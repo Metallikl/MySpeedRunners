@@ -33,7 +33,7 @@ class GamesRepositoryImpl @Inject constructor(
         return withContext(dispatcherIo) {
             runCatching {
                 gameDataSource
-                    .getGameDetails(gameId,params).asDomainModel()
+                    .getGameDetails(gameId,params)?.data.asDomainModel()
             }
         }
     }
