@@ -147,7 +147,7 @@ fun RunDetailsScreen(
 }
 
 @Composable
-fun RunStatusContainer(uiState: RunDetailsUiState) {
+private fun RunStatusContainer(uiState: RunDetailsUiState) {
     when (uiState) {
         RunDetailsUiState.Initial,
         RunDetailsUiState.Loading -> {
@@ -243,7 +243,7 @@ fun RunStatusContainer(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun BackgroundComponent(state: RunDetailsUiState) {
+private fun BackgroundComponent(state: RunDetailsUiState) {
     when (state) {
         RunDetailsUiState.Initial,
         RunDetailsUiState.Loading -> {
@@ -297,7 +297,7 @@ private fun BackgroundSuccess(runItem: Run) {
 }
 
 @Composable
-fun GameCoverComponent(uiState: RunDetailsUiState) {
+private fun GameCoverComponent(uiState: RunDetailsUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -331,7 +331,7 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
+private fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -362,7 +362,7 @@ fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun ContentComponent(uiState: RunDetailsUiState) {
+private fun ContentComponent(uiState: RunDetailsUiState) {
     if (uiState is RunDetailsUiState.Success) {
         Card(
             modifier = Modifier
@@ -401,7 +401,7 @@ fun ContentComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun RunLinksContent(uiState: RunDetailsUiState.Success) {
+private fun RunLinksContent(uiState: RunDetailsUiState.Success) {
     uiState.run.videos.RunWithNotNullNorEmpty { links ->
         links.forEach {
             RunWebViewContent(
