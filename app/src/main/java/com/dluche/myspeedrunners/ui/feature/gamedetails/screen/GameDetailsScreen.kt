@@ -125,12 +125,14 @@ fun GameDetailsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
-                GameCover(uiState)
+                if (uiState !is GameDetailsUiState.Error) {
+                    GameCover(uiState)
 
-                ContentComponent(uiState,navigateToRunnerDetails)
+                    ContentComponent(uiState, navigateToRunnerDetails)
 
-                if (uiState is GameDetailsUiState.Error) {
+                } else {
                     GenericErrorWithButtonComponent(
+                        modifier = Modifier.fillMaxSize(),
                         onRetry = {
                             onDispatchEvent(GameDetailsEvents.LoadGameDetails)
                         },
@@ -195,25 +197,32 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
             .padding(vertical = 4.dp),
     ) {
 
-        if (uiState is GameDetailsUiState.Success) {
-            Text(
-                text = uiState.game.name,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .shimmer()
-                    .clip(RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
-                    .height(32.dp)
-                    .background(Color.Gray)
-            )
+        when (uiState) {
+            is GameDetailsUiState.Error -> {
+            }
+
+            GameDetailsUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .shimmer()
+                        .clip(RoundedCornerShape(8.dp))
+                        .fillMaxWidth()
+                        .height(32.dp)
+                        .background(Color.Gray)
+                )
+            }
+
+            is GameDetailsUiState.Success -> {
+                Text(
+                    text = uiState.game.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
@@ -242,7 +251,7 @@ fun ContentComponent(
 
                 CategoryContainer(uiState)
 
-                ModeratorsContainer(uiState,navigateToRunnerDetails)
+                ModeratorsContainer(uiState, navigateToRunnerDetails)
 
             }
         }

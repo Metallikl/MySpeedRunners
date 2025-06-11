@@ -62,7 +62,4 @@ class GameDetailsViewModel @Inject constructor(
     private fun handleGameError(throwable: Throwable) {
         _uiState.value = GameDetailsUiState.Error(throwable.message.orEmpty())
     }
-
-
-
 }
