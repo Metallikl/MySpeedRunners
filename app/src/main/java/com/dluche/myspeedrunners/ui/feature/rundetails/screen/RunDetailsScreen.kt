@@ -118,8 +118,6 @@ fun RunDetailsScreen(
                         contentDescription = "Back"
                     )
                 }
-
-                GameNameComponent(uiState)
             }
             val scrollState = rememberScrollState()
 
@@ -130,11 +128,16 @@ fun RunDetailsScreen(
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                GameCoverComponent(uiState)
 
-                ContentComponent(uiState)
 
-                if (uiState is RunDetailsUiState.Error) {
+                if (uiState !is RunDetailsUiState.Error) {
+                    GameNameComponent(uiState)
+
+                    GameCoverComponent(uiState)
+
+                    ContentComponent(uiState)
+
+                } else {
                     GenericErrorWithButtonComponent(
                         onRetry = {
                             onDispatchEvent(RunDetailsEvents.LoadRunDetails)
@@ -313,10 +316,12 @@ private fun GameCoverComponent(uiState: RunDetailsUiState) {
                     Image(
                         painter = coverPainter,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().aspectRatio(16 / 9f),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .aspectRatio(16 / 9f),
                         contentScale = ContentScale.FillBounds,
 
-                    )
+                        )
                 }
             )
         } else {
@@ -341,7 +346,8 @@ private fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = M
         if (uiState is RunDetailsUiState.Success) {
             Text(
                 text = uiState.run.game.name,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = Bold,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
@@ -412,7 +418,7 @@ private fun RunLinksContent(uiState: RunDetailsUiState.Success) {
                     .height(200.dp),
                 showUrlText = true,
 
-            )
+                )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

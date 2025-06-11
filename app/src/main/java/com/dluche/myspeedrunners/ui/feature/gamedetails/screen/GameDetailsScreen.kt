@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -90,7 +91,7 @@ fun GameDetailsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Row(
+            Row( //todo extrair como topBar para reuso
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background.copy(alpha = 0f))
@@ -113,7 +114,22 @@ fun GameDetailsScreen(
                     )
                 }
 
-                GameNameComponent(uiState)
+                Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(
+                    onClick = {
+                        onDispatchEvent(GameDetailsEvents.LoadGameDetails)
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Back"
+                    )
+                }
+
             }
             val scrollState = rememberScrollState()
 
@@ -126,6 +142,9 @@ fun GameDetailsScreen(
             ) {
 
                 if (uiState !is GameDetailsUiState.Error) {
+
+                    GameNameComponent(uiState)
+
                     GameCover(uiState)
 
                     ContentComponent(uiState, navigateToRunnerDetails)
@@ -215,7 +234,8 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
             is GameDetailsUiState.Success -> {
                 Text(
                     text = uiState.game.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = Bold,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
