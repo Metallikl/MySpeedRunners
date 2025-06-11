@@ -27,4 +27,6 @@
     <string name="status_label">Status</string>
     <string name="submitted_label">Enviado</string>
     <string name="time_label">Tempo</string>
+    <string name="platforms_label">Plataformas</string>
+    <string name="moderators">Moderadores</string>
 </resources>

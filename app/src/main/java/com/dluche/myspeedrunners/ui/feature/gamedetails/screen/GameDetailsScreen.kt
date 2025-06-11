@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,10 +23,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dluche.myspeedrunners.R
+import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.ui.components.BackgroundImageComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
+import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsViewModel
@@ -48,15 +51,18 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun GameDetailsRoute(onBackClick: () -> Unit) {
-
+fun GameDetailsRoute(
+    navigateToRunnerDetails: (String) -> Unit,
+    onBackClick: () -> Unit
+) {
     val viewModel = hiltViewModel<GameDetailsViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     GameDetailsScreen(
         uiState = uiState.value,
         onDispatchEvent = { viewModel.dispatchEvent(it) },
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        navigateToRunnerDetails = navigateToRunnerDetails
     )
 
     LaunchedEffect(Unit) {
@@ -68,7 +74,8 @@ fun GameDetailsRoute(onBackClick: () -> Unit) {
 fun GameDetailsScreen(
     uiState: GameDetailsUiState = GameDetailsUiState.Loading,
     onDispatchEvent: (GameDetailsEvents) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    navigateToRunnerDetails: (String) -> Unit
 ) {
 
     Box(
@@ -120,7 +127,7 @@ fun GameDetailsScreen(
 
                 GameCover(uiState)
 
-                ContentComponent(uiState)
+                ContentComponent(uiState,navigateToRunnerDetails)
 
                 if (uiState is GameDetailsUiState.Error) {
                     GenericErrorWithButtonComponent(
@@ -136,7 +143,7 @@ fun GameDetailsScreen(
 
 @Composable
 fun GameCover(uiState: GameDetailsUiState) {
-    when(uiState){
+    when (uiState) {
         GameDetailsUiState.Loading -> {
             GameCoverComponent(
                 imageUrl = "",
@@ -145,6 +152,7 @@ fun GameCover(uiState: GameDetailsUiState) {
                     .fillMaxWidth()
             )
         }
+
         is GameDetailsUiState.Success -> {
             GameCoverComponent(
                 imageUrl = uiState.game.imageUrl,
@@ -153,6 +161,7 @@ fun GameCover(uiState: GameDetailsUiState) {
                     .fillMaxWidth()
             )
         }
+
         is GameDetailsUiState.Error -> {}
     }
 }
@@ -210,7 +219,10 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
 }
 
 @Composable
-fun ContentComponent(uiState: GameDetailsUiState) {
+fun ContentComponent(
+    uiState: GameDetailsUiState,
+    navigateToRunnerDetails: (String) -> Unit
+) {
     if (uiState is GameDetailsUiState.Success) {
         Card(
             modifier = Modifier
@@ -226,11 +238,12 @@ fun ContentComponent(uiState: GameDetailsUiState) {
                 modifier = Modifier.padding(8.dp)
             ) {
 
-                Spacer(modifier = Modifier.height(8.dp))
+                PlatformContainer(uiState)
 
                 CategoryContainer(uiState)
 
-                Spacer(modifier = Modifier.height(8.dp))
+                ModeratorsContainer(uiState,navigateToRunnerDetails)
+
             }
         }
     } else {
@@ -246,74 +259,113 @@ fun ContentComponent(uiState: GameDetailsUiState) {
 }
 
 @Composable
+fun ModeratorsContainer(
+    uiState: GameDetailsUiState.Success,
+    navigateToRunnerDetails: (String) -> Unit
+) {
+
+    uiState.game.moderators.RunWithNotNullNorEmpty { runners ->
+        Text(
+            text = stringResource(R.string.moderators),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .wrapContentWidth(),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = Bold
+        )
+
+        runners.forEach { runner ->
+            RunnerCardComponent(
+                runnerCard = runner,
+                onClick = { navigateToRunnerDetails(runner.id) }
+
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+@Composable
+fun PlatformContainer(uiState: GameDetailsUiState.Success) {
+
+    uiState.game.platforms.RunWithNotNullNorEmpty { platforms ->
+        Text(
+            text = stringResource(R.string.platforms_label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .wrapContentWidth(),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = Bold
+        )
+
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            platforms.forEach { platform ->
+                OutlinedCard {
+                    Text(
+                        text = platform.name,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier
+                            .padding(8.dp),
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+@Composable
 private fun CategoryContainer(uiState: GameDetailsUiState.Success) {
-    Text(
-        text = stringResource(R.string.category_label),
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier
-            .wrapContentWidth(),
-        textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontWeight = Bold
-    )
 
-    Text(
-        text = uiState.game.name,
-        style = MaterialTheme.typography.labelMedium,
-        modifier = Modifier
-            .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onSurface
-    )
+    uiState.game.categories.RunWithNotNullNorEmpty { categories ->
+        Text(
+            text = stringResource(R.string.category_label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .wrapContentWidth(),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = Bold
+        )
 
-    Spacer(modifier = Modifier.height(8.dp))
-//
-//    uiState.game.category.rules.RunWithNotNullNorEmpty { rules ->
-//        Text(
-//            text = stringResource(R.string.rules_label),
-//            style = MaterialTheme.typography.titleSmall,
-//            modifier = Modifier
-//                .wrapContentWidth(),
-//            textAlign = TextAlign.Start,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//            fontWeight = Bold
-//        )
-//
-//        Text(
-//            text = rules,
-//            style = MaterialTheme.typography.labelMedium,
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            color = MaterialTheme.colorScheme.onSurface
-//        )
-//    }
-//
-//    Spacer(modifier = Modifier.height(8.dp))
-//
-//    uiState.run.comment.RunWithNotNullNorEmpty { commentText ->
-//        Text(
-//            text = stringResource(R.string.comment_label),
-//            style = MaterialTheme.typography.titleSmall,
-//            modifier = Modifier
-//                .wrapContentWidth(),
-//            textAlign = TextAlign.Start,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//            fontWeight = Bold
-//        )
-//
-//        Text(
-//            text = commentText,
-//            style = MaterialTheme.typography.labelMedium,
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            color = MaterialTheme.colorScheme.onSurface
-//        )
-//    }
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            categories.forEach { category ->
+                OutlinedCard {
+                    Text(
+                        text = category.name,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier
+                            .padding(8.dp),
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
 }
 
 @Preview
 @Composable
 private fun GameDetailsScreenPreview() {
     MySpeedRunnersTheme {
-        GameDetailsScreen()
+        GameDetailsScreen(navigateToRunnerDetails = { })
     }
 }

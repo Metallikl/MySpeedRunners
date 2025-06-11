@@ -48,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -362,14 +361,13 @@ fun RunnerImage(runner: Runner) {
 
         is AsyncImagePainter.State.Error -> {
             Image(
-                painter = painterResource(R.drawable.ic_no_profile_img),
+                painter = painterResource(R.drawable.ic_no_profile_image),
                 contentDescription = "Runner Image",
                 modifier = Modifier
                     .size(100.dp)
                     .padding(8.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                contentScale = ContentScale.Crop
             )
         }
     }

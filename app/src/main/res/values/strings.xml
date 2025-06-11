@@ -27,4 +27,6 @@
     <string name="status_label">Status</string>
     <string name="submitted_label">Submitted</string>
     <string name="time_label">Time</string>
+    <string name="platforms_label">Platforms</string>
+    <string name="moderators">Moderators</string>
 </resources>

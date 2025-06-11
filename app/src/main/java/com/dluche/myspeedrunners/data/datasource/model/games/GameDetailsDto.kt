@@ -2,7 +2,6 @@ package com.dluche.myspeedrunners.data.datasource.model.games
 
 
 import com.dluche.myspeedrunners.data.datasource.model.RunnerSearchWrapperDto
-import com.dluche.myspeedrunners.data.datasource.model.RunnerWrapperDto
 import com.dluche.myspeedrunners.data.datasource.model.category.CategoryListEmbedDto
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
 import com.dluche.myspeedrunners.data.datasource.model.common.NamesDto
@@ -56,6 +55,6 @@ data class GameDetailsDto(
     val weblink: String? = null,
     @SerialName("categories")
     val categories:CategoryListEmbedDto? = null,
-    @SerialName("moderator")
+    @SerialName("moderators")
     val moderator: RunnerSearchWrapperDto? = null,
 )

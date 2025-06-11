@@ -3,7 +3,7 @@ package com.dluche.myspeedrunners.domain.model.game
 import com.dluche.myspeedrunners.domain.model.category.Category
 import com.dluche.myspeedrunners.domain.model.common.LinkModel
 import com.dluche.myspeedrunners.domain.model.platform.Platform
-import com.dluche.myspeedrunners.domain.model.runner.Runner
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 
 data class Game(
     val id: String,
@@ -15,5 +15,5 @@ data class Game(
     val backgroundUrl: String,
     val platforms: List<Platform> = emptyList(),
     val categories: List<Category> = emptyList(),
-    val moderators: List<Runner> = emptyList()
+    val moderators: List<RunnerCard> = emptyList()
 )

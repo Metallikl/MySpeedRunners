@@ -35,7 +35,7 @@ fun GameDetailsDto?.asDomainModel(): Game {
             links = this.links?.mapToDomainLinks().orEmpty(),
             platforms = this.platforms?.data?.asDomainModel().orEmpty(),
             categories = this.categories?.data?.map{it.asDomainModel()}.orEmpty(),
-            moderators = this.moderator?.wrapper?.map{it.asDomainModel()}.orEmpty()
+            moderators = this.moderator?.wrapper?.map{it.asCardDomainModel()}.orEmpty()
         )
     } ?: return getEmptyGame()
 }
