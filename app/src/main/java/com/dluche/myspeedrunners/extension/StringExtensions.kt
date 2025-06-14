@@ -76,7 +76,7 @@ fun String.urlToEmbedded(): String {
             try {
                 this.split("/").lastOrNull().let {
                     //return "https://player.twitch.tv/?parent=com.dluche.myspeedrunners&video=$it"
-                    return "https://player.twitch.tv/?parent=www.speedrun.com&video=$it&autoplay=false"
+                    return "https://player.twitch.tv/?video=$it&parent=www.speedrun.com&autoplay=true"
                 }
             } catch (e: Exception) {
                 this

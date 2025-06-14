@@ -1,5 +1,7 @@
 package com.dluche.myspeedrunners.ui.components
 
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.clickable
@@ -28,7 +30,14 @@ fun RunWebViewContent(
         factory = { context ->
             WebView(context).apply {
                 webViewClient = WebViewClient()
+                webChromeClient = WebChromeClient()
+                settings.loadsImagesAutomatically = true
                 settings.javaScriptEnabled = true
+                settings.allowFileAccess = true
+                settings.javaScriptCanOpenWindowsAutomatically = true
+                settings.mediaPlaybackRequiresUserGesture = false
+                settings.domStorageEnabled = true
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
                 loadUrl(url)
             }
         },
