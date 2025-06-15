@@ -46,6 +46,14 @@ fun String.asTwitchEmbeddedUrl(): String {
     }
 }
 
+fun String.extractTwitchVideoId(): String {
+    return try {
+        this.split("/").lastOrNull().orEmpty()
+    } catch (e: Exception) {
+        this
+    }
+}
+
 fun String.isYoutubeUrl(): Boolean {
     return this.contains(YOUTUBE_HOST) || this.contains(YOUTU_BE_HOST)
 }

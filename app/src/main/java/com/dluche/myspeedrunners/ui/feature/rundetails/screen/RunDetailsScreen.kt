@@ -54,6 +54,7 @@ import com.dluche.myspeedrunners.extension.asTwitchEmbeddedUrl
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.components.RunWebViewContent
+import com.dluche.myspeedrunners.ui.components.TwitchVideoComponent
 import com.dluche.myspeedrunners.ui.components.YoutubePlayerComponent
 import com.dluche.myspeedrunners.ui.fake.run1
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
@@ -425,15 +426,9 @@ private fun RunLinksContent(uiState: RunDetailsUiState.Success) {
                 }
 
                 it.isTwitchUrl() -> {
-                    RunWebViewContent(
-                        url = it.asTwitchEmbeddedUrl(),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        showUrlText = true,
-
-                        )
+                    TwitchVideoComponent(
+                        videoUrl = it,
+                    )
                 }
 
                 else -> {

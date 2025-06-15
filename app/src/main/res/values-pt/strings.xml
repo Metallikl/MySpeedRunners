@@ -29,4 +29,5 @@
     <string name="time_label">Tempo</string>
     <string name="platforms_label">Plataformas</string>
     <string name="moderators">Moderadores</string>
+    <string name="twitch_disclaimer_msg">A Twitch não permite que seus vídeos ou transmissões sejam incorporados diretamente em aplicativos devido a restrições de segurança, proteção contra reprodução fora do domínio e limitações da própria plataforma. Para exibir vídeo, clique neste card. </string>
 </resources>
