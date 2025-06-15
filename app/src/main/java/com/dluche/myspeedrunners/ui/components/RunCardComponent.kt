@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
+import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
@@ -32,7 +35,7 @@ fun RunCard(
     gameUrl: String,
     gameName: String,
     category: String,
-    status: String,
+    status: RunStatusEnum,
     submitted: String,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
@@ -76,17 +79,20 @@ fun RunCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = status,
-                        style = MaterialTheme.typography.labelMedium
+
+                    RunStatusComponent(
+                        runStatus = status,
+                        modifier = Modifier.wrapContentWidth()
                     )
+
                     Text(
                         modifier = Modifier.weight(1f),
                         text = submitted,
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -141,7 +147,7 @@ private fun RunCardPreview() {
             gameUrl = "https://www.speedrun.com/static/game/pd0qq31e/cover?v=8b6ea7d",
             gameName = "Super Mario Odyssey",
             category = "Any%",
-            status = "Verified",
+            status = RunStatusEnum.VERIFIED,
             submitted = "2021-01-01",
             onClick = {},
         )

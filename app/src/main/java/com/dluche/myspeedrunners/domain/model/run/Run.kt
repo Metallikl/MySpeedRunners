@@ -15,5 +15,6 @@ data class Run(
     val submitted: String,
     val videos: List<String>,
     val weblink: String,
-    val status: RunStatusEnum
+    val status: RunStatusEnum,
+    val primaryTime: String,
 )

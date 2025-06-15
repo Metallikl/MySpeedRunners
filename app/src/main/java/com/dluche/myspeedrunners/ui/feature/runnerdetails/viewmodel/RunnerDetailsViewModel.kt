@@ -6,7 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.CATEGORY
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
 import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.Runner
@@ -57,7 +61,7 @@ class RunnerDetailsViewModel @Inject constructor(
     }
 
     fun dispatchEvent(event: RunnerDetailsEvents) {
-        when(event){
+        when (event) {
             RunnerDetailsEvents.RefreshFullContent -> {
                 fetchRunner(runnerId)
             }
@@ -129,8 +133,8 @@ class RunnerDetailsViewModel @Inject constructor(
             }
             getRunnerRunsUseCase.invoke(
                 runnerId,
-                EmbedParams("game", "category"),
-                QueryOrderBy("date", "desc")
+                EmbedParams(GAMES, CATEGORY),
+                QueryOrderBy(DATE, DESC)
             )
                 .onSuccess { handleRunsSuccess(it.data) }
                 .onFailure { handleRunsError(it) }
@@ -169,7 +173,7 @@ class RunnerDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun handleGamesSuccess(games: List<Game>){
+    private fun handleGamesSuccess(games: List<Game>) {
         _uiState.update { curState ->
             curState.copy(
                 gamesState = RunnerDetailsUiState.GamesState.Success(games = games)

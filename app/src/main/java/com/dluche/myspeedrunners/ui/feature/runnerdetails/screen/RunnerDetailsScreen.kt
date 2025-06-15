@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.NoAccounts
 import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +68,6 @@ import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
-import com.dluche.myspeedrunners.extension.getTranslation
 import com.dluche.myspeedrunners.ui.components.GameGridCard
 import com.dluche.myspeedrunners.ui.components.RunnerDetailsInfo
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
@@ -92,11 +90,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun RunnerDetailsRoute(
     viewModel: RunnerDetailsViewModel = hiltViewModel(),
+    navigateToRunDetails: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
         uiState = uiState.value,
+        navigateToRunDetails = navigateToRunDetails,
         onBackClick = onBackClick,
         onDispatchEvent = { viewModel.dispatchEvent(it) }
     )
@@ -106,8 +106,9 @@ fun RunnerDetailsRoute(
 @Composable
 fun RunnerDetailsScreen(
     uiState: RunnerDetailsUiState,
+    navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
-    onDispatchEvent: (RunnerDetailsEvents) -> Unit
+    onDispatchEvent: (RunnerDetailsEvents) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
@@ -120,6 +121,7 @@ fun RunnerDetailsScreen(
                     runner = runnerPlaceholder,//rever
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
+                    navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
                     onDispatchEvents = onDispatchEvent
                 )
@@ -132,8 +134,9 @@ fun RunnerDetailsScreen(
                     runner = uiState.headerState.runner,
                     runsState = uiState.runsState,
                     gamesState = uiState.gamesState,
+                    onDispatchEvents = onDispatchEvent,
+                    navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
-                    onDispatchEvents = onDispatchEvent
                 )
             }
 
@@ -158,6 +161,7 @@ fun RunnerDetailsContent(
     runsState: RunnerDetailsUiState.RunsState,
     gamesState: RunnerDetailsUiState.GamesState,
     onDispatchEvents: (RunnerDetailsEvents) -> Unit,
+    navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
 ) {
     val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
@@ -292,7 +296,7 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.RUNS -> {
-                            RunsStateHandler(runsState, onDispatchEvents)
+                            RunsStateHandler(runsState, onDispatchEvents, navigateToRunDetails)
                         }
 
                         RunnerDetailsTabType.GAMES -> {
@@ -323,52 +327,53 @@ fun RunnerImageHandler(headerState: RunnerDetailsUiState.HeaderState, runner: Ru
 
 @Composable
 fun RunnerImage(runner: Runner) {
-        val painter = rememberAsyncImagePainter(runner.imageUrl)
-        val state = painter.state.collectAsState()
+    val painter = rememberAsyncImagePainter(runner.imageUrl)
+    val state = painter.state.collectAsState()
 
-        when (state.value) {
-            AsyncImagePainter.State.Empty,
-            is AsyncImagePainter.State.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .shimmer()
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
+    when (state.value) {
+        AsyncImagePainter.State.Empty,
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .size(150.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
 
-                )
-            }
-
-            is AsyncImagePainter.State.Success -> {
-                Image(
-                    painter = painter,
-                    contentDescription = "Runner Image",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            is AsyncImagePainter.State.Error -> {
-                Image(
-                    painter =  painterResource(R.drawable.ic_no_profile_img),
-                    contentDescription = "Runner Image",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(8.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
-                )
-            }
+            )
         }
+
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = "Runner Image",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            Image(
+                painter = painterResource(R.drawable.ic_no_profile_img),
+                contentDescription = "Runner Image",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(8.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+            )
+        }
+    }
 }
 
 @Composable
 private fun RunsStateHandler(
     runsState: RunnerDetailsUiState.RunsState,
-    onDispatchEvents: (RunnerDetailsEvents) -> Unit
+    onDispatchEvents: (RunnerDetailsEvents) -> Unit,
+    navigateToRunDetails: (String) -> Unit
 ) {
     when (runsState) {
         is RunnerDetailsUiState.RunsState.Error -> {
@@ -381,7 +386,10 @@ private fun RunsStateHandler(
 
         RunnerDetailsUiState.RunsState.Loading -> RunsSkeletonList()
 
-        is RunnerDetailsUiState.RunsState.Success -> RunsContainer(runsState.runs)
+        is RunnerDetailsUiState.RunsState.Success -> RunsContainer(
+            runsState.runs,
+            navigateToRunDetails
+        )
     }
 
 }
@@ -396,7 +404,10 @@ fun RunsSkeletonList() {
 }
 
 @Composable
-private fun RunsContainer(runs: List<Run>) {
+private fun RunsContainer(
+    runs: List<Run>,
+    navigateToRunDetails: (String) -> Unit
+) {
     if (runs.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -407,10 +418,10 @@ private fun RunsContainer(runs: List<Run>) {
                     gameUrl = it.game.imageUrl,
                     gameName = it.game.name,
                     category = it.category.name,
-                    status = it.status.getTranslation(),
+                    status = it.status,
                     submitted = it.date,
                     onClick = {
-
+                        navigateToRunDetails(it.id)
                     }
                 )
             }
@@ -581,8 +592,9 @@ private fun RunnerDetailsScreenSuccessPreview() {
                 ),
                 runsState = RunnerDetailsUiState.RunsState.Loading
             ),
+            onBackClick = {},
             onDispatchEvent = {},
-            onBackClick = {}
+            navigateToRunDetails = { }
         )
     }
 }
@@ -593,8 +605,9 @@ private fun RunnerDetailsScreenLoadingPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(),
+            onBackClick = { },
             onDispatchEvent = {},
-            onBackClick = { }
+            navigateToRunDetails = { }
         )
     }
 }
@@ -605,8 +618,9 @@ private fun RunnerDetailsScreenErrorPreview() {
     MySpeedRunnersTheme {
         RunnerDetailsScreen(
             uiState = RunnerDetailsUiState(headerState = RunnerDetailsUiState.HeaderState.Error("Ops, não encontramos o seu runner")),
+            onBackClick = {},
             onDispatchEvent = {},
-            onBackClick = {}
+            navigateToRunDetails = {}
         )
     }
 }
