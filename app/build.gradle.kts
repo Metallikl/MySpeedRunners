@@ -24,10 +24,20 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            buildConfigField("boolean", "DEBUG", "false")
+            buildConfigField("boolean", "RELEASE", "true")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
+            buildConfigField("boolean", "DEBUG", "true")
+            buildConfigField("boolean", "RELEASE", "false")
+
         }
     }
     compileOptions {
@@ -39,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true // or false to disable
     }
 }
 
@@ -80,6 +91,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.youtube.player)
+    implementation(libs.timber)
 
 
     testImplementation(libs.junit)
