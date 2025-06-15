@@ -19,7 +19,6 @@ import com.dluche.myspeedrunners.extension.openBrowser
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
 @Composable
-
 fun RunWebViewContent(
     url: String,
     modifier: Modifier = Modifier,

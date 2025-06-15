@@ -79,6 +79,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.youtube.player)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

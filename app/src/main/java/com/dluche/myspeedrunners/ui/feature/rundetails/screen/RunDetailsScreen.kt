@@ -8,13 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -50,10 +47,14 @@ import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleState
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
-import com.dluche.myspeedrunners.extension.urlToEmbedded
+import com.dluche.myspeedrunners.extension.extractYoutubeVideoId
+import com.dluche.myspeedrunners.extension.isTwitchUrl
+import com.dluche.myspeedrunners.extension.isYoutubeUrl
+import com.dluche.myspeedrunners.extension.asTwitchEmbeddedUrl
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.components.RunWebViewContent
+import com.dluche.myspeedrunners.ui.components.YoutubePlayerComponent
 import com.dluche.myspeedrunners.ui.fake.run1
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
@@ -409,16 +410,44 @@ private fun ContentComponent(uiState: RunDetailsUiState) {
 @Composable
 private fun RunLinksContent(uiState: RunDetailsUiState.Success) {
     uiState.run.videos.RunWithNotNullNorEmpty { links ->
+        val modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .fillMaxWidth()
+            .height(200.dp)
         links.forEach {
-            RunWebViewContent(
-                url = it.urlToEmbedded(),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
-                    .height(200.dp),
-                showUrlText = true,
+            when {
+                it.isYoutubeUrl() -> {
+                    YoutubePlayerComponent(
+                        videoId = it.extractYoutubeVideoId() ?: "",
+                        modifier = modifier,
+                        showUrlText = true
+                    )
+                }
 
-                )
+                it.isTwitchUrl() -> {
+                    RunWebViewContent(
+                        url = it.asTwitchEmbeddedUrl(),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        showUrlText = true,
+
+                        )
+                }
+
+                else -> {
+                    RunWebViewContent(
+                        url = it,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        showUrlText = true,
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

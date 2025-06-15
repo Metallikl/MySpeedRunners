@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.core.net.toUri
-import com.airbnb.lottie.animation.content.Content
-import com.dluche.myspeedrunners.domain.model.runner.SocialNetworkType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -38,55 +36,22 @@ fun String?.RunWithNotNullNorEmpty(block: @Composable (String) -> Unit) {
 }
 
 @Composable
-fun String.urlToEmbedded(): String {
-    return when (this.toUri().host) {
-        YOUTUBE_HOST.lowercase() -> {
-            try {
-                this.split("https://").let {
-                    if (it.size == 1) {
-                        this.replace("watch?v=", "embed/")
-                    } else if (it.size > 1) {
-                        "https://" + it[1].replace("watch?v=", "embed/")
-                    } else {
-                        this
-                    }
-                }
-            } catch (e: Exception) {
-                this
-            }
+fun String.asTwitchEmbeddedUrl(): String {
+    return try {
+        this.split("/").lastOrNull().let {
+            "https://player.twitch.tv/?video=$it&parent=www.speedrun.com&autoplay=true"
         }
-
-        YOUTU_BE_HOST -> {
-            try {
-                this.split("https://").let {
-                    if (it.size == 1) {
-                        this.replace(YOUTU_BE_HOST, "$YOUTUBE_HOST/embed/")
-                    } else if (it.size > 1) {
-                      "https://" + it[1].replace(YOUTU_BE_HOST, "$YOUTUBE_HOST/embed/")
-                    } else {
-                        this
-                    }
-                }
-            } catch (e: Exception) {
-                this
-            }
-        }
-
-        TWITCH_HOST.lowercase() -> {
-            try {
-                this.split("/").lastOrNull().let {
-                    //return "https://player.twitch.tv/?parent=com.dluche.myspeedrunners&video=$it"
-                    return "https://player.twitch.tv/?video=$it&parent=www.speedrun.com&autoplay=true"
-                }
-            } catch (e: Exception) {
-                this
-            }
-        }
-
-        else -> {
-            this
-        }
+    } catch (e: Exception) {
+        this
     }
+}
+
+fun String.isYoutubeUrl(): Boolean {
+    return this.contains(YOUTUBE_HOST) || this.contains(YOUTU_BE_HOST)
+}
+
+fun String.isTwitchUrl(): Boolean {
+    return this.contains(TWITCH_HOST)
 }
 
 fun String.openBrowser(context: Context) {
@@ -95,3 +60,54 @@ fun String.openBrowser(context: Context) {
     }
     context.startActivity(openURL)
 }
+
+fun String.extractYoutubeVideoId(): String? {
+    // Lista de expressões regulares para diferentes padrões de URL
+    val regexList = listOf(
+        // URLs com parâmetros ?v= ou ?vi=
+        "[?&](?:v|vi)=([a-zA-Z0-9_-]{11})",
+        // Encodes com /embed/, /v/, /vi/, /shorts/ , /live/
+        "/(?:embed|v|vi|shorts|live)/([a-zA-Z0-9_-]{11})",
+        // youtu.be URLs
+        "youtu\\.be/([a-zA-Z0-9_-]{11})",
+        // URLs com fragmento (#) no final
+        "#.*?/([a-zA-Z0-9_-]{11})"
+    )
+
+    for (regex in regexList) {
+        val match = Regex(regex).find(this)
+        if (match != null) return match.groupValues[1]
+    }
+
+    return null
+}
+
+//fun main() {
+//    val urls = listOf(
+//        "https://youtube.com/shorts/dQw4w9WgXcQ?feature=share",
+//        "//www.youtube-nocookie.com/embed/up_lNV-yoK4?rel=0",
+//        "http://www.youtube.com/user/Scobleizer#p/u/1/1p3vcRhsYGo",
+//        "http://www.youtube.com/watch?v=cKZDdG9FTKY&feature=channel",
+//        "http://www.youtube.com/watch?v=yZ-K7nCVnBI&playnext_from=TL&videos=osPknwzXEas&feature=sub",
+//        "http://www.youtube.com/ytscreeningroom?v=NRHVzbJVx8I",
+//        "http://www.youtube.com/user/SilkRoadTheatre#p/a/u/2/6dwqZw0j_jY",
+//        "http://youtu.be/6dwqZw0j_jY",
+//        "http://www.youtube.com/watch?v=6dwqZw0j_jY&feature=youtu.be",
+//        "http://youtu.be/afa-5HQHiAs",
+//        "http://www.youtube.com/user/Scobleizer#p/u/1/1p3vcRhsYGo?rel=0",
+//        "http://www.youtube.com/embed/nas1rJpm7wY?rel=0",
+//        "http://www.youtube.com/watch?v=peFZbP64dsU",
+//        "http://youtube.com/v/dQw4w9WgXcQ?feature=youtube_gdata_player",
+//        "http://youtube.com/vi/dQw4w9WgXcQ?feature=youtube_gdata_player",
+//        "http://youtube.com/?v=dQw4w9WgXcQ&feature=youtube_gdata_player",
+//        "http://youtube.com/?vi=dQw4w9WgXcQ&feature=youtube_gdata_player",
+//        "http://youtube.com/watch?v=dQw4w9WgXcQ&feature=youtube_gdata_player",
+//        "http://youtube.com/watch?vi=dQw4w9WgXcQ&feature=youtube_gdata_player",
+//        "http://youtu.be/dQw4w9WgXcQ?feature=youtube_gdata_player"
+//    )
+//
+//    for (url in urls) {
+//        println("URL: $url")
+//        println("Video ID: ${extractYoutubeVideoId(url)}\n")
+//    }
+//}
