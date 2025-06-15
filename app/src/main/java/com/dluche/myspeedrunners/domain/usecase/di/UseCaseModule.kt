@@ -1,5 +1,7 @@
 package com.dluche.myspeedrunners.domain.usecase.di
 
+import com.dluche.myspeedrunners.domain.usecase.game.GetGameDetailsUseCase
+import com.dluche.myspeedrunners.domain.usecase.game.GetGameDetailsUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunByIdUseCase
@@ -34,6 +36,9 @@ interface UseCaseModule {
 
     @Binds
     fun bindGetRunByIdUseCase(getRunByIdUseCase: GetRunByIdUseCaseImpl): GetRunByIdUseCase
+
+    @Binds
+    fun bindGetGameDetailsUseCase(getGameDetailsUseCase: GetGameDetailsUseCaseImpl): GetGameDetailsUseCase
 
 
 }

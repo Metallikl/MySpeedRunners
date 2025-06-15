@@ -8,13 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -50,10 +47,15 @@ import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleState
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
-import com.dluche.myspeedrunners.extension.urlToEmbedded
+import com.dluche.myspeedrunners.extension.extractYoutubeVideoId
+import com.dluche.myspeedrunners.extension.isTwitchUrl
+import com.dluche.myspeedrunners.extension.isYoutubeUrl
+import com.dluche.myspeedrunners.extension.asTwitchEmbeddedUrl
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.components.RunWebViewContent
+import com.dluche.myspeedrunners.ui.components.TwitchVideoComponent
+import com.dluche.myspeedrunners.ui.components.YoutubePlayerComponent
 import com.dluche.myspeedrunners.ui.fake.run1
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
@@ -118,8 +120,6 @@ fun RunDetailsScreen(
                         contentDescription = "Back"
                     )
                 }
-
-                GameNameComponent(uiState)
             }
             val scrollState = rememberScrollState()
 
@@ -130,11 +130,16 @@ fun RunDetailsScreen(
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                GameCoverComponent(uiState)
 
-                ContentComponent(uiState)
 
-                if (uiState is RunDetailsUiState.Error) {
+                if (uiState !is RunDetailsUiState.Error) {
+                    GameNameComponent(uiState)
+
+                    GameCoverComponent(uiState)
+
+                    ContentComponent(uiState)
+
+                } else {
                     GenericErrorWithButtonComponent(
                         onRetry = {
                             onDispatchEvent(RunDetailsEvents.LoadRunDetails)
@@ -147,7 +152,7 @@ fun RunDetailsScreen(
 }
 
 @Composable
-fun RunStatusContainer(uiState: RunDetailsUiState) {
+private fun RunStatusContainer(uiState: RunDetailsUiState) {
     when (uiState) {
         RunDetailsUiState.Initial,
         RunDetailsUiState.Loading -> {
@@ -243,7 +248,7 @@ fun RunStatusContainer(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun BackgroundComponent(state: RunDetailsUiState) {
+private fun BackgroundComponent(state: RunDetailsUiState) {
     when (state) {
         RunDetailsUiState.Initial,
         RunDetailsUiState.Loading -> {
@@ -297,7 +302,7 @@ private fun BackgroundSuccess(runItem: Run) {
 }
 
 @Composable
-fun GameCoverComponent(uiState: RunDetailsUiState) {
+private fun GameCoverComponent(uiState: RunDetailsUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -313,10 +318,12 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
                     Image(
                         painter = coverPainter,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().aspectRatio(16 / 9f),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .aspectRatio(16 / 9f),
                         contentScale = ContentScale.FillBounds,
 
-                    )
+                        )
                 }
             )
         } else {
@@ -331,7 +338,7 @@ fun GameCoverComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
+private fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -341,7 +348,8 @@ fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier)
         if (uiState is RunDetailsUiState.Success) {
             Text(
                 text = uiState.run.game.name,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = Bold,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
@@ -362,7 +370,7 @@ fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun ContentComponent(uiState: RunDetailsUiState) {
+private fun ContentComponent(uiState: RunDetailsUiState) {
     if (uiState is RunDetailsUiState.Success) {
         Card(
             modifier = Modifier
@@ -401,18 +409,40 @@ fun ContentComponent(uiState: RunDetailsUiState) {
 }
 
 @Composable
-fun RunLinksContent(uiState: RunDetailsUiState.Success) {
+private fun RunLinksContent(uiState: RunDetailsUiState.Success) {
     uiState.run.videos.RunWithNotNullNorEmpty { links ->
+        val modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .fillMaxWidth()
+            .height(200.dp)
         links.forEach {
-            RunWebViewContent(
-                url = it.urlToEmbedded(),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
-                    .height(200.dp),
-                showUrlText = true,
+            when {
+                it.isYoutubeUrl() -> {
+                    YoutubePlayerComponent(
+                        videoId = it.extractYoutubeVideoId() ?: "",
+                        modifier = modifier,
+                        showUrlText = true
+                    )
+                }
 
-            )
+                it.isTwitchUrl() -> {
+                    TwitchVideoComponent(
+                        videoUrl = it,
+                    )
+                }
+
+                else -> {
+                    RunWebViewContent(
+                        url = it,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        showUrlText = true,
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
