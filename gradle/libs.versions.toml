@@ -5,7 +5,7 @@ coilCompose = "3.2.0"
 composeShimmer = "1.3.2"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.2"
-firebaseBom = "33.9.0"
+firebaseBom = "33.15.0"
 hiltAndroid = "2.52"
 hiltNavigationCompose = "1.2.0"
 jwtdecode = "2.0.2"
@@ -33,6 +33,8 @@ room = "2.6.1"
 material-icons-extended = "1.7.8"
 timber = "5.0.1"
 youtube-player = "12.1.1"
+google-services-version = "4.4.2"
+crashlyticsPluginVersion = "3.0.4"
 
 
 [libraries]
@@ -47,7 +49,9 @@ androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.r
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-compose-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
@@ -97,4 +101,6 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlinKsp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
+google-services = {id = "com.google.gms.google-services", version.ref = "google-services-version"}
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPluginVersion" }
 

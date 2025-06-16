@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlinKsp)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
@@ -92,6 +94,10 @@ dependencies {
 
     implementation(libs.youtube.player)
     implementation(libs.timber)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
 
     testImplementation(libs.junit)
