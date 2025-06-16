@@ -27,4 +27,7 @@
     <string name="status_label">Status</string>
     <string name="submitted_label">Submitted</string>
     <string name="time_label">Time</string>
+    <string name="platforms_label">Platforms</string>
+    <string name="moderators">Moderators</string>
+    <string name="twitch_disclaimer_msg">Twitch does not allow its videos or streams to be embedded directly in applications due to security restrictions, protection against cross-domain playback and limitations of the platform itself. To view the video, click in this card.</string>
 </resources>
