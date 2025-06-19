@@ -126,6 +126,7 @@ fun RunnersSearchScreen(
                     }
                 )
             }
+
             if (runnerPagingState.itemCount > 0) {
                 Text(
                     text = stringResource(
@@ -139,8 +140,6 @@ fun RunnersSearchScreen(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         RunnerListHandler(
             runnerPagingState = runnerPagingState,
