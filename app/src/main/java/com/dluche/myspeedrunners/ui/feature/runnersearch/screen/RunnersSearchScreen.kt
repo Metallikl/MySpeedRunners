@@ -41,11 +41,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.extension.HandleStates
+import com.dluche.myspeedrunners.extension.inAnyLoading
 import com.dluche.myspeedrunners.extension.shimmerEffect
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
@@ -91,23 +93,24 @@ fun RunnersSearchScreen(
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                IconButton(
-                    onClick = {
-                        onBackClick
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
+//                IconButton(
+//                    onClick = {
+//                        onBackClick
+//                    },
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        contentColor = MaterialTheme.colorScheme.onBackground
+//                    )
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                        contentDescription = "Back"
+//                    )
+//                }
 
                 OutlinedTextField(
                     modifier = Modifier
@@ -127,7 +130,10 @@ fun RunnersSearchScreen(
                 )
             }
 
-            if (runnerPagingState.itemCount > 0) {
+            if (
+                !runnerPagingState.loadState.hasError
+                && !runnerPagingState.inAnyLoading()
+                && runnerPagingState.itemCount > 0) {
                 Text(
                     text = stringResource(
                         R.string.count_result_found,

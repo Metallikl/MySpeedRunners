@@ -116,19 +116,19 @@ fun GameDetailsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                IconButton(
-                    onClick = {
-                        onDispatchEvent(GameDetailsEvents.LoadGameDetails)
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Back"
-                    )
-                }
+//                IconButton(
+//                    onClick = {
+//                        onDispatchEvent(GameDetailsEvents.LoadGameDetails)
+//                    },
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        contentColor = MaterialTheme.colorScheme.onBackground
+//                    )
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.FavoriteBorder,
+//                        contentDescription = "Back"
+//                    )
+//                }
 
             }
             val scrollState = rememberScrollState()

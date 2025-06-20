@@ -1,7 +1,9 @@
 package com.dluche.myspeedrunners.extension
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 
 @Composable
 fun LoadState.HandleStates(
@@ -14,4 +16,10 @@ fun LoadState.HandleStates(
         LoadState.Loading -> loadingContent(this)
         is LoadState.NotLoading -> notLoadingContent(this)
     }
+}
+
+fun <T : Any> LazyPagingItems<T>.inAnyLoading(): Boolean {
+    return this.loadState.append is LoadState.Loading
+            || this.loadState.refresh is LoadState.Loading
+            || this.loadState.prepend is LoadState.Loading
 }
