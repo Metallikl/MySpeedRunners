@@ -25,7 +25,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             buildConfigField("boolean", "DEBUG", "false")
             buildConfigField("boolean", "RELEASE", "true")
             proguardFiles(
