@@ -26,14 +26,25 @@ class RunDataSourceImpl @Inject constructor(
     private fun buildRunnerRunsUrl(
         runnerId: String,
         params: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        offset: Int? = null
     ): String {
         val runnerInfo = if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else ""
         val embedInfo = buildEmbedInfo(params)
         val orderBy = buildOrderByInfo(queryOrderBy)
-        return runnerInfo + embedInfo + orderBy
+        val offsetInfo = buildOffsetInfo(offset)
+        return runnerInfo + embedInfo + orderBy + offsetInfo
     }
 
+    override suspend fun searchRunnerRuns(
+        runnerId: String,
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?,
+        offset: Int?
+    ): RunWrapperDto {
+        val runParams = buildRunnerRunsUrl(runnerId, embedParams, queryOrderBy)
+        return client.get("$RUNNER_RUNS_URL$runParams").body()
+    }
 
     override suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto {
         return client.get(RUNNER_RUNS_URL + buildEmbedInfo(embedParams)).body()
@@ -58,6 +69,9 @@ class RunDataSourceImpl @Inject constructor(
     private fun buildOrderByInfo(orderBy: QueryOrderBy?) = orderBy?.let {
         "&$ORDER_BY_PARAM=${it.fieldToOrderBy}&$DIRECTION_PARAM=${it.direction}"
     }
+    private fun buildOffsetInfo(offset: Int?) = offset?.let {
+        "&$OFFSET_PARAM=$offset"
+    }.orEmpty()
 
     companion object {
         private const val RUNNER_RUNS_URL = "runs"
@@ -65,5 +79,6 @@ class RunDataSourceImpl @Inject constructor(
         private const val EMBED_PARAM = "embed"
         private const val ORDER_BY_PARAM = "orderby"
         private const val DIRECTION_PARAM = "direction"
+        private const val OFFSET_PARAM = "offset"
     }
 }

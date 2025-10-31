@@ -9,6 +9,8 @@ interface RunDataSource {
 
     suspend fun getRunnerRuns(runnerId: String,embedParams: EmbedParams?, queryOrderBy: QueryOrderBy?): RunWrapperDto
 
+    suspend fun searchRunnerRuns(runnerId: String,embedParams: EmbedParams?, queryOrderBy: QueryOrderBy?, offset: Int? = null): RunWrapperDto
+
     suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto
 
     suspend fun getRunById(runId: String,embedParams: EmbedParams?): RunSingleWrapperDto
