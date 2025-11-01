@@ -8,8 +8,6 @@ import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.run.RunDataSource
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.data.paging.RunnerRunsPagingSource
-import com.dluche.myspeedrunners.data.paging.RunnersPagingSource
-import com.dluche.myspeedrunners.data.repository.RunnersRepositoryImpl.Companion.PAGE_SIZE
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
@@ -84,5 +82,9 @@ class RunsRepositoryImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object{
+        const val PAGE_SIZE = 20
     }
 }

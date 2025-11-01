@@ -42,7 +42,7 @@ class RunDataSourceImpl @Inject constructor(
         queryOrderBy: QueryOrderBy?,
         offset: Int?
     ): RunWrapperDto {
-        val runParams = buildRunnerRunsUrl(runnerId, embedParams, queryOrderBy)
+        val runParams = buildRunnerRunsUrl(runnerId, embedParams, queryOrderBy,offset)
         return client.get("$RUNNER_RUNS_URL$runParams").body()
     }
 

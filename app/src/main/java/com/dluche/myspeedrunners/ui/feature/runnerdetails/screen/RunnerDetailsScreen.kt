@@ -25,17 +25,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.VideogameAsset
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -92,6 +93,7 @@ fun RunnerDetailsRoute(
     navigateToRunDetails: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
     navigateToGameDetails:  (String) -> Unit = {},
+    navigateToRunnerRunsList: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     RunnerDetailsScreen(
@@ -99,7 +101,8 @@ fun RunnerDetailsRoute(
         navigateToRunDetails = navigateToRunDetails,
         onBackClick = onBackClick,
         onDispatchEvent = { viewModel.dispatchEvent(it) },
-        navigateToGameDetails = navigateToGameDetails
+        navigateToGameDetails = navigateToGameDetails,
+        navigateToRunnerRunsList = navigateToRunnerRunsList
     )
 }
 
@@ -111,6 +114,7 @@ fun RunnerDetailsScreen(
     onBackClick: () -> Unit,
     onDispatchEvent: (RunnerDetailsEvents) -> Unit,
     navigateToGameDetails: (String) -> Unit,
+    navigateToRunnerRunsList: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
@@ -126,7 +130,8 @@ fun RunnerDetailsScreen(
                     onDispatchEvents = onDispatchEvent,
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
-                    navigateToGameDetails = navigateToGameDetails
+                    navigateToGameDetails = navigateToGameDetails,
+                    navigateToRunnerRunsList = navigateToRunnerRunsList
                 )
             }
 
@@ -140,7 +145,8 @@ fun RunnerDetailsScreen(
                     onDispatchEvents = onDispatchEvent,
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
-                    navigateToGameDetails = navigateToGameDetails
+                    navigateToGameDetails = navigateToGameDetails,
+                    navigateToRunnerRunsList = navigateToRunnerRunsList
                 )
             }
 
@@ -168,6 +174,7 @@ fun RunnerDetailsContent(
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
     navigateToGameDetails: (String) -> Unit,
+    navigateToRunnerRunsList: () -> Unit,
 ) {
     val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
 
@@ -301,7 +308,7 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.RUNS -> {
-                            RunsStateHandler(runsState, onDispatchEvents, navigateToRunDetails)
+                            RunsStateHandler(runsState, onDispatchEvents, navigateToRunDetails,navigateToRunnerRunsList)
                         }
 
                         RunnerDetailsTabType.GAMES -> {
@@ -377,7 +384,8 @@ fun RunnerImage(runner: Runner) {
 private fun RunsStateHandler(
     runsState: RunnerDetailsUiState.RunsState,
     onDispatchEvents: (RunnerDetailsEvents) -> Unit,
-    navigateToRunDetails: (String) -> Unit
+    navigateToRunDetails: (String) -> Unit,
+    navigateToRunnerRunsList: () -> Unit
 ) {
     when (runsState) {
         is RunnerDetailsUiState.RunsState.Error -> {
@@ -392,7 +400,8 @@ private fun RunsStateHandler(
 
         is RunnerDetailsUiState.RunsState.Success -> RunsContainer(
             runsState.runs,
-            navigateToRunDetails
+            navigateToRunDetails,
+            navigateToRunnerRunsList
         )
     }
 
@@ -410,8 +419,10 @@ fun RunsSkeletonList() {
 @Composable
 private fun RunsContainer(
     runs: List<Run>,
-    navigateToRunDetails: (String) -> Unit
+    navigateToRunDetails: (String) -> Unit,
+    navigateToRunnerRunsList: () -> Unit
 ) {
+    val runLimitSize = 20
     if (runs.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -428,6 +439,19 @@ private fun RunsContainer(
                         navigateToRunDetails(it.id)
                     }
                 )
+            }
+            if(runs.size >= runLimitSize) {
+                item {
+                    OutlinedButton(
+                        onClick = {
+                            navigateToRunnerRunsList()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.see_more_lable)
+                        )
+                    }
+                }
             }
         }
     } else {
@@ -600,7 +624,8 @@ private fun RunnerDetailsScreenSuccessPreview() {
             navigateToRunDetails = { },
             onBackClick = {},
             onDispatchEvent = {},
-            navigateToGameDetails = {}
+            navigateToGameDetails = {},
+            navigateToRunnerRunsList = {  }
         )
     }
 }
@@ -614,7 +639,8 @@ private fun RunnerDetailsScreenLoadingPreview() {
             navigateToRunDetails = { },
             onBackClick = { },
             onDispatchEvent = { },
-            navigateToGameDetails = { }
+            navigateToGameDetails = { },
+            navigateToRunnerRunsList = {}
         )
     }
 }
@@ -628,7 +654,8 @@ private fun RunnerDetailsScreenErrorPreview() {
             navigateToRunDetails = {},
             onBackClick = {},
             onDispatchEvent = {},
-            navigateToGameDetails = {}
+            navigateToGameDetails = {},
+            navigateToRunnerRunsList = {}
         )
     }
 }
