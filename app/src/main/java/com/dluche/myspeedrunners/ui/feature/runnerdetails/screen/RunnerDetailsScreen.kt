@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.VideogameAsset
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,11 +37,16 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,14 +81,17 @@ import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.fake.runnerPlaceholder
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabType
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uieffect.RunnerDetailsEffects
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uievent.RunnerDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Loading
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState.HeaderState.Success
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.viewmodel.RunnerDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.dluche.myspeedrunners.ui.utils.ObserveAsEvents
 import com.dluche.myspeedrunners.ui.utils.getRunnerGradientColor
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -92,18 +99,67 @@ fun RunnerDetailsRoute(
     viewModel: RunnerDetailsViewModel = hiltViewModel(),
     navigateToRunDetails: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
-    navigateToGameDetails:  (String) -> Unit = {},
+    navigateToGameDetails: (String) -> Unit = {},
     navigateToRunnerRunsList: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val navigateErrorMessage = stringResource(R.string.error_on_navigate_to_runs_list)
+    val navigateErrorActionLabel = stringResource(R.string.retry)
+
+
+    ObserveAsEvents(viewModel.uiEffects) {
+        when (it) {
+            RunnerDetailsEffects.ErrorOnSaveRunnerCard -> {
+                showErrorSnackBar(
+                    scope = scope,
+                    snackbarHostState = snackbarHostState,
+                    navigateErrorMessage = navigateErrorMessage,
+                    navigateErrorActionLabel = navigateErrorActionLabel,
+                ) {
+                    viewModel.dispatchEvent(RunnerDetailsEvents.GoToRunnerRunsList)
+                }
+
+            }
+
+            RunnerDetailsEffects.NavigateToRunnersRunsList -> navigateToRunnerRunsList()
+        }
+    }
+
     RunnerDetailsScreen(
         uiState = uiState.value,
         navigateToRunDetails = navigateToRunDetails,
         onBackClick = onBackClick,
         onDispatchEvent = { viewModel.dispatchEvent(it) },
         navigateToGameDetails = navigateToGameDetails,
-        navigateToRunnerRunsList = navigateToRunnerRunsList
+        snackbarHostState = snackbarHostState
     )
+}
+
+private fun showErrorSnackBar(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    navigateErrorMessage: String,
+    navigateErrorActionLabel: String,
+    retryAction: () -> Unit
+) {
+    scope.launch {
+        val result = snackbarHostState
+            .showSnackbar(
+                message = navigateErrorMessage,
+                actionLabel = navigateErrorActionLabel,
+                duration = SnackbarDuration.Short
+            )
+
+        when (result) {
+            SnackbarResult.ActionPerformed -> {
+                retryAction()
+            }
+
+            else -> {}
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,10 +170,14 @@ fun RunnerDetailsScreen(
     onBackClick: () -> Unit,
     onDispatchEvent: (RunnerDetailsEvents) -> Unit,
     navigateToGameDetails: (String) -> Unit,
-    navigateToRunnerRunsList: () -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
+
     Scaffold(
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
     ) { paddingValues ->
         when (uiState.headerState) {
             Loading -> {
@@ -131,7 +191,6 @@ fun RunnerDetailsScreen(
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
                     navigateToGameDetails = navigateToGameDetails,
-                    navigateToRunnerRunsList = navigateToRunnerRunsList
                 )
             }
 
@@ -146,7 +205,6 @@ fun RunnerDetailsScreen(
                     navigateToRunDetails = navigateToRunDetails,
                     onBackClick = onBackClick,
                     navigateToGameDetails = navigateToGameDetails,
-                    navigateToRunnerRunsList = navigateToRunnerRunsList
                 )
             }
 
@@ -174,7 +232,6 @@ fun RunnerDetailsContent(
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
     navigateToGameDetails: (String) -> Unit,
-    navigateToRunnerRunsList: () -> Unit,
 ) {
     val backgroundColor = getRunnerGradientColor(nameStyle = runner.nameStyle)
 
@@ -308,11 +365,15 @@ fun RunnerDetailsContent(
                         }
 
                         RunnerDetailsTabType.RUNS -> {
-                            RunsStateHandler(runsState, onDispatchEvents, navigateToRunDetails,navigateToRunnerRunsList)
+                            RunsStateHandler(
+                                runsState,
+                                onDispatchEvents,
+                                navigateToRunDetails,
+                            )
                         }
 
                         RunnerDetailsTabType.GAMES -> {
-                            GamesStateHandler(gamesState, onDispatchEvents,navigateToGameDetails)
+                            GamesStateHandler(gamesState, onDispatchEvents, navigateToGameDetails)
                         }
                     }
                 }
@@ -385,7 +446,6 @@ private fun RunsStateHandler(
     runsState: RunnerDetailsUiState.RunsState,
     onDispatchEvents: (RunnerDetailsEvents) -> Unit,
     navigateToRunDetails: (String) -> Unit,
-    navigateToRunnerRunsList: () -> Unit
 ) {
     when (runsState) {
         is RunnerDetailsUiState.RunsState.Error -> {
@@ -401,7 +461,7 @@ private fun RunsStateHandler(
         is RunnerDetailsUiState.RunsState.Success -> RunsContainer(
             runsState.runs,
             navigateToRunDetails,
-            navigateToRunnerRunsList
+            onDispatchEvents
         )
     }
 
@@ -420,7 +480,7 @@ fun RunsSkeletonList() {
 private fun RunsContainer(
     runs: List<Run>,
     navigateToRunDetails: (String) -> Unit,
-    navigateToRunnerRunsList: () -> Unit
+    onDispatchEvents: (RunnerDetailsEvents) -> Unit
 ) {
     val runLimitSize = 20
     if (runs.isNotEmpty()) {
@@ -440,11 +500,12 @@ private fun RunsContainer(
                     }
                 )
             }
-            if(runs.size >= runLimitSize) {
+            if (runs.size >= runLimitSize) {
                 item {
                     OutlinedButton(
                         onClick = {
-                            navigateToRunnerRunsList()
+                            //navigateToRunnerRunsList()
+                            onDispatchEvents(RunnerDetailsEvents.GoToRunnerRunsList)
                         }
                     ) {
                         Text(
@@ -508,7 +569,10 @@ private fun GamesStateHandler(
             }
         }
 
-        is RunnerDetailsUiState.GamesState.Success -> GamesContainer(gamesState.games,navigateToGameDetails)
+        is RunnerDetailsUiState.GamesState.Success -> GamesContainer(
+            gamesState.games,
+            navigateToGameDetails
+        )
     }
 
 }
@@ -523,7 +587,7 @@ private fun GamesContainer(games: List<Game>, navigateToGameDetails: (String) ->
             items(games) { game ->
                 GameGridCard(
                     game,
-                    onClick = {navigateToGameDetails(game.id)}
+                    onClick = { navigateToGameDetails(game.id) }
                 )
             }
         }
@@ -625,7 +689,7 @@ private fun RunnerDetailsScreenSuccessPreview() {
             onBackClick = {},
             onDispatchEvent = {},
             navigateToGameDetails = {},
-            navigateToRunnerRunsList = {  }
+            snackbarHostState = SnackbarHostState()
         )
     }
 }
@@ -640,7 +704,7 @@ private fun RunnerDetailsScreenLoadingPreview() {
             onBackClick = { },
             onDispatchEvent = { },
             navigateToGameDetails = { },
-            navigateToRunnerRunsList = {}
+            snackbarHostState = SnackbarHostState()
         )
     }
 }
@@ -655,7 +719,7 @@ private fun RunnerDetailsScreenErrorPreview() {
             onBackClick = {},
             onDispatchEvent = {},
             navigateToGameDetails = {},
-            navigateToRunnerRunsList = {}
+            snackbarHostState = SnackbarHostState()
         )
     }
 }

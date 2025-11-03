@@ -4,4 +4,5 @@ sealed interface RunnerDetailsEvents {
     data object RefreshFullContent: RunnerDetailsEvents
     data object RunsRetry: RunnerDetailsEvents
     data object GamesRetry: RunnerDetailsEvents
+    data object GoToRunnerRunsList: RunnerDetailsEvents
 }

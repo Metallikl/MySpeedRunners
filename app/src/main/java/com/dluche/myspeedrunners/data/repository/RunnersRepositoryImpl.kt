@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
+import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.data.paging.RunnersPagingSource
 import com.dluche.myspeedrunners.domain.model.runner.Runner
@@ -40,6 +41,14 @@ class RunnersRepositoryImpl @Inject constructor(
         return withContext(dispatcher) {
             runCatching {
                 runnersDataSource.getRunner(id)?.wrapper?.asDomainModel() as Runner
+            }
+        }
+    }
+
+    override suspend fun getRunnerCard(id: String): Result<RunnerCard> {
+        return withContext(dispatcher) {
+            runCatching {
+                runnersDataSource.getRunner(id)?.wrapper?.asCardDomainModel() as RunnerCard
             }
         }
     }

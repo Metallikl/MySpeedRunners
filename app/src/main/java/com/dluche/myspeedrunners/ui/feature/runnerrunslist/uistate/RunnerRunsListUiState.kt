@@ -2,9 +2,11 @@ package com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate
 
 import androidx.paging.PagingData
 import com.dluche.myspeedrunners.domain.model.run.Run
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import kotlinx.coroutines.flow.MutableStateFlow
 
 data class RunnerRunsListUiState(
+    val runnerCard: RunnerCard? = null,
     val search: String = "",
     val runs: MutableStateFlow<PagingData<Run>> = MutableStateFlow(PagingData.empty()),
 )

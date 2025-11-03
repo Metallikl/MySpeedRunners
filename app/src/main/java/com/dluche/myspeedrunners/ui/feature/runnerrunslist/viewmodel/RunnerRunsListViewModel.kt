@@ -12,6 +12,7 @@ import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
 import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCase
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsListEvent
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
@@ -24,6 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RunnerRunsListViewModel @Inject constructor(
+    private val getRunnerCardUseCase: GetRunnerCardUseCase,
     private val searchRunnerRunsUseCase: SearchRunnerRunsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
@@ -45,6 +47,16 @@ class RunnerRunsListViewModel @Inject constructor(
 
     private fun initialLoad(){
         viewModelScope.launch {
+
+            getRunnerCardUseCase(runnerId)
+                .onSuccess {
+
+                }.onFailure {
+
+                }
+
+
+
             searchRunnerRunsUseCase(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),

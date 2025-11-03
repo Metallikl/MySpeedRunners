@@ -10,4 +10,6 @@ interface RunnersRepository {
     suspend fun searchRunners(name: String? = null): Flow<PagingData<RunnerCard>>
 
     suspend fun getRunner(id: String): Result<Runner>
+
+    suspend fun getRunnerCard(id: String): Result<RunnerCard>
 }

@@ -10,8 +10,12 @@ import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.runner.SaveRunnerCardUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.SaveRunnerCardUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCaseImpl
 import dagger.Binds
@@ -44,5 +48,11 @@ interface UseCaseModule {
 
     @Binds
     fun bindSearchRunnerRunsUseCase(searchRunnerRunsUseCase: SearchRunnerRunsUseCaseImpl): SearchRunnerRunsUseCase
+
+    @Binds
+    fun bindGetRunnerCardUseCase(getRunnerCardUseCase: GetRunnerCardUseCaseImpl) : GetRunnerCardUseCase
+
+    @Binds
+    fun saveRunnerCardUseCase(getRunnerCardUseCase: SaveRunnerCardUseCaseImpl) : SaveRunnerCardUseCase
 
 }
