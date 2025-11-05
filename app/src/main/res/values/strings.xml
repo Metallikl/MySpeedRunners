@@ -32,4 +32,5 @@
     <string name="twitch_disclaimer_msg">Twitch does not allow its videos or streams to be embedded directly in applications due to security restrictions, protection against cross-domain playback and limitations of the platform itself. To view the video, click in this card.</string>
     <string name="see_more_lable">see more</string>
     <string name="error_on_navigate_to_runs_list">Error on navigate to runs list !</string>
+    <string name="game_filter_lbl">Select a game to filter</string>
 </resources>

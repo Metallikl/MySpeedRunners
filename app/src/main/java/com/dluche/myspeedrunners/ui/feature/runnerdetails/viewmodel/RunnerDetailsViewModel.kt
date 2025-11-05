@@ -91,7 +91,6 @@ class RunnerDetailsViewModel @Inject constructor(
     }
 
     private fun handleGoToRunnerRunsList() {
-
         viewModelScope.launch {
             if (uiState.value.headerState is RunnerDetailsUiState.HeaderState.Success) {
                 (uiState.value.headerState as RunnerDetailsUiState.HeaderState.Success).apply {
