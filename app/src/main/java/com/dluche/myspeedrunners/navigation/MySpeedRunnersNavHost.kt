@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.navigation
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -18,6 +19,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerdetails.screen.RunnerDetailsRo
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.screen.RunnerRunsListRoute
 import com.dluche.myspeedrunners.ui.feature.runnersearch.screen.RunnersSearchRoute
 
+@ExperimentalMaterial3Api
 @Composable
 fun MySpeedRunnersNavHost() {
 
