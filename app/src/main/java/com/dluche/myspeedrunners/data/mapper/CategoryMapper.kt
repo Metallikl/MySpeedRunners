@@ -14,5 +14,15 @@ fun CategoryDto?.asDomainModel(): Category {
             type = this.type.orEmpty(),
             weblink = this.weblink.orEmpty()
         )
-    }?: Category("", emptyList(), false, "", "", "", "")
+    }?: getEmptyCategory()
 }
+
+fun getEmptyCategory() = Category(
+    id = "",
+    links = emptyList(),
+    miscellaneous = false,
+    name = "",
+    rules = "",
+    type = "",
+    weblink = ""
+)

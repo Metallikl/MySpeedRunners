@@ -13,7 +13,7 @@ private const val OTHER_PARAM_SYMBOL = "&"
 
 fun QueryOrderBy?.buildOrderByInfo() = this?.let {
     "&$ORDER_BY_PARAM=${it.fieldToOrderBy}&$DIRECTION_PARAM=${it.direction}"
-}
+}.orEmpty()
 
 fun EmbedParams?.buildEmbedInfo(isFirstParam: Boolean): String = this?.let { embedParams ->
     val symbol = getInfoSymbol(isFirstParam)

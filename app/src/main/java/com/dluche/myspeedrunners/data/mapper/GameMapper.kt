@@ -40,5 +40,5 @@ fun GameDetailsDto?.asDomainModel(): Game {
     } ?: return getEmptyGame()
 }
 
-private fun getEmptyGame(): Game =
+fun getEmptyGame(): Game =
     Game("", "", "", "", "", emptyList(), "", emptyList(), emptyList(), emptyList())

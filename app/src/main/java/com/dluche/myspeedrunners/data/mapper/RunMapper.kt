@@ -1,12 +1,12 @@
 package com.dluche.myspeedrunners.data.mapper
 
+import com.dluche.myspeedrunners.data.datasource.model.personalbest.RunPbDto
 import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
 import com.dluche.myspeedrunners.extension.formatToDate
 import java.time.format.DateTimeFormatter
 import kotlin.time.Duration
-import kotlin.times
 
 fun RunDto.asDomainModel(): Run {
     return Run(
@@ -15,6 +15,23 @@ fun RunDto.asDomainModel(): Run {
         comment = this.comment.orEmpty(),
         date = this.date?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE).orEmpty(),
         game = this.gameEmbedDto?.data.asDomainModel(),
+        links = this.links?.mapToDomainLinks().orEmpty(),
+        splits = this.splits?.mapToDomainLink(),
+        submitted = this.submitted?.formatToDate().orEmpty(),
+        videos = this.videos?.links?.asStringList().orEmpty(),
+        weblink = this.weblink.orEmpty(),
+        status = RunStatusEnum.fromString(this.status?.status),
+        primaryTime = getPrimaryTime(this.times?.primary)
+    )
+}
+
+fun RunPbDto.asDomainModel(): Run{
+    return Run(
+        id = this.id.orEmpty(),
+        category = getEmptyCategory(),
+        comment = this.comment.orEmpty(),
+        date = this.date?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE).orEmpty(),
+        game = getEmptyGame(),
         links = this.links?.mapToDomainLinks().orEmpty(),
         splits = this.splits?.mapToDomainLink(),
         submitted = this.submitted?.formatToDate().orEmpty(),

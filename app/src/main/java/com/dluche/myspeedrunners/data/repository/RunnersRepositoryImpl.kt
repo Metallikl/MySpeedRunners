@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -8,6 +9,10 @@ import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
 import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.data.paging.RunnersPagingSource
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.repository.RunnersRepository
@@ -53,7 +58,49 @@ class RunnersRepositoryImpl @Inject constructor(
         }
     }
 
-    companion object{
+    override suspend fun getRunnerPersonalBest(
+        runnerId: String,
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
+    ): Result<List<Run>> {
+        return withContext(dispatcher) {
+            runCatching {
+                runnersDataSource.getRunnerPersonalBests(
+                    runnerId = runnerId,
+                    embedParams = embedParams,
+                    queryOrderBy = queryOrderBy
+                )?.data?.filter { pbDto ->
+                    pbDto.run != null
+                }?.map {
+                    it.run!!.asDomainModel()
+                } ?: emptyList()
+            }
+        }
+    }
+
+    override suspend fun getRunnerPersonalBestAsGameFilter(
+        runnerId: String,
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
+    ): Result<List<Game>> {
+        return withContext(dispatcher) {
+            runCatching {
+                runnersDataSource.getRunnerPersonalBests(
+                    runnerId = runnerId,
+                    embedParams = embedParams,
+                    queryOrderBy = queryOrderBy
+                )?.data?.filter{
+                    it.game != null
+                }?.distinctBy {
+                    it.game?.data?.id
+                }?.map {
+                    it.game?.data.asDomainModel()
+                } ?: emptyList()
+            }
+        }
+    }
+
+    companion object {
         const val PAGE_SIZE = 20
     }
 }

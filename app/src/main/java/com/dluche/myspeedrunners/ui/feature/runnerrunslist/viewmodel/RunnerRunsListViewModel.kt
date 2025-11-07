@@ -11,7 +11,9 @@ import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
+import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
+import com.dluche.myspeedrunners.domain.usecase.game.GetGamesFromPersonalBestUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCase
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
@@ -29,7 +31,8 @@ import javax.inject.Inject
 class RunnerRunsListViewModel @Inject constructor(
     private val getRunnerCardUseCase: GetRunnerCardUseCase,
     private val searchRunnerRunsUseCase: SearchRunnerRunsUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val getGameAsFilter: GetGamesFromPersonalBestUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RunnerRunsListUiState())
@@ -50,6 +53,7 @@ class RunnerRunsListViewModel @Inject constructor(
     private fun initialLoad() {
         fetchRunnerInfo()
         fetchRuns()
+        fetchGames()
     }
 
     private fun fetchRunnerInfo() {
@@ -65,7 +69,6 @@ class RunnerRunsListViewModel @Inject constructor(
                 }
         }
     }
-
 
 
     private fun handleRunnerCardSuccess(runnerCard: RunnerCard) {
@@ -100,6 +103,40 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
+
+    private fun fetchGames() {
+        viewModelScope.launch {
+            getGameAsFilter(
+                runnerId = runnerId,
+                embedParams = EmbedParams(GAMES, CATEGORY),
+                queryOrderBy = null
+            ).onSuccess {
+                handleGamesAsFilterSuccess(it)
+            }.onFailure {
+                handleGamesAsFilterError(it)
+            }
+
+        }
+
+    }
+
+    private fun handleGamesAsFilterSuccess(games: List<Game>) {
+        _uiState.update {
+            it.copy(
+                gamesState = RunnerRunsListUiState.GamesFilterState.Success(
+                    games = games
+                )
+            )
+        }
+    }
+
+    private fun handleGamesAsFilterError(error: Throwable) {
+        _uiState.update {
+            it.copy(
+                gamesState = RunnerRunsListUiState.GamesFilterState.Error
+            )
+        }
+    }
 
     private fun searchRuns(search: String) {
         TODO("Not yet implemented")
