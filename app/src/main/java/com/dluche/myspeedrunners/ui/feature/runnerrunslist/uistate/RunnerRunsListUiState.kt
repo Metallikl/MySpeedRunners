@@ -11,6 +11,7 @@ data class RunnerRunsListUiState(
     val search: String = "",
     val runs: MutableStateFlow<PagingData<Run>> = MutableStateFlow(PagingData.empty()),
     val gamesState: GamesFilterState = GamesFilterState.Loading,
+    val selectedGame: Game? = null
 ){
     sealed class RunnerState{
         data object Loading : RunnerState()

@@ -8,6 +8,7 @@ import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.run.RunDataSource
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.data.paging.RunnerRunsPagingSource
+import com.dluche.myspeedrunners.domain.QueryParams
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
@@ -40,7 +41,8 @@ class RunsRepositoryImpl @Inject constructor(
     override suspend fun searchRunnerRuns(
         runnerId: String,
         embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        queryParams: QueryParams?
     ): Flow<PagingData<Run>> {
         return Pager(
             PagingConfig(
@@ -54,6 +56,7 @@ class RunsRepositoryImpl @Inject constructor(
                     runnerId = runnerId,
                     embedParams = embedParams,
                     queryOrderBy = queryOrderBy,
+                    queryParams = queryParams
                 )
             }
         ).flow.flowOn(dispatcher)

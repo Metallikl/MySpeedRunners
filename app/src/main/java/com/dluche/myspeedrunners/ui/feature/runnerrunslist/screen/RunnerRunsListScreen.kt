@@ -6,13 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,14 +44,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
+import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleStates
+import com.dluche.myspeedrunners.ui.components.GameFilterGridCard
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBar
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBarSkeleton
+import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsListEvent
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.viewmodel.RunnerRunsListViewModel
+import com.dluche.myspeedrunners.ui.theme.MySpeedRunColors
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
 @ExperimentalMaterial3Api
@@ -65,6 +75,9 @@ fun RunnerRunsListRoute(
         onBackClick = onBackClick,
         onFilterClick = {
             showBottomSheet = true
+        },
+        onClearFilterClick = {
+            viewModel.dispatchEvent(RunnerRunsListEvent.ClearFilter)
         }
     )
 
@@ -73,10 +86,88 @@ fun RunnerRunsListRoute(
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState
         ) {
-
+            GameFilterBottomSheetContent(
+                gameState = uiState.value.gamesState,
+                onGameSelected = { game ->
+                    viewModel.dispatchEvent(RunnerRunsListEvent.FilterByGame(game = game))
+                    showBottomSheet = false
+                }
+            )
         }
     }
 }
+
+@Composable
+fun GameFilterBottomSheetContent(
+    gameState: RunnerRunsListUiState.GamesFilterState,
+    onGameSelected: (Game) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.7f)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        when (gameState) {
+            RunnerRunsListUiState.GamesFilterState.Error -> {
+                Text(
+                    text = "Erro",
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            RunnerRunsListUiState.GamesFilterState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is RunnerRunsListUiState.GamesFilterState.Success -> {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(
+                        R.string.game_filter_select_lbl
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    textAlign = TextAlign.Center
+                )
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                    ,
+                    text = stringResource(
+                        R.string.game_filter_total_lbl,
+                        gameState.games.size
+                    ),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    textAlign = TextAlign.Center
+                )
+
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 100.dp),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(
+                        count = gameState.games.size,
+                        key = { idx -> gameState.games[idx].id }) { idx ->
+                        val game = gameState.games[idx]
+                        GameFilterGridCard(
+                            game = game,
+                            size = 100.dp,
+                            onClick = {
+                                onGameSelected(game)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @ExperimentalMaterial3Api
 @Composable
@@ -84,7 +175,8 @@ fun RunnerRunsListScreen(
     uiState: RunnerRunsListUiState,
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: () -> Unit
+    onFilterClick: () -> Unit,
+    onClearFilterClick: () -> Unit = {}
 ) {
     val pagingState = uiState.runs.collectAsLazyPagingItems()
     Scaffold(
@@ -99,11 +191,15 @@ fun RunnerRunsListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            GameFilter(onFilterClick = onFilterClick)
+            GameFilter(
+                selectedGame = uiState.selectedGame,
+                onFilterClick = onFilterClick,
+                onClearFilterClick = onClearFilterClick
+            )
 
             PaginatedRuns(pagingState, navigateToRunDetails)
         }
@@ -112,49 +208,68 @@ fun RunnerRunsListScreen(
 
 @Composable
 fun GameFilter(
+    selectedGame: Game?,
+    onFilterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onFilterClick: () -> Unit
+    onClearFilterClick: () -> Unit
 ) {
+    val cardText = selectedGame?.name ?: stringResource(R.string.game_filter_lbl)
     Box(
         modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .padding(8.dp)
+            .heightIn(min = 60.dp)
+            .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Card(
             modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center)
-                .clickable {
-                    onFilterClick()
-                },
+                .fillMaxWidth()
+                .align(Alignment.Center),
 
             ) {
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
 
             ) {
-
-                Text(
-                    modifier = Modifier
-                        .padding(start = 8.dp),
-                    text = stringResource(R.string.game_filter_lbl),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-
                 Icon(
                     modifier = Modifier
-                        .size(32.dp),
+                        .size(32.dp)
+                        .clickable {
+                            onFilterClick()
+                        },
                     imageVector = Icons.Filled.SportsEsports,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface
                 )
 
+                Text(
+                    modifier = Modifier
+                        .weight(1f, fill = true)
+                        .padding(start = 8.dp)
+                        .clickable {
+                            onFilterClick()
+                        },
+                    text = cardText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2
+                )
+
+                selectedGame?.let {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                onClearFilterClick()
+                            },
+                        imageVector = Icons.Filled.RemoveCircle,
+                        contentDescription = null,
+                        tint = MySpeedRunColors.rejectedRed
+                    )
+                }
             }
 
         }

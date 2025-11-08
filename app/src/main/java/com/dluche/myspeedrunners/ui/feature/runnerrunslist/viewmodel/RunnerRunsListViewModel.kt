@@ -4,10 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.dluche.myspeedrunners.data.util.RequestConstants.CATEGORY
+import com.dluche.myspeedrunners.data.util.RequestConstants.GAMES
+import com.dluche.myspeedrunners.domain.QueryParams
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.CATEGORY
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
@@ -46,7 +48,8 @@ class RunnerRunsListViewModel @Inject constructor(
     fun dispatchEvent(event: RunnerRunsListEvent) {
         when (event) {
             RunnerRunsListEvent.InitialLoad -> initialLoad()
-            is RunnerRunsListEvent.SearchRuns -> searchRuns(event.search)
+            is RunnerRunsListEvent.FilterByGame -> filterRunsByGame(event.game)
+            RunnerRunsListEvent.ClearFilter -> clearFilter()
         }
     }
 
@@ -89,12 +92,18 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
-    private fun fetchRuns() {
+    private fun fetchRuns(queryParams: QueryParams? = null) {
         viewModelScope.launch {
+
+            _uiState.value.runs.update {
+                PagingData.empty()
+            }
+
             searchRunnerRunsUseCase(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),
-                queryOrderBy = QueryOrderBy(DATE, DESC)
+                queryOrderBy = QueryOrderBy(DATE, DESC),
+                queryParams = queryParams
             ).cachedIn(viewModelScope).collect { pagingDataRuns ->
                 _uiState.value.runs.update {
                     pagingDataRuns
@@ -138,7 +147,23 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
-    private fun searchRuns(search: String) {
-        TODO("Not yet implemented")
+    private fun filterRunsByGame(game: Game) {
+        _uiState.update {
+            it.copy(
+                selectedGame = game
+            )
+        }
+
+        fetchRuns(QueryParams(params = hashMapOf(GAMES to game.id)))
+    }
+
+    private fun clearFilter() {
+        _uiState.update {
+            //it.runs.update { PagingData.empty() }
+            it.copy(
+                selectedGame = null,
+            )
+        }
+        fetchRuns()
     }
 }

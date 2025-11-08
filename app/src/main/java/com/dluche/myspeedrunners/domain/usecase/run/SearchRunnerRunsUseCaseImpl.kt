@@ -1,6 +1,7 @@
 package com.dluche.myspeedrunners.domain.usecase.run
 
 import androidx.paging.PagingData
+import com.dluche.myspeedrunners.domain.QueryParams
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.Run
@@ -15,9 +16,9 @@ class SearchRunnerRunsUseCaseImpl @Inject constructor(
     override suspend fun invoke(
         runnerId: String,
         embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        queryParams: QueryParams?
     ): Flow<PagingData<Run>> {
-        return repository.searchRunnerRuns(runnerId, embedParams, queryOrderBy)
-
+        return repository.searchRunnerRuns(runnerId, embedParams, queryOrderBy,queryParams)
     }
 }

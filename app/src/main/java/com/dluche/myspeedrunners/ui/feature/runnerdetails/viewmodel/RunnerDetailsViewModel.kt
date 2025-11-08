@@ -5,9 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.dluche.myspeedrunners.data.util.RequestConstants.CATEGORY
+import com.dluche.myspeedrunners.data.util.RequestConstants.GAMES
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.CATEGORY
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
