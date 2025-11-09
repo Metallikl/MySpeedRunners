@@ -1,6 +1,8 @@
 package com.dluche.myspeedrunners.data.datasource.model.personalbest
 
+import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
 import com.dluche.myspeedrunners.data.datasource.model.run.PlayerDto
 import com.dluche.myspeedrunners.data.datasource.model.run.StatusDto
 import com.dluche.myspeedrunners.data.datasource.model.run.SystemDto
@@ -12,13 +14,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RunPbDto(
     @SerialName("category")
-    val category: String? = null,
+    val category: CategoryDtoType? = null,
     @SerialName("comment")
     val comment: String? = null,
     @SerialName("date")
     val date: String? = null,
     @SerialName("game")
-    val game: String? = null,
+    val game: GameDtoType? = null,
     @SerialName("id")
     val id: String? = null,
     @SerialName("level")

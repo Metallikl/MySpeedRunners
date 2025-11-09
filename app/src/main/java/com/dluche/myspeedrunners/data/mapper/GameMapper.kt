@@ -2,18 +2,20 @@ package com.dluche.myspeedrunners.data.mapper
 
 import com.dluche.myspeedrunners.data.datasource.model.games.GameDetailsDto
 import com.dluche.myspeedrunners.data.datasource.model.games.GameDto
+import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
 import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.extension.formatToDate
 import java.time.format.DateTimeFormatter
 
 fun GameDto?.asDomainModel(): Game {
-    this?.let{
+    this?.let {
         return Game(
             id = this.id.orEmpty(),
             name = this.names?.international.orEmpty(),
             imageUrl = this.assets?.coverLarge?.uri.orEmpty(),
             weblink = this.weblink.orEmpty(),
-            releaseData = this.releaseDate?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE).orEmpty(),
+            releaseData = this.releaseDate?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE)
+                .orEmpty(),
             backgroundUrl = this.assets?.background?.uri.orEmpty(),
             links = this.links?.mapToDomainLinks().orEmpty(),
             platforms = emptyList(),
@@ -24,21 +26,35 @@ fun GameDto?.asDomainModel(): Game {
 }
 
 fun GameDetailsDto?.asDomainModel(): Game {
-    this?.let{
+    this?.let {
         return Game(
             id = this.id.orEmpty(),
             name = this.names?.international.orEmpty(),
             imageUrl = this.assets?.coverLarge?.uri.orEmpty(),
             weblink = this.weblink.orEmpty(),
-            releaseData = this.releaseDate?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE).orEmpty(),
+            releaseData = this.releaseDate?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE)
+                .orEmpty(),
             backgroundUrl = this.assets?.background?.uri.orEmpty(),
             links = this.links?.mapToDomainLinks().orEmpty(),
             platforms = this.platforms?.data?.asDomainModel().orEmpty(),
-            categories = this.categories?.data?.map{it.asDomainModel()}.orEmpty(),
-            moderators = this.moderator?.wrapper?.map{it.asCardDomainModel()}.orEmpty()
+            categories = this.categories?.data?.map { it.asDomainModel() }.orEmpty(),
+            moderators = this.moderator?.wrapper?.map { it.asCardDomainModel() }.orEmpty()
         )
     } ?: return getEmptyGame()
 }
 
-fun getEmptyGame(): Game =
+fun getEmptyGame(id: String = ""): Game =
     Game("", "", "", "", "", emptyList(), "", emptyList(), emptyList(), emptyList())
+
+fun GameDtoType?.handleGameDtoType(): Game {
+    return when (this) {
+        is GameDtoType.GameID -> getEmptyGame(id = this.id)
+        is GameDtoType.GameObject -> {
+            this.data.asDomainModel()
+        }
+        is GameDtoType.GameEmbed ->{
+            this.data.data.asDomainModel()
+        }
+        null -> getEmptyGame()
+    }
+}
