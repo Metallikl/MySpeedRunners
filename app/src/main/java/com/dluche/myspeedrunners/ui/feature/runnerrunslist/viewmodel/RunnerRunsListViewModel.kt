@@ -23,6 +23,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsLis
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -50,6 +51,8 @@ class RunnerRunsListViewModel @Inject constructor(
             RunnerRunsListEvent.InitialLoad -> initialLoad()
             is RunnerRunsListEvent.FilterByGame -> filterRunsByGame(event.game)
             RunnerRunsListEvent.ClearFilter -> clearFilter()
+            RunnerRunsListEvent.RunsRetry -> fetchRuns()
+            RunnerRunsListEvent.LoadGameFilter -> fetchGames()
         }
     }
 
@@ -92,9 +95,8 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
-    private fun fetchRuns(queryParams: QueryParams? = null) {
+    private fun fetchRuns() {
         viewModelScope.launch {
-
             _uiState.value.runs.update {
                 PagingData.empty()
             }
@@ -103,7 +105,7 @@ class RunnerRunsListViewModel @Inject constructor(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),
                 queryOrderBy = QueryOrderBy(DATE, DESC),
-                queryParams = queryParams
+                queryParams = getGameFilterParam()
             ).cachedIn(viewModelScope).collect { pagingDataRuns ->
                 _uiState.value.runs.update {
                     pagingDataRuns
@@ -112,9 +114,16 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
+    private fun getGameFilterParam(): QueryParams? {
+        return _uiState.value.selectedGame?.let { game ->
+            QueryParams(params = hashMapOf(GAMES to game.id))
+        }
+    }
+
 
     private fun fetchGames() {
         viewModelScope.launch {
+            delay(2000)
             getGameAsFilter(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),
@@ -124,9 +133,7 @@ class RunnerRunsListViewModel @Inject constructor(
             }.onFailure {
                 handleGamesAsFilterError(it)
             }
-
         }
-
     }
 
     private fun handleGamesAsFilterSuccess(games: List<Game>) {
@@ -154,7 +161,7 @@ class RunnerRunsListViewModel @Inject constructor(
             )
         }
 
-        fetchRuns(QueryParams(params = hashMapOf(GAMES to game.id)))
+        fetchRuns()
     }
 
     private fun clearFilter() {

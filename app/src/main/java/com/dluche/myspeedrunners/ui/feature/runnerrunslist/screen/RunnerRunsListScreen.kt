@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.feature.runnerrunslist.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,9 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -19,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,15 +50,20 @@ import com.dluche.myspeedrunners.domain.model.game.Game
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleStates
 import com.dluche.myspeedrunners.ui.components.GameFilterGridCard
+import com.dluche.myspeedrunners.ui.components.GameFilterGridCardSkeleton
+import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBar
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBarSkeleton
+import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
+import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsListEvent
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.viewmodel.RunnerRunsListViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunColors
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
+import com.valentinilk.shimmer.shimmer
 
 @ExperimentalMaterial3Api
 @Composable
@@ -76,9 +83,9 @@ fun RunnerRunsListRoute(
         onFilterClick = {
             showBottomSheet = true
         },
-        onClearFilterClick = {
-            viewModel.dispatchEvent(RunnerRunsListEvent.ClearFilter)
-        }
+        onDispatchEvents = { event ->
+            viewModel.dispatchEvent(event)
+        },
     )
 
     if (showBottomSheet) {
@@ -88,6 +95,9 @@ fun RunnerRunsListRoute(
         ) {
             GameFilterBottomSheetContent(
                 gameState = uiState.value.gamesState,
+                onDispatchEvent = { event ->
+                    viewModel.dispatchEvent(event)
+                },
                 onGameSelected = { game ->
                     viewModel.dispatchEvent(RunnerRunsListEvent.FilterByGame(game = game))
                     showBottomSheet = false
@@ -100,70 +110,125 @@ fun RunnerRunsListRoute(
 @Composable
 fun GameFilterBottomSheetContent(
     gameState: RunnerRunsListUiState.GamesFilterState,
-    onGameSelected: (Game) -> Unit
+    onGameSelected: (Game) -> Unit,
+    onDispatchEvent: (RunnerRunsListEvent) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.7f)
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         when (gameState) {
             RunnerRunsListUiState.GamesFilterState.Error -> {
-                Text(
-                    text = "Erro",
-                    modifier = Modifier.fillMaxWidth(),
-                )
+              GenericErrorWithButtonComponent(
+                  modifier = Modifier.fillMaxSize(),
+                  onRetry = {
+                      onDispatchEvent(RunnerRunsListEvent.LoadGameFilter)
+                  },
+              )
             }
 
             RunnerRunsListUiState.GamesFilterState.Loading -> {
-                CircularProgressIndicator()
+                GameFilterLoading()
             }
 
             is RunnerRunsListUiState.GamesFilterState.Success -> {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(
-                        R.string.game_filter_select_lbl
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                    ,
-                    text = stringResource(
-                        R.string.game_filter_total_lbl,
-                        gameState.games.size
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    textAlign = TextAlign.Center
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 100.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    items(
-                        count = gameState.games.size,
-                        key = { idx -> gameState.games[idx].id }) { idx ->
-                        val game = gameState.games[idx]
-                        GameFilterGridCard(
-                            game = game,
-                            size = 100.dp,
-                            onClick = {
-                                onGameSelected(game)
-                            }
-                        )
-                    }
-                }
+                GameFilterSuccess(gameState = gameState, onGameSelected = onGameSelected)
             }
+        }
+    }
+}
+
+@Composable
+private fun GameFilterLoading() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .width(120.dp)
+                .height(20.dp)
+                .background(androidx.compose.ui.graphics.Color.LightGray)
+        )
+
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .width(50.dp)
+                .height(20.dp)
+                .background(androidx.compose.ui.graphics.Color.LightGray)
+        )
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        items(
+            count = 12
+        ) {
+            GameFilterGridCardSkeleton(size = 100.dp)
+        }
+    }
+}
+
+@Composable
+fun GameFilterSuccess(
+    gameState: RunnerRunsListUiState.GamesFilterState.Success,
+    onGameSelected: (Game) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.wrapContentWidth(),
+            text = stringResource(
+                R.string.game_filter_select_lbl
+            ),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            modifier = Modifier
+                .wrapContentWidth(),
+            text = stringResource(
+                R.string.game_filter_total_lbl,
+                gameState.games.size
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center
+        )
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        items(
+            count = gameState.games.size,
+            key = { idx -> gameState.games[idx].id }) { idx ->
+            val game = gameState.games[idx]
+            GameFilterGridCard(
+                game = game,
+                size = 100.dp,
+                onClick = {
+                    onGameSelected(game)
+                }
+            )
         }
     }
 }
@@ -176,7 +241,7 @@ fun RunnerRunsListScreen(
     navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
-    onClearFilterClick: () -> Unit = {}
+    onDispatchEvents: (RunnerRunsListEvent) -> Unit = {}
 ) {
     val pagingState = uiState.runs.collectAsLazyPagingItems()
     Scaffold(
@@ -198,10 +263,14 @@ fun RunnerRunsListScreen(
             GameFilter(
                 selectedGame = uiState.selectedGame,
                 onFilterClick = onFilterClick,
-                onClearFilterClick = onClearFilterClick
+                onDispatchEvents = onDispatchEvents
             )
 
-            PaginatedRuns(pagingState, navigateToRunDetails)
+            PaginatedRuns(
+                pagingState = pagingState,
+                navigateToRunDetails = navigateToRunDetails,
+                onDispatchEvents = onDispatchEvents
+            )
         }
     }
 }
@@ -211,7 +280,7 @@ fun GameFilter(
     selectedGame: Game?,
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClearFilterClick: () -> Unit
+    onDispatchEvents: (RunnerRunsListEvent) -> Unit
 ) {
     val cardText = selectedGame?.name ?: stringResource(R.string.game_filter_lbl)
     Box(
@@ -263,7 +332,7 @@ fun GameFilter(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable {
-                                onClearFilterClick()
+                                onDispatchEvents(RunnerRunsListEvent.ClearFilter)
                             },
                         imageVector = Icons.Filled.RemoveCircle,
                         contentDescription = null,
@@ -271,25 +340,28 @@ fun GameFilter(
                     )
                 }
             }
-
         }
     }
-
 }
 
 @Composable
 private fun PaginatedRuns(
     pagingState: LazyPagingItems<Run>,
-    navigateToRunDetails: (String) -> Unit
+    navigateToRunDetails: (String) -> Unit,
+    onDispatchEvents: (RunnerRunsListEvent) -> Unit
 ) {
     pagingState.loadState.refresh.HandleStates(
         loadingContent = {
-            CircularProgressIndicator()
+            RunsSkeletonList(
+                modifier = Modifier.padding(16.dp),
+                count = 20
+            )
         },
         errorContent = {
-            Text(
-                text = "Algo deu errado ao carregar as corridas",
-                modifier = Modifier.fillMaxSize(0.5f),
+            GenericErrorWithButtonComponent(
+                onRetry = { onDispatchEvents(RunnerRunsListEvent.RunsRetry) },
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
             )
         }
     ) {
@@ -298,7 +370,6 @@ private fun PaginatedRuns(
 }
 
 @ExperimentalMaterial3Api
-
 @Composable
 private fun handleRunnerStates(
     uiState: RunnerRunsListUiState,
@@ -352,7 +423,6 @@ fun PaginatedRunList(
             }
         }
     }
-
 }
 
 @ExperimentalMaterial3Api

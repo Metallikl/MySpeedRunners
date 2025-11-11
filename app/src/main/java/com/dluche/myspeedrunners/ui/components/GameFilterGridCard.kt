@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoodBad
 import androidx.compose.material3.Card
@@ -29,12 +31,12 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.extension.convertPixelToDp
 import com.dluche.myspeedrunners.ui.fake.game1
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-
 fun GameFilterGridCard(
     game: Game,
     onClick: () -> Unit,
@@ -114,13 +116,41 @@ fun GameFilterGridCard(
     }
 }
 
-@Preview
+@Composable
+fun GameFilterGridCardSkeleton(
+    modifier: Modifier = Modifier,
+    size: Dp = 150.dp
+) {
+    Card(
+        modifier = modifier
+            .padding(8.dp)
+    ) {
+
+        Box(
+            modifier = Modifier
+                .shimmer()
+                .width(width = size)
+                .height(height = convertPixelToDp(size.value * 4.0f))
+                .background(Color.LightGray)
+        )
+    }
+}
+
+@Preview(showBackground = true)
 @Composable
 private fun GameGridCardPreview() {
     MySpeedRunnersTheme {
-        GameGridCard(
+        GameFilterGridCard(
             game1,
             onClick = {}
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GameGridCardSkeletonPreview() {
+    MySpeedRunnersTheme {
+        GameFilterGridCardSkeleton(size = 100.dp)
     }
 }

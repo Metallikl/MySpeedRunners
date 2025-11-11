@@ -73,10 +73,10 @@ import com.dluche.myspeedrunners.domain.model.runner.NameStyle
 import com.dluche.myspeedrunners.domain.model.runner.NameStyleEnum
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.ui.components.GameGridCard
-import com.dluche.myspeedrunners.ui.components.RunnerDetailsInfo
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
-import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
+import com.dluche.myspeedrunners.ui.components.RunnerDetailsInfo
+import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
 import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.fake.runnerPlaceholder
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.model.RunnerDetailsTabItem
@@ -465,15 +465,6 @@ private fun RunsStateHandler(
         )
     }
 
-}
-
-@Composable
-fun RunsSkeletonList() {
-    Column {
-        for (i in 1..10) {
-            RunCardSkeleton()
-        }
-    }
 }
 
 @Composable
