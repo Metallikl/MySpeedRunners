@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
@@ -53,10 +54,10 @@ import com.dluche.myspeedrunners.ui.components.GameFilterGridCard
 import com.dluche.myspeedrunners.ui.components.GameFilterGridCardSkeleton
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
+import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBar
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBarSkeleton
 import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
-import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsListEvent
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
@@ -246,7 +247,7 @@ fun RunnerRunsListScreen(
     val pagingState = uiState.runs.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
-            handleRunnerStates(
+            HandleRunnerStates(
                 uiState = uiState,
                 onBackClick = onBackClick,
             )
@@ -371,7 +372,7 @@ private fun PaginatedRuns(
 
 @ExperimentalMaterial3Api
 @Composable
-private fun handleRunnerStates(
+private fun HandleRunnerStates(
     uiState: RunnerRunsListUiState,
     onBackClick: () -> Unit
 ) {
@@ -422,6 +423,14 @@ fun PaginatedRunList(
                 )
             }
         }
+        if (runList.loadState.append == LoadState.Loading) {
+            item {
+                RunCardSkeleton(
+                    modifier = Modifier.fillMaxWidth()
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            }
+        }
     }
 }
 
@@ -430,10 +439,11 @@ fun PaginatedRunList(
 @Composable
 private fun RunnerRunsListScreenPreview() {
     MySpeedRunnersTheme {
-//        RunnerRunsListScreen(
-//            RunnerRunsListUiState(),
-//            navigateToRunDetails = {},
-//            onBackClick = {}
-//        )
+        RunnerRunsListScreen(
+            RunnerRunsListUiState(),
+            navigateToRunDetails = {},
+            onBackClick = {},
+            onFilterClick = {}
+        )
     }
 }
