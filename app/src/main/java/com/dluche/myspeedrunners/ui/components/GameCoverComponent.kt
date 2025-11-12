@@ -14,9 +14,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.extension.HandleState
+import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
@@ -58,5 +60,17 @@ fun GameCoverComponent(
                     .background(Color.Gray)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GameCoverComponentPreview() {
+    MySpeedRunnersTheme {
+        GameCoverComponent(
+            imageUrl = "https://www.speedrun.com/static/game/n268x51p/cover?v=5ed1e37",
+            isLoading = false,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
