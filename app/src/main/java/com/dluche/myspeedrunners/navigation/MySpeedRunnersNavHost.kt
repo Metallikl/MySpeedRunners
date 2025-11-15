@@ -57,7 +57,12 @@ fun MySpeedRunnersNavHost() {
 
         composable<RunDetails> {
             RunDetailsRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                navigateToGameDetails = { gameId ->
+                    navController.navigate(GameDetails(gameId))
+                }
             )
         }
 
@@ -70,7 +75,7 @@ fun MySpeedRunnersNavHost() {
             )
         }
 
-        composable<RunnerRunsList>{
+        composable<RunnerRunsList> {
             RunnerRunsListRoute(
                 onBackClick = { navController.popBackStack() },
                 navigateToRunDetails = { runId ->
