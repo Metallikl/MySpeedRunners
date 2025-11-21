@@ -16,18 +16,4 @@ interface RunnersRepository {
     suspend fun getRunner(id: String): Result<Runner>
 
     suspend fun getRunnerCard(id: String): Result<RunnerCard>
-
-    suspend fun getRunnerPersonalBest(
-        runnerId: String,
-        embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
-    ): Result<List<Run>>
-
-    suspend fun getRunnerPersonalBestAsGameFilter(
-        runnerId: String,
-        embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
-    ): Result<List<Game>>
-
-
 }

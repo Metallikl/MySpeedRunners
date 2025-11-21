@@ -14,8 +14,10 @@ import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.usecase.game.GetGamesFromPersonalBestUseCase
+import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerPersonalBestUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCase
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
@@ -35,7 +37,8 @@ class RunnerRunsListViewModel @Inject constructor(
     private val getRunnerCardUseCase: GetRunnerCardUseCase,
     private val searchRunnerRunsUseCase: SearchRunnerRunsUseCase,
     private val savedStateHandle: SavedStateHandle,
-    private val getGameAsFilter: GetGamesFromPersonalBestUseCase
+    private val getGameAsFilter: GetGamesFromPersonalBestUseCase,
+    private val getPersonalBestUseCase: GetRunnerPersonalBestUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RunnerRunsListUiState())
@@ -59,7 +62,7 @@ class RunnerRunsListViewModel @Inject constructor(
     private fun initialLoad() {
         fetchRunnerInfo()
         fetchRuns()
-        fetchGames()
+        fetchPersonalBestRuns()
     }
 
     private fun fetchRunnerInfo() {
@@ -114,6 +117,44 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
+    private fun fetchPersonalBestRuns() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    personalBest = RunnerRunsListUiState.PersonalBestState.Loading
+                )
+            }
+
+            getPersonalBestUseCase(
+                runnerId = runnerId,
+                embedParams = EmbedParams(GAMES, CATEGORY),
+                queryOrderBy = null
+            ).onSuccess {
+                handlePersonalBestSuccess(it)
+            }.onFailure {
+                handlePersonalBestError(it)
+            }
+        }
+    }
+
+    private fun handlePersonalBestSuccess(bestRuns: List<Run>){
+        _uiState.update {
+            it.copy(
+                personalBest = RunnerRunsListUiState.PersonalBestState.Success(
+                     bestRuns
+                )
+            )
+        }
+    }
+
+    private fun handlePersonalBestError(error: Throwable) {
+        _uiState.update {
+            it.copy(
+                personalBest = RunnerRunsListUiState.PersonalBestState.Error
+            )
+        }
+    }
+
     private fun getGameFilterParam(): QueryParams? {
         return _uiState.value.selectedGame?.let { game ->
             QueryParams(params = hashMapOf(GAMES to game.id))
@@ -123,7 +164,6 @@ class RunnerRunsListViewModel @Inject constructor(
 
     private fun fetchGames() {
         viewModelScope.launch {
-            delay(2000)
             getGameAsFilter(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),

@@ -82,6 +82,7 @@ fun RunnerRunsListRoute(
         navigateToRunDetails = navigateToRunDetails,
         onBackClick = onBackClick,
         onFilterClick = {
+            viewModel.dispatchEvent(RunnerRunsListEvent.LoadGameFilter)
             showBottomSheet = true
         },
         onDispatchEvents = { event ->

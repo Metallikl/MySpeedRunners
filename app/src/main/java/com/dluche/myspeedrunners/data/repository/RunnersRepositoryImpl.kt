@@ -1,6 +1,5 @@
 package com.dluche.myspeedrunners.data.repository
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -54,48 +53,6 @@ class RunnersRepositoryImpl @Inject constructor(
         return withContext(dispatcher) {
             runCatching {
                 runnersDataSource.getRunner(id)?.wrapper?.asCardDomainModel() as RunnerCard
-            }
-        }
-    }
-
-    override suspend fun getRunnerPersonalBest(
-        runnerId: String,
-        embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
-    ): Result<List<Run>> {
-        return withContext(dispatcher) {
-            runCatching {
-                runnersDataSource.getRunnerPersonalBests(
-                    runnerId = runnerId,
-                    embedParams = embedParams,
-                    queryOrderBy = queryOrderBy
-                )?.data?.filter { pbDto ->
-                    pbDto.run != null
-                }?.map {
-                    it.run!!.asDomainModel()
-                } ?: emptyList()
-            }
-        }
-    }
-
-    override suspend fun getRunnerPersonalBestAsGameFilter(
-        runnerId: String,
-        embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
-    ): Result<List<Game>> {
-        return withContext(dispatcher) {
-            runCatching {
-                runnersDataSource.getRunnerPersonalBests(
-                    runnerId = runnerId,
-                    embedParams = embedParams,
-                    queryOrderBy = queryOrderBy
-                )?.data?.filter{
-                    it.game != null
-                }?.distinctBy {
-                    it.game?.data?.id
-                }?.map {
-                    it.game?.data.asDomainModel()
-                } ?: emptyList()
             }
         }
     }

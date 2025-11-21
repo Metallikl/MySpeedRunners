@@ -1,16 +1,19 @@
-package com.dluche.myspeedrunners.domain.usecase.game
+package com.dluche.myspeedrunners.domain.usecase.run
 
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.repository.RunnersTempRepository
 import javax.inject.Inject
 
-class GetGamesFromPersonalBestUseCaseImpl @Inject constructor(
+class GetRunnerPersonalBestUseCaseImpl @Inject constructor(
     val repository: RunnersTempRepository
-) : GetGamesFromPersonalBestUseCase {
+) : GetRunnerPersonalBestUseCase {
     override suspend fun invoke(
         runnerId: String,
         embedParams: EmbedParams?,
         queryOrderBy: QueryOrderBy?
-    ) = repository.getRunnerPersonalBestAsGameFilter(runnerId, embedParams, queryOrderBy)
+    ): Result<List<Run>> {
+        return repository.getRunnerPersonalBest(runnerId, embedParams, queryOrderBy)
+    }
 }
