@@ -35,4 +35,5 @@
     <string name="game_filter_lbl">Filtrar por jogo</string>
     <string name="game_filter_select_lbl">Selecione um jogo</string>
     <string name="game_filter_total_lbl"> Total: %1$d</string>
+    <string name="personal_best_tab_label">P.B</string>
 </resources>

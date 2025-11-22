@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,28 +20,39 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -58,6 +70,8 @@ import com.dluche.myspeedrunners.ui.components.RunCardSkeleton
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBar
 import com.dluche.myspeedrunners.ui.components.RunnerRunTopBarSkeleton
 import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
+import com.dluche.myspeedrunners.ui.feature.runnerrunslist.model.RunnerRunsTabItem
+import com.dluche.myspeedrunners.ui.feature.runnerrunslist.model.RunnerRunsTabType
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsListEvent
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
@@ -65,6 +79,7 @@ import com.dluche.myspeedrunners.ui.feature.runnerrunslist.viewmodel.RunnerRunsL
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunColors
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
@@ -124,12 +139,12 @@ fun GameFilterBottomSheetContent(
     ) {
         when (gameState) {
             RunnerRunsListUiState.GamesFilterState.Error -> {
-              GenericErrorWithButtonComponent(
-                  modifier = Modifier.fillMaxSize(),
-                  onRetry = {
-                      onDispatchEvent(RunnerRunsListEvent.LoadGameFilter)
-                  },
-              )
+                GenericErrorWithButtonComponent(
+                    modifier = Modifier.fillMaxSize(),
+                    onRetry = {
+                        onDispatchEvent(RunnerRunsListEvent.LoadGameFilter)
+                    },
+                )
             }
 
             RunnerRunsListUiState.GamesFilterState.Loading -> {
@@ -157,7 +172,7 @@ private fun GameFilterLoading() {
                 .shimmer()
                 .width(120.dp)
                 .height(20.dp)
-                .background(androidx.compose.ui.graphics.Color.LightGray)
+                .background(Color.LightGray)
         )
 
         Box(
@@ -165,7 +180,7 @@ private fun GameFilterLoading() {
                 .shimmer()
                 .width(50.dp)
                 .height(20.dp)
-                .background(androidx.compose.ui.graphics.Color.LightGray)
+                .background(Color.LightGray)
         )
     }
 
@@ -268,11 +283,133 @@ fun RunnerRunsListScreen(
                 onDispatchEvents = onDispatchEvents
             )
 
-            PaginatedRuns(
+            TabContent(
+                pbState = uiState.personalBest,
                 pagingState = pagingState,
                 navigateToRunDetails = navigateToRunDetails,
                 onDispatchEvents = onDispatchEvents
             )
+        }
+    }
+}
+
+@Composable
+fun TabContent(
+    pbState: RunnerRunsListUiState.PersonalBestState,
+    pagingState: LazyPagingItems<Run>,
+    navigateToRunDetails: (String) -> Unit,
+    onDispatchEvents: (RunnerRunsListEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ){
+        val tabItems = getRunnerRunsTab()
+        val pagerState = rememberPagerState(pageCount = { tabItems.size })
+        val scope = rememberCoroutineScope()
+
+        TabRow(selectedTabIndex = pagerState.currentPage) {
+            tabItems.forEachIndexed { index, tabItem ->
+                Tab(
+                    selected = index == pagerState.currentPage,
+                    onClick = {
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
+                    text = {
+                        Text(
+                            text = tabItem.title,
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
+                            contentDescription = tabItem.title,
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                )
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+
+            when (tabItems[pagerState.currentPage].tabType) {
+                RunnerRunsTabType.RUNS -> {
+                    PaginatedRuns(
+                        pagingState = pagingState,
+                        navigateToRunDetails = navigateToRunDetails,
+                        onDispatchEvents = onDispatchEvents
+                    )
+                }
+
+                RunnerRunsTabType.PERSONAL_BEST -> {
+                    PersonalBestContent(
+                        pbState = pbState,
+                        navigateToRunDetails = navigateToRunDetails,
+                        onDispatchEvents = onDispatchEvents
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PersonalBestContent(
+    pbState: RunnerRunsListUiState.PersonalBestState,
+    navigateToRunDetails: (String) -> Unit,
+    onDispatchEvents: (RunnerRunsListEvent) -> Unit
+) {
+    when (pbState) {
+        RunnerRunsListUiState.PersonalBestState.Error -> {
+            GenericErrorWithButtonComponent(
+                onRetry = { onDispatchEvents(RunnerRunsListEvent.RunsRetry) },
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
+            )
+        }
+
+        RunnerRunsListUiState.PersonalBestState.Loading -> {
+            RunsSkeletonList(
+                modifier = Modifier.padding(16.dp),
+                count = 20
+            )
+        }
+
+        is RunnerRunsListUiState.PersonalBestState.Success -> {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                items(
+                    count = pbState.runs.size,
+                    key = { idx -> pbState.runs[idx].id },
+                ) { idx ->
+                    pbState.runs[idx].let {
+                        RunCard(
+                            gameUrl = it.game.imageUrl,
+                            gameName = it.game.name,
+                            category = it.category.name,
+                            status = it.status,
+                            submitted = it.date,
+                            onClick = {
+                                navigateToRunDetails(it.id)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -427,13 +564,30 @@ fun PaginatedRunList(
         if (runList.loadState.append == LoadState.Loading) {
             item {
                 RunCardSkeleton(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
             }
         }
     }
 }
+
+@Composable
+fun getRunnerRunsTab() = listOf(
+    RunnerRunsTabItem(
+        tabType = RunnerRunsTabType.RUNS,
+        title = stringResource(R.string.runs_tab_label),
+        selectedIcon = Icons.AutoMirrored.Filled.DirectionsRun,
+        unselectedIcon = Icons.AutoMirrored.Outlined.DirectionsRun
+    ),
+    RunnerRunsTabItem(
+        tabType = RunnerRunsTabType.PERSONAL_BEST,
+        title = stringResource(R.string.personal_best_tab_label),
+        selectedIcon = Icons.Filled.Star,
+        unselectedIcon = Icons.Outlined.StarOutline
+    )
+)
 
 @ExperimentalMaterial3Api
 @Preview

@@ -25,7 +25,6 @@ import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uievent.RunnerRunsLis
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate.RunnerRunsListUiState.RunnerState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -52,7 +51,7 @@ class RunnerRunsListViewModel @Inject constructor(
     fun dispatchEvent(event: RunnerRunsListEvent) {
         when (event) {
             RunnerRunsListEvent.InitialLoad -> initialLoad()
-            is RunnerRunsListEvent.FilterByGame -> filterRunsByGame(event.game)
+            is RunnerRunsListEvent.FilterByGame -> filterRunsByGame(event.game)//todo aplicar filtro nos p.bs
             RunnerRunsListEvent.ClearFilter -> clearFilter()
             RunnerRunsListEvent.RunsRetry -> fetchRuns()
             RunnerRunsListEvent.LoadGameFilter -> fetchGames()
@@ -128,7 +127,8 @@ class RunnerRunsListViewModel @Inject constructor(
             getPersonalBestUseCase(
                 runnerId = runnerId,
                 embedParams = EmbedParams(GAMES, CATEGORY),
-                queryOrderBy = null
+                queryOrderBy = null,
+                gameIdFilter = _uiState.value.selectedGame?.id
             ).onSuccess {
                 handlePersonalBestSuccess(it)
             }.onFailure {
@@ -200,8 +200,8 @@ class RunnerRunsListViewModel @Inject constructor(
                 selectedGame = game
             )
         }
-
         fetchRuns()
+        fetchPersonalBestRuns()
     }
 
     private fun clearFilter() {
@@ -212,5 +212,6 @@ class RunnerRunsListViewModel @Inject constructor(
             )
         }
         fetchRuns()
+        fetchPersonalBestRuns()
     }
 }

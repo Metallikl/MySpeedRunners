@@ -1,8 +1,10 @@
 package com.dluche.myspeedrunners.data.repository
 
-import android.util.Log
 import com.dluche.myspeedrunners.data.IoDispatcher
+import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
+import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
 import com.dluche.myspeedrunners.data.datasource.model.personalbest.PersonalBestDto
+import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
@@ -44,7 +46,8 @@ class RunnersTempRepositoryImpl @Inject constructor(
     override suspend fun getRunnerPersonalBest(
         runnerId: String,
         embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        gameIdFilter: String?
     ): Result<List<Run>> {
         return withContext(dispatcher) {
             runCatching {
@@ -53,13 +56,22 @@ class RunnersTempRepositoryImpl @Inject constructor(
                     embedParams = embedParams,
                     queryOrderBy = queryOrderBy
                 )?.filter { pbDto ->
-                    pbDto.run != null
-                }?.map {
-                    it.run!!.asDomainModel()
+                    pbDto.run != null && (gameIdFilter == null || pbDto.game?.data?.id == gameIdFilter)
+                }?.map { pbDto ->
+                    pbDto.run?.addCategoryAndGame(pbDto)!!.asDomainModel()
                 } ?: emptyList()
             }
         }
     }
+
+    private fun RunDto.addCategoryAndGame(pbDto: PersonalBestDto) = this.copy(
+        gameEmbedDto = pbDto.game?.let { gameDto ->
+            GameDtoType.GameEmbed(gameDto)
+        },
+        categoryEmbed = pbDto.category?.let { categoryDto ->
+            CategoryDtoType.CategoryEmbed(categoryDto)
+        }
+    )
 
     override suspend fun getRunnerPersonalBestAsGameFilter(
         runnerId: String,
@@ -88,8 +100,7 @@ class RunnersTempRepositoryImpl @Inject constructor(
         embedParams: EmbedParams?,
         queryOrderBy: QueryOrderBy?
     ): List<PersonalBestDto>? {
-        return if (rawPersonalBest.isNullOrEmpty()) {
-            Log.d("repoTempPB", "Personal best is null or empty")
+        return if (rawPersonalBest.isNullOrEmpty() || runnerIdHasChange(runnerId)) {
             runnersDataSource.getRunnerPersonalBests(
                 runnerId = runnerId,
                 embedParams = embedParams,
@@ -99,4 +110,8 @@ class RunnersTempRepositoryImpl @Inject constructor(
             }
         } else rawPersonalBest
     }
+
+    private fun runnerIdHasChange(
+        runnerId: String
+    ) = rawPersonalBest?.first()?.run?.players?.find { it.id == runnerId } == null
 }

@@ -17,7 +17,8 @@ interface RunnersTempRepository {
     suspend fun getRunnerPersonalBest(
         runnerId: String,
         embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        gameIdFilter: String?
     ): Result<List<Run>>
 
     suspend fun getRunnerPersonalBestAsGameFilter(

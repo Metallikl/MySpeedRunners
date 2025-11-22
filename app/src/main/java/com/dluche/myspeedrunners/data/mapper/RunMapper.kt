@@ -11,11 +11,9 @@ import kotlin.time.Duration
 fun RunDto.asDomainModel(): Run {
     return Run(
         id = this.id.orEmpty(),
-        //category = this.categoryEmbed?.data.asDomainModel(),
         category = this.categoryEmbed.handleCategoryType(),
         comment = this.comment.orEmpty(),
         date = this.date?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE).orEmpty(),
-        //game = this.gameEmbedDto?.data.asDomainModel(),
         game = this.gameEmbedDto.handleGameDtoType(),
         links = this.links?.mapToDomainLinks().orEmpty(),
         splits = this.splits?.mapToDomainLink(),

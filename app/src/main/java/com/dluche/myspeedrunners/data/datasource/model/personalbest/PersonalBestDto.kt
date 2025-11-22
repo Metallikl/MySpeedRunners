@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.data.datasource.model.personalbest
 
+import com.dluche.myspeedrunners.data.datasource.model.category.CategoryEmbedDto
 import com.dluche.myspeedrunners.data.datasource.model.games.GameEmbedDto
 import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import kotlinx.serialization.SerialName
@@ -13,4 +14,6 @@ data class PersonalBestDto(
     val run: RunDto?,
     @SerialName("game")
     val game: GameEmbedDto?,
+    @SerialName("category")
+    val category: CategoryEmbedDto?,
 )

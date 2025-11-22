@@ -12,8 +12,9 @@ class GetRunnerPersonalBestUseCaseImpl @Inject constructor(
     override suspend fun invoke(
         runnerId: String,
         embedParams: EmbedParams?,
-        queryOrderBy: QueryOrderBy?
+        queryOrderBy: QueryOrderBy?,
+        gameIdFilter: String?
     ): Result<List<Run>> {
-        return repository.getRunnerPersonalBest(runnerId, embedParams, queryOrderBy)
+        return repository.getRunnerPersonalBest(runnerId, embedParams, queryOrderBy, gameIdFilter)
     }
 }
