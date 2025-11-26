@@ -205,19 +205,19 @@ fun RunnerDetailsContent(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                IconButton(
-                    onClick = {
-                        onDispatchEvents(RunnerDetailsEvents.RefreshFullContent)
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.background
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Back"
-                    )
-                }
+//                IconButton(
+//                    onClick = {
+//                        onDispatchEvents(RunnerDetailsEvents.RefreshFullContent)
+//                    },
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        contentColor = MaterialTheme.colorScheme.background
+//                    )
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.FavoriteBorder,
+//                        contentDescription = "Back"
+//                    )
+//                }
             }
 
             RunnerImageHandler(state, runner)

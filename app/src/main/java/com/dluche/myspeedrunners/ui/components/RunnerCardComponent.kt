@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import com.dluche.myspeedrunners.ui.fake.runner1
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.dluche.myspeedrunners.ui.utils.getRunnerGradientColor
 import com.valentinilk.shimmer.shimmer
+import timber.log.Timber
 
 @Composable
 fun RunnerCardComponent(
@@ -149,6 +151,8 @@ fun RunnerImage(runnerCard: RunnerCard, size: Dp) {
                     modifier = Modifier
                         .size(size),
                 )
+
+                Timber.d("Error loading image\n${(state.value as AsyncImagePainter.State.Error).result.throwable}")
             }
 
             is AsyncImagePainter.State.Success -> {
