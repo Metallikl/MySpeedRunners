@@ -493,15 +493,20 @@ private fun RunsContainer(
             }
             if (runs.size >= runLimitSize) {
                 item {
-                    OutlinedButton(
-                        onClick = {
-                            //navigateToRunnerRunsList()
-                            onDispatchEvents(RunnerDetailsEvents.GoToRunnerRunsList)
-                        }
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = stringResource(R.string.see_more_lable)
-                        )
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(0.8f),
+                            onClick = {
+                                onDispatchEvents(RunnerDetailsEvents.GoToRunnerRunsList)
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(R.string.see_more_lable)
+                            )
+                        }
                     }
                 }
             }
