@@ -2,14 +2,24 @@ package com.dluche.myspeedrunners.domain.usecase.di
 
 import com.dluche.myspeedrunners.domain.usecase.game.GetGameDetailsUseCase
 import com.dluche.myspeedrunners.domain.usecase.game.GetGameDetailsUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.game.GetGamesFromPersonalBestUseCase
+import com.dluche.myspeedrunners.domain.usecase.game.GetGamesFromPersonalBestUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunByIdUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunByIdUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerPersonalBestUseCase
+import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerPersonalBestUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCase
+import com.dluche.myspeedrunners.domain.usecase.run.SearchRunnerRunsUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerCardUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.runner.SaveRunnerCardUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.SaveRunnerCardUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCaseImpl
 import dagger.Binds
@@ -40,5 +50,19 @@ interface UseCaseModule {
     @Binds
     fun bindGetGameDetailsUseCase(getGameDetailsUseCase: GetGameDetailsUseCaseImpl): GetGameDetailsUseCase
 
+    @Binds
+    fun bindSearchRunnerRunsUseCase(searchRunnerRunsUseCase: SearchRunnerRunsUseCaseImpl): SearchRunnerRunsUseCase
+
+    @Binds
+    fun bindGetRunnerCardUseCase(getRunnerCardUseCase: GetRunnerCardUseCaseImpl): GetRunnerCardUseCase
+
+    @Binds
+    fun bindSaveRunnerCardUseCase(getRunnerCardUseCase: SaveRunnerCardUseCaseImpl): SaveRunnerCardUseCase
+
+    @Binds
+    fun bindGetGamesFromPersonalBestUseCase(getGamesFromPersonalBestUseCase: GetGamesFromPersonalBestUseCaseImpl): GetGamesFromPersonalBestUseCase
+
+    @Binds
+    fun bindGetRunnerPersonalBestUseCase(getRunnerPersonalBestUseCaseImpl: GetRunnerPersonalBestUseCaseImpl) : GetRunnerPersonalBestUseCase
 
 }

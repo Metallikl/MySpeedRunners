@@ -1,6 +1,7 @@
 package com.dluche.myspeedrunners.data.mapper
 
 import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDto
+import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
 import com.dluche.myspeedrunners.domain.model.category.Category
 
 fun CategoryDto?.asDomainModel(): Category {
@@ -14,5 +15,30 @@ fun CategoryDto?.asDomainModel(): Category {
             type = this.type.orEmpty(),
             weblink = this.weblink.orEmpty()
         )
-    }?: Category("", emptyList(), false, "", "", "", "")
+    }?: getEmptyCategory()
+}
+
+fun getEmptyCategory(id: String ="") = Category(
+    id = id,
+    links = emptyList(),
+    miscellaneous = false,
+    name = "",
+    rules = "",
+    type = "",
+    weblink = ""
+)
+ fun CategoryDtoType?.handleCategoryType(): Category {
+    return when (this) {
+        is CategoryDtoType.CategoryEmbed -> {
+            this.data.data.asDomainModel()
+        }
+        is CategoryDtoType.CategoryObject -> {
+            this.data.asDomainModel()
+        }
+        is CategoryDtoType.CategoryID -> {
+            getEmptyCategory(this.id)
+        }
+        null -> getEmptyCategory()
+
+    }
 }

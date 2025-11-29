@@ -5,9 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.dluche.myspeedrunners.data.util.RequestConstants.CATEGORY
+import com.dluche.myspeedrunners.data.util.RequestConstants.GAMES
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.CATEGORY
-import com.dluche.myspeedrunners.domain.model.common.EmbedParams.Companion.GAMES
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
@@ -17,12 +17,17 @@ import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunnerRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.runner.GetRunnerUseCase
+import com.dluche.myspeedrunners.domain.usecase.runner.SaveRunnerCardUseCase
+import com.dluche.myspeedrunners.extension.toRunnerCard
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
+import com.dluche.myspeedrunners.ui.feature.runnerdetails.uieffect.RunnerDetailsEffects
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uievent.RunnerDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.uistate.RunnerDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,11 +37,15 @@ class RunnerDetailsViewModel @Inject constructor(
     private val getRunnerUseCase: GetRunnerUseCase,
     private val getRunnerRunsUseCase: GetRunnerRunsUseCase,
     private val getRunnerGamesUseCase: GetRunnerGamesUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val saveRunnerCardUseCase: SaveRunnerCardUseCase
 ) : ViewModel() {
     private var runnerId: String = ""
     private val _uiState = MutableStateFlow(RunnerDetailsUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _uiEffects = Channel<RunnerDetailsEffects>(Channel.BUFFERED)
+    val uiEffects = _uiEffects.receiveAsFlow()
 
     val runnerIdList = listOf<String>(
         "kjp1v74j",//LD
@@ -73,8 +82,28 @@ class RunnerDetailsViewModel @Inject constructor(
             RunnerDetailsEvents.GamesRetry -> {
                 fetchRunnerGames(runnerId)
             }
+
+            RunnerDetailsEvents.GoToRunnerRunsList -> {
+                handleGoToRunnerRunsList()
+            }
         }
 
+    }
+
+    private fun handleGoToRunnerRunsList() {
+        viewModelScope.launch {
+            if (uiState.value.headerState is RunnerDetailsUiState.HeaderState.Success) {
+                (uiState.value.headerState as RunnerDetailsUiState.HeaderState.Success).apply {
+                    saveRunnerCardUseCase(runner.toRunnerCard()).let { wasSuccessful ->
+                        if (wasSuccessful) {
+                            _uiEffects.send(RunnerDetailsEffects.NavigateToRunnersRunsList)
+                        } else {
+                            _uiEffects.send(RunnerDetailsEffects.ErrorOnSaveRunnerCard)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun dispatchRandom() {

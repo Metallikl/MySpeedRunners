@@ -82,7 +82,7 @@ fun GameGridCard(
                         painter = painter,
                         contentDescription = game.name,
                         modifier = Modifier
-                            .size(150.dp),
+                            .size(size),
                         contentScale = ContentScale.FillBounds,
                     )
                 }

@@ -16,5 +16,7 @@ sealed interface MySpeedRunnersRoutes {
     @Serializable
     data class GameDetails(val gameId: String)
 
+    @Serializable
+    data class RunnerRunsList(val runnerId: String)
 
 }

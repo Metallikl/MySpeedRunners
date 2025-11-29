@@ -5,8 +5,13 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.dluche.myspeedrunners.data.IoDispatcher
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
+import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.data.paging.RunnersPagingSource
+import com.dluche.myspeedrunners.domain.model.common.EmbedParams
+import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
+import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.Runner
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.repository.RunnersRepository
@@ -44,7 +49,15 @@ class RunnersRepositoryImpl @Inject constructor(
         }
     }
 
-    companion object{
+    override suspend fun getRunnerCard(id: String): Result<RunnerCard> {
+        return withContext(dispatcher) {
+            runCatching {
+                runnersDataSource.getRunner(id)?.wrapper?.asCardDomainModel() as RunnerCard
+            }
+        }
+    }
+
+    companion object {
         const val PAGE_SIZE = 20
     }
 }

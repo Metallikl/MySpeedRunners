@@ -1,6 +1,5 @@
 package com.dluche.myspeedrunners.extension
 
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems

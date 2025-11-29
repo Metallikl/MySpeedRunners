@@ -16,7 +16,6 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-
 fun ImageSkeletonPlaceholder(
     modifier: Modifier = Modifier,
     size: Dp = 150.dp,
@@ -25,13 +24,13 @@ fun ImageSkeletonPlaceholder(
 ) {
     Box(
         modifier = modifier
-            .shimmer()
-            .size(size)
             .apply {
                 clip?.let { shape ->
                     clip(shape)
                 }
             }
+            .shimmer()
+            .size(size)
             .background(backgroundColor)
     )
 }

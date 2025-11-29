@@ -1,8 +1,10 @@
 package com.dluche.myspeedrunners.data.datasource.model.run
 
 
+import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
 import com.dluche.myspeedrunners.data.datasource.model.category.CategoryEmbedDto
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
+import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
 import com.dluche.myspeedrunners.data.datasource.model.games.GameEmbedDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,13 +12,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RunDto(
     @SerialName("category")
-    val categoryEmbed: CategoryEmbedDto? = null,
+    val categoryEmbed: CategoryDtoType? = null,
     @SerialName("comment")
     val comment: String? = null,
     @SerialName("date")
     val date: String? = null,
     @SerialName("game")
-    val gameEmbedDto: GameEmbedDto? = null,
+    val gameEmbedDto: GameDtoType? = null,
     @SerialName("id")
     val id: String? = null,
     @SerialName("level")

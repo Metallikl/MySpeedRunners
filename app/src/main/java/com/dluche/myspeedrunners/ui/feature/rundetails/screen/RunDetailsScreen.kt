@@ -2,12 +2,12 @@ package com.dluche.myspeedrunners.ui.feature.rundetails.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,7 +50,7 @@ import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
 import com.dluche.myspeedrunners.extension.extractYoutubeVideoId
 import com.dluche.myspeedrunners.extension.isTwitchUrl
 import com.dluche.myspeedrunners.extension.isYoutubeUrl
-import com.dluche.myspeedrunners.extension.asTwitchEmbeddedUrl
+import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.components.RunWebViewContent
@@ -64,14 +64,18 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun RunDetailsRoute(onBackClick: () -> Unit) {
+fun RunDetailsRoute(
+    onBackClick: () -> Unit,
+    navigateToGameDetails: (String) -> Unit,
+) {
     val viewModel = hiltViewModel<RunDetailsViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     RunDetailsScreen(
         uiState = uiState.value,
         onBackClick = onBackClick,
-        onDispatchEvent = { viewModel.dispatchEvent(it) }
+        onDispatchEvent = { viewModel.dispatchEvent(it) },
+        onNavigateToGameDetails = navigateToGameDetails
     )
 
     LaunchedEffect(Unit) {
@@ -84,7 +88,8 @@ fun RunDetailsRoute(onBackClick: () -> Unit) {
 fun RunDetailsScreen(
     onBackClick: () -> Unit,
     uiState: RunDetailsUiState,
-    onDispatchEvent: (RunDetailsEvents) -> Unit
+    onDispatchEvent: (RunDetailsEvents) -> Unit,
+    onNavigateToGameDetails: (String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -133,9 +138,9 @@ fun RunDetailsScreen(
 
 
                 if (uiState !is RunDetailsUiState.Error) {
-                    GameNameComponent(uiState)
+                    GameNameComponent(uiState,onNavigateToGameDetails)
 
-                    GameCoverComponent(uiState)
+                    GameCoverContent(uiState)
 
                     ContentComponent(uiState)
 
@@ -302,43 +307,24 @@ private fun BackgroundSuccess(runItem: Run) {
 }
 
 @Composable
-private fun GameCoverComponent(uiState: RunDetailsUiState) {
-    Card(
+private fun GameCoverContent(uiState: RunDetailsUiState) {
+    val imageUrl = (uiState as? RunDetailsUiState.Success)?.run?.game?.imageUrl ?: ""
+    val isLoading = uiState !is RunDetailsUiState.Success
+
+    GameCoverComponent(
+        imageUrl = imageUrl,
+        isLoading = isLoading,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
-            .padding(vertical = 16.dp)
-    ) {
-        if (uiState is RunDetailsUiState.Success) {
-            val coverPainter = rememberAsyncImagePainter(uiState.run.game.imageUrl)
-            val coverPainterState = coverPainter.state.collectAsState()
-
-            coverPainterState.value.HandleState(
-                successContent = {
-                    Image(
-                        painter = coverPainter,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .aspectRatio(16 / 9f),
-                        contentScale = ContentScale.FillBounds,
-
-                        )
-                }
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .shimmer()
-                    .fillMaxSize()
-                    .background(Color.Gray)
-            )
-        }
-    }
+    )
 }
 
 @Composable
-private fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = Modifier) {
+private fun GameNameComponent(
+    uiState: RunDetailsUiState,
+    onNavigateToGameDetails: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -352,6 +338,9 @@ private fun GameNameComponent(uiState: RunDetailsUiState, modifier: Modifier = M
                 fontWeight = Bold,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        onNavigateToGameDetails(uiState.run.game.id)
+                    }
                     .padding(8.dp),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface
@@ -518,9 +507,10 @@ private fun CategoryContainer(uiState: RunDetailsUiState.Success) {
 private fun RunDetailsScreenPreview() {
     MySpeedRunnersTheme {
         RunDetailsScreen(
+            onBackClick = {},
             uiState = RunDetailsUiState.Success(run1),
             onDispatchEvent = {},
-            onBackClick = {},
+            onNavigateToGameDetails = {}
         )
     }
 }
