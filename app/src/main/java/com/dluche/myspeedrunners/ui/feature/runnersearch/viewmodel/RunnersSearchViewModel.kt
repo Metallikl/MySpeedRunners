@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.dluche.myspeedrunners.domain.usecase.runner.SearchRunnersUseCase
+import com.dluche.myspeedrunners.extension.removeAccentsAndSpaces
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uievent.RunnersSearchEvents
 import com.dluche.myspeedrunners.ui.feature.runnersearch.uistate.RunnersSearchUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,7 +43,7 @@ class RunnersSearchViewModel @Inject constructor(
                     _uiState.value.runners.update { PagingData.empty() }
                 }
 
-                search.length >= 3 -> searchRunners(search)
+                search.length >= 3 -> searchRunners(search.removeAccentsAndSpaces())
             }
         }
     }
