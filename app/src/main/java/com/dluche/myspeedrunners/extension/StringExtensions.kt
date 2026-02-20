@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.core.net.toUri
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
+import java.text.Normalizer
 
 const val DATE_ONLY = "dd/MM/yyyy"
 const val DATE_TIME_SIMPLE = "dd/MM/yyyy HH:mm"
@@ -88,6 +90,19 @@ fun String.extractYoutubeVideoId(): String? {
     }
 
     return null
+}
+
+fun String.removeAccentsAndSpaces(): String {
+    // 1. Decompõe caracteres acentuados (ex: 'ç' vira 'c' + 'cedilha')
+    val temp = Normalizer.normalize(this, Normalizer.Form.NFD)
+
+    // 2. Define o padrão para encontrar os sinais diacríticos (acentos/cedilhas)
+    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+
+    // 3. Remove os acentos e os espaços em branco (\s remove espaços, tabs, quebras de linha)
+    return pattern.matcher(temp)
+        .replaceAll("")
+        .replace("\\s".toRegex(), "")
 }
 
 //fun main() {
