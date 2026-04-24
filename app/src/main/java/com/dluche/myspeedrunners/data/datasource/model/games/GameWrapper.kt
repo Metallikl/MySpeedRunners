@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GameWrapper(
     @SerialName("data")
-    val data: List<GameDto>,
+    val data: List<GameDto>? = null,
     @SerialName("pagination")
-    val pagination: PaginationDto
+    val pagination: PaginationDto? = null
 )

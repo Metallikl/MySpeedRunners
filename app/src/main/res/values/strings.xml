@@ -36,4 +36,6 @@
     <string name="game_filter_select_lbl">Select a game.</string>
     <string name="game_filter_total_lbl"> Total: %1$d</string>
     <string name="personal_best_tab_label">P.B</string>
+    <string name="release">Released:</string>
+    <string name="search_game">Search Game</string>
 </resources>

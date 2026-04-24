@@ -8,12 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.GameDetails
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.RunDetails
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.RunnerDetails
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.RunnerRunsList
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.RunnersSearch
+import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
+import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.*
 import com.dluche.myspeedrunners.ui.feature.gamedetails.screen.GameDetailsRoute
+import com.dluche.myspeedrunners.ui.feature.gamesearch.screen.GameSearchRoute
 import com.dluche.myspeedrunners.ui.feature.rundetails.screen.RunDetailsRoute
 import com.dluche.myspeedrunners.ui.feature.runnerdetails.screen.RunnerDetailsRoute
 import com.dluche.myspeedrunners.ui.feature.runnerrunslist.screen.RunnerRunsListRoute
@@ -25,11 +23,22 @@ fun MySpeedRunnersNavHost() {
 
     val navController: NavHostController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = RunnersSearch) {
+    NavHost(navController = navController, startDestination = GamesSearch) {
         composable<RunnersSearch> {
             RunnersSearchRoute(
                 navigateToRunnerDetails = { runnerId ->
                     navController.navigate(RunnerDetails(runnerId))
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<GamesSearch> {
+            GameSearchRoute(
+                navigateToGameDetails = { gameId ->
+                    navController.navigate(GameDetails(gameId))
                 },
                 onBackClick = {
                     navController.popBackStack()

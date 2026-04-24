@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,8 +16,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,17 +33,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
-import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
+import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun RunCard(
+fun GameCardComponent(
     gameUrl: String,
     gameName: String,
-    category: String,
-    status: RunStatusEnum,
-    submitted: String,
+    releaseData: String,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     onClick: () -> Unit
@@ -51,6 +49,7 @@ fun RunCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .padding(bottom = 8.dp)
             .clickable {
                 onClick()
             }
@@ -60,10 +59,9 @@ fun RunCard(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
                 .heightIn(max = 118.dp),
-            verticalAlignment = Alignment.CenterVertically
         ) {
 
-            RunImage(
+            GameImage(
                 gameUrl = gameUrl,
                 contentDescription = contentDescription,
                 size = 100.dp,
@@ -72,36 +70,35 @@ fun RunCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth(1f)
+                    .fillMaxHeight()
                     .padding(4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = gameName,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = category,
-                    style = MaterialTheme.typography.labelLarge
-                )
+
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    RunStatusComponent(
-                        runStatus = status,
-                        modifier = Modifier.wrapContentWidth()
+                    Text(
+                        text = stringResource(R.string.release),
+                        style = MaterialTheme.typography.labelLarge
                     )
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = submitted,
+                        text = releaseData,
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center
                     )
@@ -112,7 +109,7 @@ fun RunCard(
 }
 
 @Composable
-private fun RunImage(gameUrl: String, contentDescription: String?, size: Dp) {
+fun GameImage(gameUrl: String, contentDescription: String?, size: Dp) {
     val painter = rememberAsyncImagePainter(gameUrl)
     val state = painter.state.collectAsState()
 
@@ -153,14 +150,12 @@ private fun RunImage(gameUrl: String, contentDescription: String?, size: Dp) {
 
 @Preview
 @Composable
-private fun RunCardPreview() {
+private fun GameCardComponentPreview() {
     MySpeedRunnersTheme {
-        RunCard(
+        GameCardComponent(
             gameUrl = "https://www.speedrun.com/static/game/pd0qq31e/cover?v=8b6ea7d",
             gameName = "Super Mario Odyssey",
-            category = "Any%",
-            status = RunStatusEnum.VERIFIED,
-            submitted = "2021-01-01",
+            releaseData = "2021-01-01",
             onClick = {},
         )
     }

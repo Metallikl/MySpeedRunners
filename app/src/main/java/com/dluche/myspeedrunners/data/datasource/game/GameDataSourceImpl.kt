@@ -11,9 +11,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import javax.inject.Inject
 
-class GameDataSourceImpl @Inject constructor (
+class GameDataSourceImpl @Inject constructor(
     private val client: HttpClient,
-): GameDataSource {
+) : GameDataSource {
     override suspend fun getRunnersGames(runnerId: String): GameWrapper? {
         return client.get("$RUNNER_GAMES_URL?$MODERATOR_PARAM=$runnerId").body()
     }
@@ -30,6 +30,19 @@ class GameDataSourceImpl @Inject constructor (
         query: QueryOrderBy?
     ): GameWrapper? {
         return client.get("$RUNNER_GAMES_URL?$PARAM_NAME=$search${query.buildOrderByInfo()}").body()
+    }
+
+    override suspend fun searchGames(
+        name: String?,
+        offset: Int?
+    ): GameWrapper? {
+        return client.get(getSearchGamesUrl(name, offset)).body()
+    }
+
+    private fun getSearchGamesUrl(name: String? = null, offset: Int? = null): String {
+        val nameFilter = if (name != null) "?name=$name" else ""
+        val offsetFilter = if (offset != null) "&offset=$offset" else ""
+        return RUNNER_GAMES_URL + nameFilter + offsetFilter
     }
 
     companion object {
