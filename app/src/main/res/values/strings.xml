@@ -38,4 +38,6 @@
     <string name="personal_best_tab_label">P.B</string>
     <string name="release">Released:</string>
     <string name="search_game">Search Game</string>
+    <string name="runners_label">Runners</string>
+    <string name="games_label">Games</string>
 </resources>

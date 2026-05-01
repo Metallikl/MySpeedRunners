@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.dluche.myspeedrunners.ui.MySpeedRunnersApp
+import com.dluche.myspeedrunners.ui.app.MySpeedRunnersApp
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import dagger.hilt.android.AndroidEntryPoint
 

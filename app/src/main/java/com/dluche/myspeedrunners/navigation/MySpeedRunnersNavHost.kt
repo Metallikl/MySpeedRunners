@@ -6,9 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.*
 import com.dluche.myspeedrunners.ui.feature.gamedetails.screen.GameDetailsRoute
 import com.dluche.myspeedrunners.ui.feature.gamesearch.screen.GameSearchRoute
@@ -19,9 +17,7 @@ import com.dluche.myspeedrunners.ui.feature.runnersearch.screen.RunnersSearchRou
 
 @ExperimentalMaterial3Api
 @Composable
-fun MySpeedRunnersNavHost() {
-
-    val navController: NavHostController = rememberNavController()
+fun MySpeedRunnersNavHost(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = GamesSearch) {
         composable<RunnersSearch> {
