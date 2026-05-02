@@ -21,7 +21,8 @@ fun GameDto?.asDomainModel(): Game {
             links = it.links?.mapToDomainLinks().orEmpty(),
             platforms = emptyList(),
             moderators = emptyList(),
-            categories = emptyList()
+            categories = emptyList(),
+            discord = it.discord.orEmpty()
         )
     } ?: return getEmptyGame()
 }
@@ -51,13 +52,26 @@ fun GameDetailsDto?.asDomainModel(): Game {
             links = it.links?.mapToDomainLinks().orEmpty(),
             platforms = it.platforms?.data?.asDomainModel().orEmpty(),
             categories = it.categories?.data?.map { it.asDomainModel() }.orEmpty(),
-            moderators = it.moderator?.wrapper?.map { it.asCardDomainModel() }.orEmpty()
+            moderators = it.moderator?.wrapper?.map { it.asCardDomainModel() }.orEmpty(),
+            discord = it.discord.orEmpty()
         )
     } ?: return getEmptyGame()
 }
 
 fun getEmptyGame(id: String = ""): Game =
-    Game("", "", "", "", "", emptyList(), "", emptyList(), emptyList(), emptyList())
+    Game(
+        id = "",
+        name = "",
+        imageUrl = "",
+        weblink = "",
+        releaseData = "",
+        links = emptyList(),
+        backgroundUrl = "",
+        platforms = emptyList(),
+        categories = emptyList(),
+        moderators = emptyList(),
+        discord = ""
+    )
 
 fun GameDtoType?.handleGameDtoType(): Game {
     return when (this) {

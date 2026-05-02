@@ -10,7 +10,8 @@ val game1 = Game(
     weblink = "https://www.speedrun.com/super_mario_odyssey",
     releaseData = "2017-09-23T23:05:37Z",
     backgroundUrl = "https://www.speedrun.com/static/game/pd0qq31e/background?v=8b6ea7d",
-    links = emptyList()
+    links = emptyList(),
+    discord = "https://discord.gg/92xARJJsWg"
 )
 
 val game2 = Game(
@@ -20,7 +21,8 @@ val game2 = Game(
     weblink = "https://www.speedrun.com/super_mario_odyssey",
     releaseData = "2024-07-19T23:40:52Z",
     backgroundUrl = "https://www.speedrun.com/static/game/pdv9v5k1/cover?v=5b8577e",
-    links = emptyList()
+    links = emptyList(),
+    discord = "https://discord.gg/92xARJJsWg"
 )
 
 val gameCard1 = GameCard(

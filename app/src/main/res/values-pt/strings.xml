@@ -40,4 +40,7 @@
     <string name="search_game">Buscar jogo</string>
     <string name="runners_label">Runners</string>
     <string name="games_label">Games</string>
+    <string name="discord_label">Discord</string>
+    <string name="categories">Categorias</string>
+    <string name="discord_activity_not_found">App do Discord não encontrado!</string>
 </resources>

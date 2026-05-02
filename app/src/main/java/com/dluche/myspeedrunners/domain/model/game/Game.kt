@@ -15,5 +15,6 @@ data class Game(
     val backgroundUrl: String,
     val platforms: List<Platform> = emptyList(),
     val categories: List<Category> = emptyList(),
-    val moderators: List<RunnerCard> = emptyList()
+    val moderators: List<RunnerCard> = emptyList(),
+    val discord: String
 )
