@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +48,8 @@ import com.dluche.myspeedrunners.extension.HandleStates
 import com.dluche.myspeedrunners.extension.inAnyLoading
 import com.dluche.myspeedrunners.extension.shimmerEffect
 import com.dluche.myspeedrunners.ui.components.GameCardComponent
+import com.dluche.myspeedrunners.ui.components.GameCardGrid
+import com.dluche.myspeedrunners.ui.components.GameFilterGridCardSkeleton
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.feature.gamesearch.uievent.GameSearchEvents
 import com.dluche.myspeedrunners.ui.feature.gamesearch.uistate.GameSearchUiState
@@ -129,7 +133,8 @@ fun GameSearchScreen(
             if (
                 !pagingState.loadState.hasError
                 && !pagingState.inAnyLoading()
-                && pagingState.itemCount > 0) {
+                && pagingState.itemCount > 0
+            ) {
                 Text(
                     text = stringResource(
                         R.string.count_result_found,
@@ -187,21 +192,20 @@ fun GameListComponent(
     gamesList: LazyPagingItems<GameCard>,
     navigateToGameDetails: (String) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        modifier = Modifier.fillMaxSize(),
     ) {
         items(
             count = gamesList.itemCount,
-            key = { idx -> gamesList[idx]?.id.orEmpty() }
-        ) { idx ->
+            key = { idx -> gamesList[idx]?.id.orEmpty() }) { idx ->
             gamesList[idx]?.let {
-                GameCardComponent(
-                    gameUrl = it.imageUrl,
-                    gameName = it.name,
-                    releaseData= it.releaseData,
-                    onClick = { navigateToGameDetails(it.id) }
+                GameCardGrid(
+                    game = it,
+                    size = 100.dp,
+                    onClick = {
+                        navigateToGameDetails(it.id)
+                    }
                 )
             }
         }
@@ -209,14 +213,7 @@ fun GameListComponent(
             gamesList.loadState.append.HandleStates(
                 errorContent = { PagingAppendError(gamesList) },
                 loadingContent = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    GameFilterGridCardSkeleton(size = 100.dp)
                 }
             )
         }
@@ -277,23 +274,14 @@ private fun PagingAppendError(gamesList: LazyPagingItems<GameCard>) {
 
 @Composable
 fun GameListLoadingComponent() {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        modifier = Modifier.fillMaxSize(),
     ) {
-        items(10) { runner ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.LightGray)
-
-                    .shimmerEffect()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+        items(
+            count = 12
+        ) {
+            GameFilterGridCardSkeleton(size = 100.dp)
         }
     }
 }

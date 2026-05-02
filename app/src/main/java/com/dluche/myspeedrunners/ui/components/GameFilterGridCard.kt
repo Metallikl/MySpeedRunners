@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoodBad
+import androidx.compose.material.icons.outlined.FmdBad
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -68,7 +76,7 @@ fun GameCardGrid(
                     Box(
                         modifier = Modifier
                             .shimmer()
-                            .size(size)
+                            .size(size.times(1.3f))
                             .background(Color.LightGray)
 
                     )
@@ -76,14 +84,32 @@ fun GameCardGrid(
 
                 is AsyncImagePainter.State.Error -> {
                     //todo tratar o cenario de erro
-                    Image(
-                        imageVector = Icons.Default.MoodBad,
-                        contentDescription = "Error loading image",
-                        modifier = Modifier
-                            .size(size),
-                        colorFilter = ColorFilter.tint(Color.Red)
 
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = "Error loading image",
+                            modifier = Modifier
+                                .size(size),
+                            contentScale = ContentScale.FillBounds,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error)
+                        )
+
+                        Text(
+                            text = game.name,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 2,
+                            minLines = 2
+                        )
+                    }
                 }
 
                 is AsyncImagePainter.State.Success -> {
@@ -103,15 +129,15 @@ fun GameCardGrid(
 
                         Text(
                             text = game.name,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 2,
-                            minLines = 2
+                            minLines = 2,
                         )
                     }
-
                 }
             }
         }
