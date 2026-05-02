@@ -33,8 +33,7 @@ fun GameDto?.asCardDomainModel(): GameCard {
             name = it.names?.international.orEmpty(),
             imageUrl = it.assets?.coverLarge?.uri.orEmpty(),
             releaseData = it.releaseDate?.formatToDate(dateFormatIn = DateTimeFormatter.ISO_DATE)
-                .orEmpty(),
-            platforms = emptyList(),
+                .orEmpty()
         )
     } ?: return getEmptyGameCard()
 }
@@ -74,4 +73,4 @@ fun GameDtoType?.handleGameDtoType(): Game {
 }
 
 fun getEmptyGameCard(): GameCard=
-    GameCard("", "", "", "", emptyList())
+    GameCard("", "", "", "")

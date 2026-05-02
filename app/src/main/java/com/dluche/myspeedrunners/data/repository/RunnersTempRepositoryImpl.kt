@@ -6,10 +6,12 @@ import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
 import com.dluche.myspeedrunners.data.datasource.model.personalbest.PersonalBestDto
 import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
+import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.game.GameCard
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.repository.RunnersTempRepository
@@ -77,7 +79,7 @@ class RunnersTempRepositoryImpl @Inject constructor(
         runnerId: String,
         embedParams: EmbedParams?,
         queryOrderBy: QueryOrderBy?
-    ): Result<List<Game>> {
+    ): Result<List<GameCard>> {
         return withContext(dispatcher) {
             runCatching {
                 getPersonalBest(
@@ -89,7 +91,7 @@ class RunnersTempRepositoryImpl @Inject constructor(
                 }?.distinctBy {
                     it.game?.data?.id
                 }?.map {
-                    it.game?.data.asDomainModel()
+                    it.game?.data.asCardDomainModel()
                 } ?: emptyList()
             }
         }

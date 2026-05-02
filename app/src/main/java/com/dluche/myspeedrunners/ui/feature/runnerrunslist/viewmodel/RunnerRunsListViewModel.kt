@@ -13,7 +13,7 @@ import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
-import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.game.GameCard
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import com.dluche.myspeedrunners.domain.usecase.game.GetGamesFromPersonalBestUseCase
@@ -176,7 +176,7 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
-    private fun handleGamesAsFilterSuccess(games: List<Game>) {
+    private fun handleGamesAsFilterSuccess(games: List<GameCard>) {
         _uiState.update {
             it.copy(
                 gamesState = RunnerRunsListUiState.GamesFilterState.Success(
@@ -194,7 +194,7 @@ class RunnerRunsListViewModel @Inject constructor(
         }
     }
 
-    private fun filterRunsByGame(game: Game) {
+    private fun filterRunsByGame(game: GameCard) {
         _uiState.update {
             it.copy(
                 selectedGame = game

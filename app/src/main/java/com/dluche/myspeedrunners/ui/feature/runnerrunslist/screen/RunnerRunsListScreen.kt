@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -59,10 +58,10 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dluche.myspeedrunners.R
-import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.game.GameCard
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.extension.HandleStates
-import com.dluche.myspeedrunners.ui.components.GameFilterGridCard
+import com.dluche.myspeedrunners.ui.components.GameCardGrid
 import com.dluche.myspeedrunners.ui.components.GameFilterGridCardSkeleton
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunCard
@@ -127,7 +126,7 @@ fun RunnerRunsListRoute(
 @Composable
 fun GameFilterBottomSheetContent(
     gameState: RunnerRunsListUiState.GamesFilterState,
-    onGameSelected: (Game) -> Unit,
+    onGameSelected: (GameCard) -> Unit,
     onDispatchEvent: (RunnerRunsListEvent) -> Unit
 ) {
     Column(
@@ -199,7 +198,7 @@ private fun GameFilterLoading() {
 @Composable
 fun GameFilterSuccess(
     gameState: RunnerRunsListUiState.GamesFilterState.Success,
-    onGameSelected: (Game) -> Unit
+    onGameSelected: (GameCard) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -239,7 +238,7 @@ fun GameFilterSuccess(
             count = gameState.games.size,
             key = { idx -> gameState.games[idx].id }) { idx ->
             val game = gameState.games[idx]
-            GameFilterGridCard(
+            GameCardGrid(
                 game = game,
                 size = 100.dp,
                 onClick = {
@@ -416,7 +415,7 @@ fun PersonalBestContent(
 
 @Composable
 fun GameFilter(
-    selectedGame: Game?,
+    selectedGame: GameCard?,
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier,
     onDispatchEvents: (RunnerRunsListEvent) -> Unit

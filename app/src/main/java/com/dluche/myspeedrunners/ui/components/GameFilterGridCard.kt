@@ -31,14 +31,16 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.game.GameCard
 import com.dluche.myspeedrunners.extension.convertPixelToDp
 import com.dluche.myspeedrunners.ui.fake.game1
+import com.dluche.myspeedrunners.ui.fake.gameCard1
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun GameFilterGridCard(
-    game: Game,
+fun GameCardGrid(
+    game: GameCard,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: Dp = 150.dp
@@ -138,10 +140,10 @@ fun GameFilterGridCardSkeleton(
 
 @Preview(showBackground = true)
 @Composable
-private fun GameGridCardPreview() {
+private fun GameGridCardGridPreview() {
     MySpeedRunnersTheme {
-        GameFilterGridCard(
-            game1,
+        GameCardGrid(
+            gameCard1,
             onClick = {}
         )
     }

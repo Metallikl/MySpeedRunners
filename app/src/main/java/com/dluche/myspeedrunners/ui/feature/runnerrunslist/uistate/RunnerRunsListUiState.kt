@@ -2,6 +2,7 @@ package com.dluche.myspeedrunners.ui.feature.runnerrunslist.uistate
 
 import androidx.paging.PagingData
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.game.GameCard
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,7 @@ data class RunnerRunsListUiState(
     val runs: MutableStateFlow<PagingData<Run>> = MutableStateFlow(PagingData.empty()),
     val personalBest: PersonalBestState = PersonalBestState.Loading,
     val gamesState: GamesFilterState = GamesFilterState.Loading,
-    val selectedGame: Game? = null
+    val selectedGame: GameCard? = null
 ) {
     sealed class RunnerState {
         data object Loading : RunnerState()
@@ -23,7 +24,7 @@ data class RunnerRunsListUiState(
     sealed class GamesFilterState {
         data object Loading : GamesFilterState()
         data object Error : GamesFilterState()
-        data class Success(val games: List<Game>) : GamesFilterState()
+        data class Success(val games: List<GameCard>) : GamesFilterState()
     }
 
     sealed class PersonalBestState {
