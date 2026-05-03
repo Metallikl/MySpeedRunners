@@ -21,4 +21,6 @@ interface RunDataSource {
     suspend fun getRuns(embedParams: EmbedParams?): RunWrapperDto
 
     suspend fun getRunById(runId: String,embedParams: EmbedParams?): RunSingleWrapperDto
+
+    suspend fun getGameRuns(gameId: String,embedParams: EmbedParams?, queryOrderBy: QueryOrderBy?): RunWrapperDto
 }

@@ -14,6 +14,7 @@ import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.run.PaginatedRun
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.repository.RunsRepository
+import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -83,6 +84,20 @@ class RunsRepositoryImpl @Inject constructor(
                     Log.d("runId", "run is null")
                     throw Exception("RunnerNotFound")
                 }
+            }
+        }
+    }
+
+    override suspend fun getGameRuns(
+        gameId: String,
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
+    ): Result<PaginatedRun> {
+        return withContext(dispatcher) {
+            runCatching {
+                dataSource.getGameRuns(
+                    gameId, embedParams,queryOrderBy
+                ).asDomainModel()
             }
         }
     }

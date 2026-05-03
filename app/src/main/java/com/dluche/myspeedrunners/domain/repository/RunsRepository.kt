@@ -22,4 +22,6 @@ interface RunsRepository {
     suspend fun getRuns(embedParams: EmbedParams?): Result<PaginatedRun>
 
     suspend fun getRunById(runId: String,embedParams: EmbedParams?):  Result<Run>
+
+    suspend fun getGameRuns(gameId: String,embedParams: EmbedParams?, queryOrderBy: QueryOrderBy?): Result<PaginatedRun>
 }

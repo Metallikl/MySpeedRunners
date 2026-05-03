@@ -21,8 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dluche.myspeedrunners.R
@@ -61,12 +58,16 @@ import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
+import com.dluche.myspeedrunners.ui.components.RunsContainerComponent
+import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabItem
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabType
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomSheetType
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsTabFactory
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState
+import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState.MainState
+import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState.RunsState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
@@ -104,15 +105,15 @@ fun GameDetailsRoute(
 
     when (bottomSheetType) {
         GameDetailsBottomSheetType.PLATFORM, GameDetailsBottomSheetType.CATEGORY -> {
-            if (uiState.value is GameDetailsUiState.Success) {
+            if (uiState.value.mainState is MainState.Success) {
                 ModalBottomSheet(
                     onDismissRequest = { bottomSheetType = GameDetailsBottomSheetType.NONE },
                     sheetState = sheetState
                 ) {
                     if (bottomSheetType == GameDetailsBottomSheetType.PLATFORM) {
-                        PlatformContainer(uiState.value as GameDetailsUiState.Success)
+                        PlatformContainer(uiState.value.mainState as MainState.Success)
                     } else {
-                        CategoryContainer(uiState.value as GameDetailsUiState.Success)
+                        CategoryContainer(uiState.value.mainState as MainState.Success)
                     }
                 }
             }
@@ -124,7 +125,7 @@ fun GameDetailsRoute(
 
 @Composable
 fun GameDetailsScreen(
-    uiState: GameDetailsUiState = GameDetailsUiState.Loading,
+    uiState: GameDetailsUiState = GameDetailsUiState(),
     onDispatchEvent: (GameDetailsEvents) -> Unit = {},
     onBackClick: () -> Unit = {},
     navigateToRunnerDetails: (String) -> Unit,
@@ -195,11 +196,11 @@ fun GameDetailsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
-                if (uiState !is GameDetailsUiState.Error) {
+                if (uiState !is MainState.Error) {
 
-                    GameNameComponent(uiState)
+                    GameNameComponent(uiState.mainState)
 
-                    GameCover(uiState, onChangeBottomSheetType)
+                    GameCover(uiState.mainState, onChangeBottomSheetType)
 
                     ContentComponent(uiState, navigateToRunnerDetails, gameDetailTabItems)
 
@@ -218,11 +219,11 @@ fun GameDetailsScreen(
 
 @Composable
 fun GameCover(
-    uiState: GameDetailsUiState,
+    uiState: MainState,
     onChangeBottomSheetType: (GameDetailsBottomSheetType) -> Unit
 ) {
     when (uiState) {
-        GameDetailsUiState.Loading -> {
+        MainState.Loading -> {
             GameCoverComponent(
                 imageUrl = "",
                 isLoading = true,
@@ -231,7 +232,7 @@ fun GameCover(
             )
         }
 
-        is GameDetailsUiState.Success -> {
+        is MainState.Success -> {
             GameCoverComponentV2(
                 name = uiState.game.name,
                 releaseDate = uiState.game.releaseData,
@@ -249,14 +250,14 @@ fun GameCover(
             )
         }
 
-        is GameDetailsUiState.Error -> {}
+        is MainState.Error -> {}
     }
 }
 
 @Composable
 fun BackgroundComponent(state: GameDetailsUiState) {
     when (state) {
-        GameDetailsUiState.Loading -> {
+        MainState.Loading -> {
             Box(
                 modifier = Modifier
                     .shimmer()
@@ -265,8 +266,8 @@ fun BackgroundComponent(state: GameDetailsUiState) {
             )
         }
 
-        is GameDetailsUiState.Error -> {}
-        is GameDetailsUiState.Success -> {
+        is MainState.Error -> {}
+        is MainState.Success -> {
             BackgroundImageComponent(
                 backgroundUrl = state.game.backgroundUrl,
             )
@@ -275,7 +276,7 @@ fun BackgroundComponent(state: GameDetailsUiState) {
 }
 
 @Composable
-fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier) {
+fun GameNameComponent(uiState: MainState, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -283,10 +284,10 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
     ) {
 
         when (uiState) {
-            is GameDetailsUiState.Error -> {
+            is MainState.Error -> {
             }
 
-            GameDetailsUiState.Loading -> {
+            MainState.Loading -> {
                 Box(
                     modifier = Modifier
                         .shimmer()
@@ -297,7 +298,7 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
                 )
             }
 
-            is GameDetailsUiState.Success -> {
+            is MainState.Success -> {
                 Text(
                     text = uiState.game.name,
                     style = MaterialTheme.typography.headlineMedium,
@@ -319,24 +320,24 @@ fun ContentComponent(
     navigateToRunnerDetails: (String) -> Unit,
     gameDetailTabItems: List<GameDetailTabItem>
 ) {
-    if (uiState is GameDetailsUiState.Success) {
-        val pagerState = rememberPagerState(pageCount = { gameDetailTabItems.size })
-        val scope = rememberCoroutineScope()
+    when (uiState.mainState) {
+        is MainState.Success -> {
+            val pagerState = rememberPagerState(pageCount = { gameDetailTabItems.size })
+            val scope = rememberCoroutineScope()
 
-
-        TabRow(
-            modifier = Modifier.clip(CircleShape),
-            selectedTabIndex = pagerState.currentPage,
-            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
-        ) {
-            gameDetailTabItems.forEachIndexed { index, tabItem ->
-                Tab(
-                    selected = index == pagerState.currentPage,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
+            TabRow(
+                modifier = Modifier.clip(CircleShape),
+                selectedTabIndex = pagerState.currentPage,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
+            ) {
+                gameDetailTabItems.forEachIndexed { index, tabItem ->
+                    Tab(
+                        selected = index == pagerState.currentPage,
+                        onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
 //                    text = {
 //                        Text(
 //                            text = tabItem.title,
@@ -344,73 +345,88 @@ fun ContentComponent(
 //                            color = MaterialTheme.colorScheme.onBackground
 //                        )
 //                    },
-                    icon = {
-                        Icon(
-                            imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
-                            contentDescription = tabItem.title,
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
+                        icon = {
+                            Icon(
+                                imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
+                                contentDescription = tabItem.title,
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    )
+                }
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                when (gameDetailTabItems[pagerState.currentPage].tabType) {
+                    GameDetailTabType.RUNS -> {
+                        //Fixme compose error due infinity scroll
+                        RunsContainer(uiState.runsState, navigateToRunnerDetails)
                     }
-                )
-            }
-        }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            when (gameDetailTabItems[pagerState.currentPage].tabType) {
-                GameDetailTabType.RUNS -> {
-                    ModeratorsContainer(uiState, navigateToRunnerDetails)
-                }
+                    GameDetailTabType.LEADERBOARD -> {
+                        ModeratorsContainer(uiState.mainState, navigateToRunnerDetails)
+                    }
 
-                GameDetailTabType.LEADERBOARD -> {
-                    ModeratorsContainer(uiState, navigateToRunnerDetails)
-                }
+                    GameDetailTabType.RECORDS -> {
+                        ModeratorsContainer(uiState.mainState, navigateToRunnerDetails)
+                    }
 
-                GameDetailTabType.RECORDS -> {
-                    ModeratorsContainer(uiState, navigateToRunnerDetails)
-                }
-
-                GameDetailTabType.MODERATORS -> {
-                    ModeratorsContainer(uiState, navigateToRunnerDetails)
+                    GameDetailTabType.MODERATORS -> {
+                        ModeratorsContainer(uiState.mainState, navigateToRunnerDetails)
+                    }
                 }
             }
         }
 
-//        Card(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(bottom = 16.dp),
-//            colors = CardDefaults.cardColors(
-//                containerColor = CardDefaults.cardColors().containerColor.copy(
-//                    alpha = 0.5f
-//                )
-//            )
-//        ) {
-//            Column(
-//                modifier = Modifier.padding(8.dp)
-//            ) {
-//                ModeratorsContainer(uiState, navigateToRunnerDetails)
-//            }
-//        }
-    } else {
-        Box(
-            modifier = Modifier
-                .shimmer()
-                .clip(RoundedCornerShape(8.dp))
-                .fillMaxWidth()
-                .height(400.dp)
-                .background(Color.Gray)
-        )
+        else -> {
+            Box(
+                modifier = Modifier
+                    .shimmer()
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .background(Color.Gray)
+            )
+        }
     }
 }
 
 @Composable
-fun ModeratorsContainer(
-    uiState: GameDetailsUiState.Success,
+private fun RunsContainer(
+    runState: RunsState,
+    navigateToRunDetail: (String) -> Unit,
+    onRetry: () -> Unit = {},
+    onShowMoreClick: () -> Unit = {}
+) {
+    when (runState) {
+        is RunsState.Error -> {
+            GenericErrorWithButtonComponent(
+                onRetry = onRetry,
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
+            )
+        }
+        RunsState.Loading -> {
+            RunsSkeletonList()
+        }
+        is RunsState.Success -> {
+            RunsContainerComponent(
+                runs = runState.runs,
+                onNavigateToRunDetails = navigateToRunDetail,
+                onShowMoreClick = onShowMoreClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun ModeratorsContainer(
+    uiState: MainState.Success,
     navigateToRunnerDetails: (String) -> Unit
 ) {
     Column(
@@ -443,7 +459,7 @@ fun ModeratorsContainer(
 }
 
 @Composable
-private fun PlatformContainer(uiState: GameDetailsUiState.Success) {
+private fun PlatformContainer(uiState: MainState.Success) {
     uiState.game.platforms.RunWithNotNullNorEmpty { platforms ->
         Column(
             modifier = Modifier
@@ -483,7 +499,7 @@ private fun PlatformContainer(uiState: GameDetailsUiState.Success) {
 }
 
 @Composable
-private fun CategoryContainer(uiState: GameDetailsUiState.Success) {
+private fun CategoryContainer(uiState: MainState.Success) {
 
     uiState.game.categories.RunWithNotNullNorEmpty { categories ->
         Column(

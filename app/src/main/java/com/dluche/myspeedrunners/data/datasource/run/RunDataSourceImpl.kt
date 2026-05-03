@@ -24,37 +24,37 @@ class RunDataSourceImpl @Inject constructor(
         embedParams: EmbedParams?,
         queryOrderBy: QueryOrderBy?
     ): RunWrapperDto {
-        val runParams = buildRunnerRunsUrl(
-            runnerId,
+        val runParams = buildEmbedQueryOffsetAndOrderByUrl(
+            "$USER_PARAM=$runnerId",
             embedParams,
             queryOrderBy
         )
         return client.get("$RUNNER_RUNS_URL$runParams").body()
     }
 
-    private fun buildRunnerRunsUrl(
-        runnerId: String,
-        params: EmbedParams?,
-        queryOrderBy: QueryOrderBy?,
-        offset: Int? = null,
-        queryParams: QueryParams? = null
-    ): String {
-//        val runnerInfo = if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else ""
-//        val embedInfo = params.buildEmbedInfo(runnerInfo.isBlank())
-//        val orderBy = queryOrderBy.buildOrderByInfo()
-//        val offsetInfo = buildOffsetInfo(offset)
-//        val queryParams = queryParams.buildQueryParamsInfo(embedInfo.isEmpty())
+//    private fun buildRunnerRunsUrl(
+//        runnerId: String,
+//        params: EmbedParams?,
+//        queryOrderBy: QueryOrderBy?,
+//        offset: Int? = null,
+//        queryParams: QueryParams? = null
+//    ): String {
+////        val runnerInfo = if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else ""
+////        val embedInfo = params.buildEmbedInfo(runnerInfo.isBlank())
+////        val orderBy = queryOrderBy.buildOrderByInfo()
+////        val offsetInfo = buildOffsetInfo(offset)
+////        val queryParams = queryParams.buildQueryParamsInfo(embedInfo.isEmpty())
+////
+////        return runnerInfo + embedInfo + orderBy + offsetInfo
 //
-//        return runnerInfo + embedInfo + orderBy + offsetInfo
-
-        return StringBuilder().apply {
-            append(if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else "")
-            append(params.buildEmbedInfo(this.isEmpty()))
-            append(queryOrderBy.buildOrderByInfo())
-            append(queryParams.buildQueryParamsInfo(this.isEmpty()))
-            append(buildOffsetInfo(offset))
-        }.toString()
-    }
+//        return StringBuilder().apply {
+//            append(if (runnerId.isNotBlank()) "?$USER_PARAM=$runnerId" else "")
+//            append(params.buildEmbedInfo(this.isEmpty()))
+//            append(queryOrderBy.buildOrderByInfo())
+//            append(queryParams.buildQueryParamsInfo(this.isEmpty()))
+//            append(buildOffsetInfo(offset))
+//        }.toString()
+//    }
 
     override suspend fun searchRunnerRuns(
         runnerId: String,
@@ -63,7 +63,7 @@ class RunDataSourceImpl @Inject constructor(
         offset: Int?,
         queryParams: QueryParams?,
     ): RunWrapperDto {
-        val runParams = buildRunnerRunsUrl(runnerId, embedParams, queryOrderBy,offset,queryParams)
+        val runParams = buildEmbedQueryOffsetAndOrderByUrl("$USER_PARAM=$runnerId", embedParams, queryOrderBy,offset,queryParams)
         return client.get("$RUNNER_RUNS_URL$runParams").body()
     }
 
@@ -79,8 +79,38 @@ class RunDataSourceImpl @Inject constructor(
         return client.get(RUNNER_RUNS_URL +"/" + runId  + embedParams.buildEmbedInfo(true)).body()
     }
 
+    override suspend fun getGameRuns(
+        gameId: String,
+        embedParams: EmbedParams?,
+        queryOrderBy: QueryOrderBy?
+    ): RunWrapperDto {
+        val runParams = buildEmbedQueryOffsetAndOrderByUrl(
+            "$GAME_PARAM=$gameId",
+            embedParams,
+            queryOrderBy
+        )
+        return client.get("$RUNNER_RUNS_URL$runParams").body()
+    }
+
+    private fun buildEmbedQueryOffsetAndOrderByUrl(
+        mainParams: String,
+        params: EmbedParams?,
+        queryOrderBy: QueryOrderBy?,
+        offset: Int? = null,
+        queryParams: QueryParams? = null
+    ): String {
+        return StringBuilder().apply {
+            append("?$mainParams")
+            append(params.buildEmbedInfo(this.isEmpty()))
+            append(queryOrderBy.buildOrderByInfo())
+            append(queryParams.buildQueryParamsInfo(this.isEmpty()))
+            append(buildOffsetInfo(offset))
+        }.toString()
+    }
+
     companion object {
         private const val RUNNER_RUNS_URL = "runs"
         private const val USER_PARAM = "user"
+        private const val GAME_PARAM = "game"
     }
 }
