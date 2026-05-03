@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +60,11 @@ fun GameCoverComponentV2(
     contentScale: ContentScale = ContentScale.FillBounds,
     aspectRatio: Float = 9 / 16f
 ) {
+    val releaseYear = remember {
+        releaseDate.split("/").let{
+            it[it.lastIndex]
+        }
+    }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -76,7 +82,7 @@ fun GameCoverComponentV2(
                         aspectRatio = aspectRatio,
                         contentScale = contentScale,
                         name = name,
-                        releaseDate = releaseDate,
+                        releaseDate = releaseYear,
                         onPlatformClick = onPlatformClick,
                         onCategoryClick = onCategoryClick,
                         discordUrl = discordUrl
@@ -110,7 +116,7 @@ private fun SuccessContent(
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(8.dp),
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
 
         ) {
@@ -132,26 +138,25 @@ private fun SuccessContent(
             modifier = Modifier
                 .fillMaxWidth(1f)
         ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = Bold,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+//            Text(
+//                text = name,
+//                style = MaterialTheme.typography.titleMedium,
+//                fontWeight = Bold,
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                color = MaterialTheme.colorScheme.onSurface
+//            )
 
 
-            Text(
-                text = releaseDate,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = Bold,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+//            Text(
+//                text = releaseDate,
+//                style = MaterialTheme.typography.labelLarge,
+//                fontWeight = Bold,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(start = 4.dp),
+//                color = MaterialTheme.colorScheme.onSurface
+//            )
 
             OpenOutlinedCard(
                 imageVector = Icons.Outlined.VideogameAsset,
@@ -159,7 +164,7 @@ private fun SuccessContent(
                 onClick = onPlatformClick
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             OpenOutlinedCard(
                 imageVector = Icons.Outlined.Style,
@@ -168,17 +173,20 @@ private fun SuccessContent(
             )
 
             discordUrl.RunWithNotNullNorEmpty {
-                Spacer(modifier = Modifier.height(8.dp))
-
+                Spacer(modifier = Modifier.height(4.dp))
                 DiscordComponent(discordUrl = it)
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            OpenOutlinedCard(null,releaseDate)
         }
     }
 }
 
 @Composable
 private fun OpenOutlinedCard(
-    imageVector: ImageVector,
+    imageVector: ImageVector?,
     label: String,
     onClick: () -> Unit = {},
     contentDescription: String? = null
@@ -193,13 +201,16 @@ private fun OpenOutlinedCard(
             modifier = Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
-                imageVector = imageVector,
-                contentDescription = contentDescription ?: label,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-            )
+            imageVector?.let {
+                Image(
+                    imageVector = it,
+                    contentDescription = contentDescription ?: label,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                )
 
-            Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+
+            }
 
             Text(
                 text = label,
@@ -229,7 +240,7 @@ private fun GameSuccessContentPreview() {
                 coverPainter = ColorPainter(Color.Blue),
                 contentScale = ContentScale.FillBounds,
                 aspectRatio = 9 / 16f,
-                discordUrl = ""
+                discordUrl = "https://www.speedrun.com/static/game/n268x51p/cover?v=5ed1e37"
             )
         }
     }
