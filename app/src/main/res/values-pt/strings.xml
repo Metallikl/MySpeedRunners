@@ -43,4 +43,7 @@
     <string name="discord_label">Discord</string>
     <string name="categories">Categorias</string>
     <string name="discord_activity_not_found">App do Discord não encontrado!</string>
+    <string name="leaderboard_tab_label">LeaderBoard</string>
+    <string name="moderator_tab_label">Moderadores</string>
+    <string name="records_tab_label">Records</string>
 </resources>

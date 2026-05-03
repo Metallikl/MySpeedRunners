@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,6 +30,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -33,16 +39,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dluche.myspeedrunners.R
@@ -52,12 +61,16 @@ import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
+import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabItem
+import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabType
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomSheetType
+import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsTabFactory
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsViewModel
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
@@ -65,10 +78,14 @@ fun GameDetailsRoute(
     navigateToRunnerDetails: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val viewModel = hiltViewModel<GameDetailsViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var bottomSheetType by remember { mutableStateOf(GameDetailsBottomSheetType.NONE) }
+    val tabList = remember {
+        GameDetailsTabFactory.getTabList(context)
+    }
 
     GameDetailsScreen(
         uiState = uiState.value,
@@ -77,7 +94,8 @@ fun GameDetailsRoute(
         navigateToRunnerDetails = navigateToRunnerDetails,
         onChangeBottomSheetType = {
             bottomSheetType = it
-        }
+        },
+        gameDetailTabItems = tabList
     )
 
     LaunchedEffect(Unit) {
@@ -111,6 +129,7 @@ fun GameDetailsScreen(
     onBackClick: () -> Unit = {},
     navigateToRunnerDetails: (String) -> Unit,
     onChangeBottomSheetType: (GameDetailsBottomSheetType) -> Unit = {},
+    gameDetailTabItems: List<GameDetailTabItem>,
 ) {
 
     Box(
@@ -182,7 +201,7 @@ fun GameDetailsScreen(
 
                     GameCover(uiState, onChangeBottomSheetType)
 
-                    ContentComponent(uiState, navigateToRunnerDetails)
+                    ContentComponent(uiState, navigateToRunnerDetails, gameDetailTabItems)
 
                 } else {
                     GenericErrorWithButtonComponent(
@@ -297,25 +316,86 @@ fun GameNameComponent(uiState: GameDetailsUiState, modifier: Modifier = Modifier
 @Composable
 fun ContentComponent(
     uiState: GameDetailsUiState,
-    navigateToRunnerDetails: (String) -> Unit
+    navigateToRunnerDetails: (String) -> Unit,
+    gameDetailTabItems: List<GameDetailTabItem>
 ) {
     if (uiState is GameDetailsUiState.Success) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = CardDefaults.cardColors().containerColor.copy(
-                    alpha = 0.5f
-                )
-            )
+        val pagerState = rememberPagerState(pageCount = { gameDetailTabItems.size })
+        val scope = rememberCoroutineScope()
+
+
+        TabRow(
+            modifier = Modifier.clip(CircleShape),
+            selectedTabIndex = pagerState.currentPage,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
         ) {
-            Column(
-                modifier = Modifier.padding(8.dp)
-            ) {
-                ModeratorsContainer(uiState, navigateToRunnerDetails)
+            gameDetailTabItems.forEachIndexed { index, tabItem ->
+                Tab(
+                    selected = index == pagerState.currentPage,
+                    onClick = {
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
+//                    text = {
+//                        Text(
+//                            text = tabItem.title,
+//                            fontSize = 10.sp,
+//                            color = MaterialTheme.colorScheme.onBackground
+//                        )
+//                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
+                            contentDescription = tabItem.title,
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                )
             }
         }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            when (gameDetailTabItems[pagerState.currentPage].tabType) {
+                GameDetailTabType.RUNS -> {
+                    ModeratorsContainer(uiState, navigateToRunnerDetails)
+                }
+
+                GameDetailTabType.LEADERBOARD -> {
+                    ModeratorsContainer(uiState, navigateToRunnerDetails)
+                }
+
+                GameDetailTabType.RECORDS -> {
+                    ModeratorsContainer(uiState, navigateToRunnerDetails)
+                }
+
+                GameDetailTabType.MODERATORS -> {
+                    ModeratorsContainer(uiState, navigateToRunnerDetails)
+                }
+            }
+        }
+
+//        Card(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(bottom = 16.dp),
+//            colors = CardDefaults.cardColors(
+//                containerColor = CardDefaults.cardColors().containerColor.copy(
+//                    alpha = 0.5f
+//                )
+//            )
+//        ) {
+//            Column(
+//                modifier = Modifier.padding(8.dp)
+//            ) {
+//                ModeratorsContainer(uiState, navigateToRunnerDetails)
+//            }
+//        }
     } else {
         Box(
             modifier = Modifier
@@ -333,27 +413,32 @@ fun ModeratorsContainer(
     uiState: GameDetailsUiState.Success,
     navigateToRunnerDetails: (String) -> Unit
 ) {
-
-    uiState.game.moderators.RunWithNotNullNorEmpty { runners ->
-        Text(
-            text = stringResource(R.string.moderators),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier
-                .wrapContentWidth(),
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = Bold
-        )
-
-        runners.forEach { runner ->
-            RunnerCardComponent(
-                runnerCard = runner,
-                onClick = { navigateToRunnerDetails(runner.id) }
-
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        uiState.game.moderators.RunWithNotNullNorEmpty { runners ->
+            Text(
+                text = stringResource(R.string.moderators),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .wrapContentWidth(),
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = Bold
             )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            runners.forEach { runner ->
+                RunnerCardComponent(
+                    runnerCard = runner,
+                    onClick = { navigateToRunnerDetails(runner.id) }
+
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 
@@ -443,6 +528,6 @@ private fun CategoryContainer(uiState: GameDetailsUiState.Success) {
 @Composable
 private fun GameDetailsScreenPreview() {
     MySpeedRunnersTheme {
-        GameDetailsScreen(navigateToRunnerDetails = { })
+        GameDetailsScreen(navigateToRunnerDetails = { }, gameDetailTabItems = emptyList())
     }
 }
