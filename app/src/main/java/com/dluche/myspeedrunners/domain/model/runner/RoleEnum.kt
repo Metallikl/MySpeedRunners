@@ -7,6 +7,8 @@ enum class RoleEnum {
     MODERATOR,
     ADMIN,
     PROGRAMMER,
+    GUEST,
+
     UNKNOWN;
 
     companion object {

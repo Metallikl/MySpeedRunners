@@ -2,10 +2,12 @@ package com.dluche.myspeedrunners.data.datasource.model.run
 
 
 import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
-import com.dluche.myspeedrunners.data.datasource.model.category.CategoryEmbedDto
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
 import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
-import com.dluche.myspeedrunners.data.datasource.model.games.GameEmbedDto
+import com.dluche.myspeedrunners.data.datasource.model.players.PlayerDtoSerializer
+import com.dluche.myspeedrunners.data.datasource.model.players.PlayerDtoType
+import com.dluche.myspeedrunners.data.datasource.model.players.PlayerRawDto
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,7 +28,7 @@ data class RunDto(
     @SerialName("links")
     val links: List<LinkDto>? = null,
     @SerialName("players")
-    val players: List<PlayerDto>? = null,
+    val players: PlayerDtoType? = null,
     @SerialName("splits")
     val splits: LinkDto? = null,
     @SerialName("status")

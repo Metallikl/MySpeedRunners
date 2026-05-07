@@ -1,15 +1,12 @@
-package com.dluche.myspeedrunners.data.datasource.model.category// No mesmo arquivo: com/dluche/myspeedrunners/data/datasource/model/category/CategoryData.kt
+package com.dluche.myspeedrunners.data.datasource.model.category
 
 import com.dluche.myspeedrunners.data.util.RequestConstants.DATA
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonObject
 
 // O serializador customizado para a interface CategoryData
 object CategoryDataSerializer : KSerializer<CategoryDtoType> {

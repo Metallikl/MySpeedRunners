@@ -3,6 +3,7 @@ package com.dluche.myspeedrunners.domain.model.run
 import com.dluche.myspeedrunners.domain.model.category.Category
 import com.dluche.myspeedrunners.domain.model.common.LinkModel
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.runner.RunnerCard
 
 data class Run(
     val category: Category,
@@ -17,4 +18,5 @@ data class Run(
     val weblink: String,
     val status: RunStatusEnum,
     val primaryTime: String,
+    val runners: List<RunnerCard>
 )

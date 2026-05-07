@@ -76,6 +76,9 @@ fun MySpeedRunnersNavHost(navController: NavHostController) {
                 navigateToRunnerDetails = { runnerId ->
                     navController.navigate(RunnerDetails(runnerId))
                 },
+                navigateToRunDetails = { runId ->
+                    navController.navigate(RunDetails(runId))
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }

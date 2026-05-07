@@ -21,7 +21,8 @@ fun RunDto.asDomainModel(): Run {
         videos = this.videos?.links?.asStringList().orEmpty(),
         weblink = this.weblink.orEmpty(),
         status = RunStatusEnum.fromString(this.status?.status),
-        primaryTime = getPrimaryTime(this.times?.primary)
+        primaryTime = getPrimaryTime(this.times?.primary),
+        runners = this.players.handlePlayerDtoType()
     )
 }
 
@@ -38,7 +39,8 @@ fun RunPbDto.asDomainModel(): Run{
         videos = this.videos?.links?.asStringList().orEmpty(),
         weblink = this.weblink.orEmpty(),
         status = RunStatusEnum.fromString(this.status?.status),
-        primaryTime = getPrimaryTime(this.times?.primary)
+        primaryTime = getPrimaryTime(this.times?.primary),
+        runners = this.players.handlePlayerDtoType()
     )
 }
 

@@ -16,6 +16,7 @@ fun RoleEnum.getTranslation(): String {
             RoleEnum.BANNED -> R.string.role_banned
             RoleEnum.TRUSTED -> R.string.role_trusted
             RoleEnum.PROGRAMMER -> R.string.role_programmer
+            RoleEnum.GUEST -> R.string.role_guest
         }
     )
 }

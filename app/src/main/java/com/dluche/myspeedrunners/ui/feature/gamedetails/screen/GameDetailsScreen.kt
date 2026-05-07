@@ -13,12 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -77,6 +76,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GameDetailsRoute(
     navigateToRunnerDetails: (String) -> Unit,
+    navigateToRunDetails: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -96,7 +96,8 @@ fun GameDetailsRoute(
         onChangeBottomSheetType = {
             bottomSheetType = it
         },
-        gameDetailTabItems = tabList
+        gameDetailTabItems = tabList,
+        navigateToRunDetails = navigateToRunDetails
     )
 
     LaunchedEffect(Unit) {
@@ -131,6 +132,7 @@ fun GameDetailsScreen(
     navigateToRunnerDetails: (String) -> Unit,
     onChangeBottomSheetType: (GameDetailsBottomSheetType) -> Unit = {},
     gameDetailTabItems: List<GameDetailTabItem>,
+    navigateToRunDetails: (String) -> Unit
 ) {
 
     Box(
@@ -139,7 +141,6 @@ fun GameDetailsScreen(
         contentAlignment = Alignment.Center
 
     ) {
-
         BackgroundComponent(uiState)
 
         Column(
@@ -153,8 +154,7 @@ fun GameDetailsScreen(
                     .padding(end = 16.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-
-                ) {
+            ) {
                 IconButton(
                     onClick = {
                         onBackClick()
@@ -186,23 +186,22 @@ fun GameDetailsScreen(
 //                }
 
             }
-            val scrollState = rememberScrollState()
+            // val scrollState = rememberScrollState()
 
             Column(
                 modifier = Modifier
-                    .verticalScroll(scrollState)
+                    //.verticalScroll(scrollState)
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
                 if (uiState !is MainState.Error) {
 
                     GameNameComponent(uiState.mainState)
 
                     GameCover(uiState.mainState, onChangeBottomSheetType)
 
-                    ContentComponent(uiState, navigateToRunnerDetails, gameDetailTabItems)
+                    ContentComponent(uiState, navigateToRunnerDetails, gameDetailTabItems,navigateToRunDetails)
 
                 } else {
                     GenericErrorWithButtonComponent(
@@ -318,7 +317,8 @@ fun GameNameComponent(uiState: MainState, modifier: Modifier = Modifier) {
 fun ContentComponent(
     uiState: GameDetailsUiState,
     navigateToRunnerDetails: (String) -> Unit,
-    gameDetailTabItems: List<GameDetailTabItem>
+    gameDetailTabItems: List<GameDetailTabItem>,
+    navigateToRunDetails: (String) -> Unit
 ) {
     when (uiState.mainState) {
         is MainState.Success -> {
@@ -338,13 +338,6 @@ fun ContentComponent(
                                 pagerState.animateScrollToPage(index)
                             }
                         },
-//                    text = {
-//                        Text(
-//                            text = tabItem.title,
-//                            fontSize = 10.sp,
-//                            color = MaterialTheme.colorScheme.onBackground
-//                        )
-//                    },
                         icon = {
                             Icon(
                                 imageVector = if (index == pagerState.currentPage) tabItem.selectedIcon else tabItem.unselectedIcon,
@@ -365,7 +358,7 @@ fun ContentComponent(
                 when (gameDetailTabItems[pagerState.currentPage].tabType) {
                     GameDetailTabType.RUNS -> {
                         //Fixme compose error due infinity scroll
-                        RunsContainer(uiState.runsState, navigateToRunnerDetails)
+                        RunsContainer(uiState.runsState, navigateToRunDetails)
                     }
 
                     GameDetailTabType.LEADERBOARD -> {
@@ -411,14 +404,17 @@ private fun RunsContainer(
                 interaction = 1
             )
         }
+
         RunsState.Loading -> {
             RunsSkeletonList()
         }
+
         is RunsState.Success -> {
             RunsContainerComponent(
                 runs = runState.runs,
                 onNavigateToRunDetails = navigateToRunDetail,
-                onShowMoreClick = onShowMoreClick
+                onShowMoreClick = onShowMoreClick,
+                modifier = Modifier.padding(8.dp)
             )
         }
     }
@@ -435,23 +431,41 @@ private fun ModeratorsContainer(
             .padding(8.dp),
     ) {
         uiState.game.moderators.RunWithNotNullNorEmpty { runners ->
-            Text(
-                text = stringResource(R.string.moderators),
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier
-                    .wrapContentWidth(),
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = Bold
-            )
-
-            runners.forEach { runner ->
-                RunnerCardComponent(
-                    runnerCard = runner,
-                    onClick = { navigateToRunnerDetails(runner.id) }
-
-                )
+            if (runners is List) {
+                LazyColumn {
+                    item {
+                        Text(
+                            text = stringResource(R.string.moderators),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier
+                                .wrapContentWidth(),
+                            textAlign = TextAlign.Start,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = Bold
+                        )
+                    }
+                    items(
+                        count = runners.size,
+                        key = { idx -> runners[idx].id }
+                    ) { idx ->
+                        val runner = runners[idx]
+                        RunnerCardComponent(
+                            runnerCard = runner,
+                            onClick = { navigateToRunnerDetails(runner.id) }
+                        )
+                    }
+                }
             }
+
+//
+//
+//            runners.forEach { runner ->
+//                RunnerCardComponent(
+//                    runnerCard = runner,
+//                    onClick = { navigateToRunnerDetails(runner.id) }
+//
+//                )
+//            }
 
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -544,6 +558,6 @@ private fun CategoryContainer(uiState: MainState.Success) {
 @Composable
 private fun GameDetailsScreenPreview() {
     MySpeedRunnersTheme {
-        GameDetailsScreen(navigateToRunnerDetails = { }, gameDetailTabItems = emptyList())
+        GameDetailsScreen(navigateToRunnerDetails = { }, navigateToRunDetails = {},gameDetailTabItems = emptyList())
     }
 }

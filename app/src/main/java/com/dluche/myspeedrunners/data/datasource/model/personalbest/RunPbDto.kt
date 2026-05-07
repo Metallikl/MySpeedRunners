@@ -3,7 +3,8 @@ package com.dluche.myspeedrunners.data.datasource.model.personalbest
 import com.dluche.myspeedrunners.data.datasource.model.category.CategoryDtoType
 import com.dluche.myspeedrunners.data.datasource.model.common.LinkDto
 import com.dluche.myspeedrunners.data.datasource.model.games.GameDtoType
-import com.dluche.myspeedrunners.data.datasource.model.run.PlayerDto
+import com.dluche.myspeedrunners.data.datasource.model.players.PlayerDtoType
+import com.dluche.myspeedrunners.data.datasource.model.players.PlayerRawDto
 import com.dluche.myspeedrunners.data.datasource.model.run.StatusDto
 import com.dluche.myspeedrunners.data.datasource.model.run.SystemDto
 import com.dluche.myspeedrunners.data.datasource.model.run.TimesDto
@@ -28,7 +29,7 @@ data class RunPbDto(
     @SerialName("links")
     val links: List<LinkDto>? = null,
     @SerialName("players")
-    val players: List<PlayerDto>? = null,
+    val players: PlayerDtoType? = null,
     @SerialName("splits")
     val splits: LinkDto? = null,
     @SerialName("status")

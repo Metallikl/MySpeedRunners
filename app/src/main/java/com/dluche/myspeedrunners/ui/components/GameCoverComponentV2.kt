@@ -68,7 +68,7 @@ fun GameCoverComponentV2(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 200.dp)
+            .height(200.dp)
             .padding(vertical = 16.dp)
     ) {
         if (!isLoading) {
@@ -138,26 +138,6 @@ private fun SuccessContent(
             modifier = Modifier
                 .fillMaxWidth(1f)
         ) {
-//            Text(
-//                text = name,
-//                style = MaterialTheme.typography.titleMedium,
-//                fontWeight = Bold,
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                color = MaterialTheme.colorScheme.onSurface
-//            )
-
-
-//            Text(
-//                text = releaseDate,
-//                style = MaterialTheme.typography.labelLarge,
-//                fontWeight = Bold,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(start = 4.dp),
-//                color = MaterialTheme.colorScheme.onSurface
-//            )
-
             OpenOutlinedCard(
                 imageVector = Icons.Outlined.VideogameAsset,
                 label = stringResource(R.string.platforms_label),

@@ -23,11 +23,12 @@ fun RunsContainerComponent(
     runs: List<Run>,
     onNavigateToRunDetails: (String) -> Unit,
     onShowMoreClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val runLimitSize = 20
     if (runs.isNotEmpty()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(runs) {

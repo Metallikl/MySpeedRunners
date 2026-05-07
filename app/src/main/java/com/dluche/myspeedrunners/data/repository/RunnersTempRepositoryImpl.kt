@@ -8,6 +8,7 @@ import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import com.dluche.myspeedrunners.data.datasource.runner.RunnersDataSource
 import com.dluche.myspeedrunners.data.mapper.asCardDomainModel
 import com.dluche.myspeedrunners.data.mapper.asDomainModel
+import com.dluche.myspeedrunners.data.mapper.handlePlayerDtoType
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.game.Game
@@ -115,5 +116,5 @@ class RunnersTempRepositoryImpl @Inject constructor(
 
     private fun runnerIdHasChange(
         runnerId: String
-    ) = rawPersonalBest?.first()?.run?.players?.find { it.id == runnerId } == null
+    ) = rawPersonalBest?.first()?.run?.players?.handlePlayerDtoType()?.find { it.id == runnerId } == null
 }

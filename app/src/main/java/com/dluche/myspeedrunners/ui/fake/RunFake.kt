@@ -24,7 +24,8 @@ val run1 = Run(
     submitted = "25/01/2025",
     videos = emptyList(),
     status = RunStatusEnum.VERIFIED,
-    primaryTime = "PT26M43S"
+    primaryTime = "PT26M43S",
+    runners = emptyList()
 )
 
 val run2 = Run(
@@ -47,5 +48,6 @@ val run2 = Run(
     submitted = "25/10/2024",
     videos = emptyList(),
     status = RunStatusEnum.NEW,
-    primaryTime =  "PT14H28M35S"
+    primaryTime =  "PT14H28M35S",
+    runners = emptyList()
 )

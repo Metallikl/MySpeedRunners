@@ -12,5 +12,7 @@ object RequestConstants {
     const val PLATFORMS = "platforms"
     const val CATEGORIES = "categories"
     const val MODERATORS = "moderators"
+    const val PLAYERS = "players"
     const val DATA = "data"
+    const val NAME = "name"
 }

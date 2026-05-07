@@ -46,4 +46,5 @@
     <string name="leaderboard_tab_label">LeaderBoard</string>
     <string name="moderator_tab_label">Moderators</string>
     <string name="records_tab_label">Records</string>
+    <string name="role_guest">Guest</string>
 </resources>

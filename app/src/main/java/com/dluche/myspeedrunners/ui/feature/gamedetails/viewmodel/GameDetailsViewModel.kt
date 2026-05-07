@@ -9,6 +9,7 @@ import com.dluche.myspeedrunners.data.util.RequestConstants.CATEGORY
 import com.dluche.myspeedrunners.data.util.RequestConstants.GAMES
 import com.dluche.myspeedrunners.data.util.RequestConstants.MODERATORS
 import com.dluche.myspeedrunners.data.util.RequestConstants.PLATFORMS
+import com.dluche.myspeedrunners.data.util.RequestConstants.PLAYERS
 import com.dluche.myspeedrunners.domain.model.common.EmbedParams
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
@@ -66,7 +67,7 @@ class GameDetailsViewModel @Inject constructor(
 
             getGamesRunsUseCase(
                 gameId,
-                EmbedParams(GAMES, CATEGORY),
+                EmbedParams(GAMES, CATEGORY,PLAYERS),
                 QueryOrderBy(DATE, DESC)
             ).onSuccess {
                 handleGameRunsSuccess(it.data)
