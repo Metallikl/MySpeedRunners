@@ -2,8 +2,10 @@ package com.dluche.myspeedrunners.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -36,7 +38,8 @@ import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 @Composable
 fun RunStatusComponent(
     runStatus: RunStatusEnum,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showLabel: Boolean = true
 ) {
     val text = runStatus.getTranslation()
     var color by remember { mutableStateOf(MySpeedRunColors.warning) }
@@ -77,14 +80,18 @@ fun RunStatusComponent(
             tint = color,
             modifier = Modifier
                 .size(24.dp)
-                .padding(end = 4.dp)
         )
 
-        Text(
-            text = text,
-            color = color,
-            style = MaterialTheme.typography.labelSmall
-        )
+        if(showLabel) {
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Text(
+                text = text,
+                color = color,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = modifier.padding(end = 2.dp)
+            )
+        }
     }
 
 
@@ -98,7 +105,8 @@ private fun RunStatusComponentPreview(
 ) {
     MySpeedRunnersTheme {
         RunStatusComponent(
-            runStaTus
+            runStaTus,
+            showLabel = true
         )
     }
 }

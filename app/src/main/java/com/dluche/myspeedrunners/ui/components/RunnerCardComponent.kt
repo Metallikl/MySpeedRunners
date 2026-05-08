@@ -120,7 +120,7 @@ fun RunnerCardComponent(
 }
 
 @Composable
-fun RunnerImage(runnerCard: RunnerCard, size: Dp) {
+private fun RunnerImage(runnerCard: RunnerCard, size: Dp) {
     Box(
         modifier = Modifier
             .size(size),

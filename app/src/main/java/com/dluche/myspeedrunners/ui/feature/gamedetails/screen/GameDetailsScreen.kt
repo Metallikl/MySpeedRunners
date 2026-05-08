@@ -58,6 +58,7 @@ import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.components.RunsContainerComponent
+import com.dluche.myspeedrunners.ui.components.RunsGameContainerComponent
 import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabItem
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabType
@@ -410,7 +411,14 @@ private fun RunsContainer(
         }
 
         is RunsState.Success -> {
-            RunsContainerComponent(
+//            RunsContainerComponent(
+//                runs = runState.runs,
+//                onNavigateToRunDetails = navigateToRunDetail,
+//                onShowMoreClick = onShowMoreClick,
+//                modifier = Modifier.padding(8.dp)
+//            )
+
+            RunsGameContainerComponent(
                 runs = runState.runs,
                 onNavigateToRunDetails = navigateToRunDetail,
                 onShowMoreClick = onShowMoreClick,
