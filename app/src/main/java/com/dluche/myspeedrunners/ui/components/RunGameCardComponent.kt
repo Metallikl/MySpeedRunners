@@ -62,7 +62,7 @@ fun RunGameCardComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            RunnerImage(runnerUrl.orEmpty(), imageSize = size)
+            RunnerImage(runnerUrl.orEmpty(), imageSize = size, imageErrorSize = size)
 
             Column(
                 modifier = Modifier
