@@ -108,7 +108,7 @@ fun <T> Collection<T>.toReusableSelectedFlowRowData(
 
 @Preview(showBackground = true)
 @Composable
-private fun CategoryContainerComponentPreview() {
+private fun ReusableSelectedFlowRowContainerPreview() {
     MySpeedRunnersTheme {
         ReusableSelectedFlowRowContainer(
             label = stringResource(R.string.category_label),
