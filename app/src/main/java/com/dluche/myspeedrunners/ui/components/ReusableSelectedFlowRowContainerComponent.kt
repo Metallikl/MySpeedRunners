@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dluche.myspeedrunners.R
 import com.dluche.myspeedrunners.extension.RunWithNotNullNorEmpty
+import com.dluche.myspeedrunners.extension.applyIf
 import com.dluche.myspeedrunners.ui.fake.categoryFakeList
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
@@ -58,38 +61,25 @@ fun ReusableSelectedFlowRowContainer(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items.forEach { item ->
-                    //todo melhorar logica, possivel criar o Text somente 1 vez ?
-                    //remover clickable quando não ouver onItemClick
-                    if (onItemClick != null && item.id == selectedItem) {
-                        Card {
-                            Text(
-                                text = item.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable(
-                                        onClick = {
-                                            selectedItem = item.id
-                                            onItemClick?.invoke(item.id)
-                                        }
-                                    ),
-                            )
-                        }
-                    } else {
-                        OutlinedCard {
-                            Text(
-                                text = item.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable(
-                                        onClick = {
-                                            selectedItem = item.id
-                                            onItemClick?.invoke(item.id)
-                                        }
-                                    ),
-                            )
-                        }
+                    OutlinedCard {
+                        Text(
+                            text = item.label,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier
+                                .applyIf(block = {
+                                    item.id == selectedItem
+                                }) {
+                                    background(CardDefaults.cardColors().containerColor)
+                                }
+                                .padding(8.dp)
+                                .clickable(
+                                    enabled = onItemClick != null,
+                                    onClick = {
+                                        selectedItem = item.id
+                                        onItemClick?.invoke(item.id)
+                                    }
+                                ),
+                        )
                     }
                 }
             }

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -44,4 +45,12 @@ fun Modifier.shimmerEffect(showShimmer: Boolean = true) = composed {
     } else{
         background(Color.Unspecified)
     }
+}
+
+@Composable
+fun Modifier.applyIf(block:() -> Boolean, modifier: @Composable Modifier.()->Modifier): Modifier{
+    return if(block()){
+        this.then(modifier(Modifier))
+    } else this
+
 }

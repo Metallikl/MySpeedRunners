@@ -1,7 +1,6 @@
 package com.dluche.myspeedrunners.ui.fake
 
 import com.dluche.myspeedrunners.domain.model.category.Category
-import com.dluche.myspeedrunners.domain.model.platform.Platform
 
 val categoryFake1 = Category(
     id = "AnyPct",

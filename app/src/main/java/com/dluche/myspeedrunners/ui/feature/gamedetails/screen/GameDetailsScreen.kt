@@ -122,9 +122,9 @@ fun GameDetailsRoute(
                             data = (uiState.value.mainState as MainState.Success).game.platforms.toReusableSelectedFlowRowData { mapper ->
                                 mapper(id, name)
                             },
-                            onItemClick = {
-                                Toast.makeText(context,it,Toast.LENGTH_SHORT).show()
-                            }
+//                            onItemClick = {
+//                                Toast.makeText(context,it,Toast.LENGTH_SHORT).show()
+//                            }
                         )
                     } else {
                         ReusableSelectedFlowRowContainer(
