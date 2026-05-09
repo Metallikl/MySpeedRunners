@@ -51,12 +51,14 @@ import com.dluche.myspeedrunners.extension.extractYoutubeVideoId
 import com.dluche.myspeedrunners.extension.isTwitchUrl
 import com.dluche.myspeedrunners.extension.isYoutubeUrl
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
+import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
 import com.dluche.myspeedrunners.ui.components.RunStatusComponent
 import com.dluche.myspeedrunners.ui.components.RunWebViewContent
 import com.dluche.myspeedrunners.ui.components.TwitchVideoComponent
 import com.dluche.myspeedrunners.ui.components.YoutubePlayerComponent
 import com.dluche.myspeedrunners.ui.fake.run1
+import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomSheetType
 import com.dluche.myspeedrunners.ui.feature.rundetails.uievents.RunDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.rundetails.uistate.RunDetailsUiState
 import com.dluche.myspeedrunners.ui.feature.rundetails.viewmodel.RunDetailsViewModel
@@ -310,13 +312,32 @@ private fun BackgroundSuccess(runItem: Run) {
 private fun GameCoverContent(uiState: RunDetailsUiState) {
     val imageUrl = (uiState as? RunDetailsUiState.Success)?.run?.game?.imageUrl ?: ""
     val isLoading = uiState !is RunDetailsUiState.Success
+//
+//    GameCoverComponent(
+//        imageUrl = imageUrl,
+//        isLoading = isLoading,
+//        modifier = Modifier
+//            .fillMaxWidth()
+//    )
 
-    GameCoverComponent(
-        imageUrl = imageUrl,
-        isLoading = isLoading,
-        modifier = Modifier
-            .fillMaxWidth()
-    )
+    (uiState as? RunDetailsUiState.Success)?.run?.game?.let{ game->
+        GameCoverComponentV2(
+            name = game.name,
+            releaseDate = game.releaseData,
+            imageUrl = game.imageUrl,
+            isLoading = false,
+            modifier = Modifier
+                .fillMaxWidth(),
+            onPlatformClick = {
+                //onChangeBottomSheetType(GameDetailsBottomSheetType.PLATFORM)
+            },
+            onCategoryClick = {
+                //onChangeBottomSheetType(GameDetailsBottomSheetType.CATEGORY)
+            },
+            discordUrl = game.discord
+        )
+    }
+
 }
 
 @Composable

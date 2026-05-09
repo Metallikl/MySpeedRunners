@@ -1,5 +1,6 @@
 package com.dluche.myspeedrunners.ui.feature.gamedetails.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,10 +57,12 @@ import com.dluche.myspeedrunners.ui.components.BackgroundImageComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
+import com.dluche.myspeedrunners.ui.components.ReusableSelectedFlowRowContainer
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.components.RunsContainerComponent
 import com.dluche.myspeedrunners.ui.components.RunsGameContainerComponent
 import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
+import com.dluche.myspeedrunners.ui.components.toReusableSelectedFlowRowData
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabItem
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabType
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomSheetType
@@ -72,6 +75,7 @@ import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsVie
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
+import kotlin.String
 
 @ExperimentalMaterial3Api
 @Composable
@@ -113,9 +117,25 @@ fun GameDetailsRoute(
                     sheetState = sheetState
                 ) {
                     if (bottomSheetType == GameDetailsBottomSheetType.PLATFORM) {
-                        PlatformContainer(uiState.value.mainState as MainState.Success)
+                        ReusableSelectedFlowRowContainer(
+                            label = stringResource(R.string.platforms_label),
+                            data = (uiState.value.mainState as MainState.Success).game.platforms.toReusableSelectedFlowRowData { mapper ->
+                                mapper(id, name)
+                            },
+                            onItemClick = {
+                                Toast.makeText(context,it,Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     } else {
-                        CategoryContainer(uiState.value.mainState as MainState.Success)
+                        ReusableSelectedFlowRowContainer(
+                            label = stringResource(R.string.category_label),
+                            data = (uiState.value.mainState as MainState.Success).game.categories.toReusableSelectedFlowRowData { mapper ->
+                                mapper(id, name)
+                            },
+                            onItemClick = {
+                                Toast.makeText(context,it,Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     }
                 }
             }
