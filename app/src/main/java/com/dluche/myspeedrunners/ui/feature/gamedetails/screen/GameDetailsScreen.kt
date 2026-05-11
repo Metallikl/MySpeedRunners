@@ -57,12 +57,11 @@ import com.dluche.myspeedrunners.ui.components.BackgroundImageComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
-import com.dluche.myspeedrunners.ui.components.ReusableSelectedFlowRowContainer
+import com.dluche.myspeedrunners.ui.components.SelectableFlowRowContainer
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
-import com.dluche.myspeedrunners.ui.components.RunsContainerComponent
 import com.dluche.myspeedrunners.ui.components.RunsGameContainerComponent
 import com.dluche.myspeedrunners.ui.components.RunsSkeletonList
-import com.dluche.myspeedrunners.ui.components.toReusableSelectedFlowRowData
+import com.dluche.myspeedrunners.ui.components.mapToSelectableFlowRowData
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabItem
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailTabType
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomSheetType
@@ -117,9 +116,9 @@ fun GameDetailsRoute(
                     sheetState = sheetState
                 ) {
                     if (bottomSheetType == GameDetailsBottomSheetType.PLATFORM) {
-                        ReusableSelectedFlowRowContainer(
+                        SelectableFlowRowContainer(
                             label = stringResource(R.string.platforms_label),
-                            data = (uiState.value.mainState as MainState.Success).game.platforms.toReusableSelectedFlowRowData { mapper ->
+                            data = (uiState.value.mainState as MainState.Success).game.platforms.mapToSelectableFlowRowData { mapper ->
                                 mapper(id, name)
                             },
 //                            onItemClick = {
@@ -127,9 +126,9 @@ fun GameDetailsRoute(
 //                            }
                         )
                     } else {
-                        ReusableSelectedFlowRowContainer(
+                        SelectableFlowRowContainer(
                             label = stringResource(R.string.category_label),
-                            data = (uiState.value.mainState as MainState.Success).game.categories.toReusableSelectedFlowRowData { mapper ->
+                            data = (uiState.value.mainState as MainState.Success).game.categories.mapToSelectableFlowRowData { mapper ->
                                 mapper(id, name)
                             },
                             onItemClick = {

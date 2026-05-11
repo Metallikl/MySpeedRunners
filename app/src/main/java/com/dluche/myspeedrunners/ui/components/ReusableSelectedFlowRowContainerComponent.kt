@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -30,9 +29,9 @@ import com.dluche.myspeedrunners.ui.fake.categoryFakeList
 import com.dluche.myspeedrunners.ui.theme.MySpeedRunnersTheme
 
 @Composable
-fun ReusableSelectedFlowRowContainer(
+fun SelectableFlowRowContainer(
     label: String,
-    data: List<ReusableSelectedFlowRowData>,
+    data: List<SelectableFlowRowData>,
     modifier: Modifier = Modifier,
     onItemClick: ((String) -> Unit)? = null
 ) {
@@ -87,32 +86,32 @@ fun ReusableSelectedFlowRowContainer(
     }
 }
 
-data class ReusableSelectedFlowRowData(
+data class SelectableFlowRowData(
     val id: String,
     val label: String
 )
 
 /**
- * Extension function to map any collection to [ReusableSelectedFlowRowData].
+ * Extension function to map any collection to [SelectableFlowRowData].
  * It receives a lambda that provides the id and label for each item.
  */
-fun <T> Collection<T>.toReusableSelectedFlowRowData(
-    block: T.((id: String, label: String) -> ReusableSelectedFlowRowData) -> ReusableSelectedFlowRowData
-): List<ReusableSelectedFlowRowData> {
+fun <T> Collection<T>.mapToSelectableFlowRowData(
+    block: T.((id: String, label: String) -> SelectableFlowRowData) -> SelectableFlowRowData
+): List<SelectableFlowRowData> {
     return this.map { item ->
         item.block { id, label ->
-            ReusableSelectedFlowRowData(id, label)
+            SelectableFlowRowData(id, label)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun ReusableSelectedFlowRowContainerPreview() {
+private fun SelectableFlowRowContainerPreview() {
     MySpeedRunnersTheme {
-        ReusableSelectedFlowRowContainer(
+        SelectableFlowRowContainer(
             label = stringResource(R.string.category_label),
-            data = categoryFakeList.toReusableSelectedFlowRowData { mapper ->
+            data = categoryFakeList.mapToSelectableFlowRowData { mapper ->
                 mapper(id, name)
             }
         )
