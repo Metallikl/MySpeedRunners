@@ -48,8 +48,8 @@ fun Modifier.shimmerEffect(showShimmer: Boolean = true) = composed {
 }
 
 @Composable
-fun Modifier.applyIf(block:() -> Boolean, modifier: @Composable Modifier.()->Modifier): Modifier{
-    return if(block()){
+fun Modifier.applyIf(condition:() -> Boolean, modifier: @Composable Modifier.()->Modifier): Modifier{
+    return if(condition()){
         this.then(modifier(Modifier))
     } else this
 

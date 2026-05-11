@@ -1,6 +1,7 @@
 package com.dluche.myspeedrunners.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,24 +61,24 @@ fun SelectableFlowRowContainer(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items.forEach { item ->
-                    OutlinedCard {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .clickable(
+                                enabled = onItemClick != null,
+                                onClick = {
+                                    selectedItem = item.id
+                                    onItemClick?.invoke(item.id)
+                                }
+                            )
+                    ) {
                         Text(
                             text = item.label,
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier
-                                .applyIf(block = {
-                                    item.id == selectedItem
-                                }) {
+                                .applyIf({ item.id == selectedItem }) {
                                     background(CardDefaults.cardColors().containerColor)
                                 }
-                                .padding(8.dp)
-                                .clickable(
-                                    enabled = onItemClick != null,
-                                    onClick = {
-                                        selectedItem = item.id
-                                        onItemClick?.invoke(item.id)
-                                    }
-                                ),
+                                .padding(8.dp),
                         )
                     }
                 }
