@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 import java.text.Normalizer
+import java.util.UUID
 
 const val DATE_ONLY = "dd/MM/yyyy"
 const val DATE_TIME_SIMPLE = "dd/MM/yyyy HH:mm"
@@ -103,6 +104,10 @@ fun String.removeAccentsAndSpaces(): String {
     return pattern.matcher(temp)
         .replaceAll("")
         .replace("\\s".toRegex(), "")
+}
+
+fun String?.orRandomId(): String {
+    return this ?: UUID.randomUUID().toString()
 }
 
 //fun main() {

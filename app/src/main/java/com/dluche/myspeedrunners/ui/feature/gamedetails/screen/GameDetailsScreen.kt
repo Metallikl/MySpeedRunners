@@ -377,7 +377,6 @@ fun ContentComponent(
             ) {
                 when (gameDetailTabItems[pagerState.currentPage].tabType) {
                     GameDetailTabType.RUNS -> {
-                        //Fixme compose error due infinity scroll
                         RunsContainer(uiState.runsState, navigateToRunDetails)
                     }
 
@@ -430,13 +429,6 @@ private fun RunsContainer(
         }
 
         is RunsState.Success -> {
-//            RunsContainerComponent(
-//                runs = runState.runs,
-//                onNavigateToRunDetails = navigateToRunDetail,
-//                onShowMoreClick = onShowMoreClick,
-//                modifier = Modifier.padding(8.dp)
-//            )
-
             RunsGameContainerComponent(
                 runs = runState.runs,
                 onNavigateToRunDetails = navigateToRunDetail,

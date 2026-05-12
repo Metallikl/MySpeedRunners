@@ -12,6 +12,6 @@ fun PlatformDto.asDomainModel(): Platform {
     )
 }
 
-fun List<PlatformDto>.asDomainModel(): List<Platform> {
-    return this.map { it.asDomainModel() }
+fun List<PlatformDto>?.asDomainModel(): List<Platform> {
+    return this?.map { it.asDomainModel() } ?: emptyList()
 }

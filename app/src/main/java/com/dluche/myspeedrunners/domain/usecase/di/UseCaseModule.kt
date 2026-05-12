@@ -8,6 +8,8 @@ import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.game.GetRunnerGamesUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.game.SearchGamesUseCase
 import com.dluche.myspeedrunners.domain.usecase.game.SearchGamesUseCaseImpl
+import com.dluche.myspeedrunners.domain.usecase.leaderboard.GetDefaultLeaderboardUseCase
+import com.dluche.myspeedrunners.domain.usecase.leaderboard.GetDefaultLeaderboardUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.GetGameRunsUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetGameRunsUseCaseImpl
 import com.dluche.myspeedrunners.domain.usecase.run.GetRunByIdUseCase
@@ -74,5 +76,8 @@ interface UseCaseModule {
 
     @Binds
     fun bindGetGameRunsUseCase(getGameRunsUseCase: GetGameRunsUseCaseImpl): GetGameRunsUseCase
+
+    @Binds
+    fun bindGeDefaultLeaderboardUseCase(getDefaultLeaderboardUseCaseImpl: GetDefaultLeaderboardUseCaseImpl): GetDefaultLeaderboardUseCase
 
 }

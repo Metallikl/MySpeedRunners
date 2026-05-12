@@ -5,6 +5,7 @@ import com.dluche.myspeedrunners.data.datasource.model.run.RunDto
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
 import com.dluche.myspeedrunners.extension.formatToDate
+import com.dluche.myspeedrunners.extension.orRandomId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Duration
 
@@ -48,3 +49,19 @@ private fun getPrimaryTime(primary: String?): String {
     if(primary.isNullOrEmpty()) return ""
     return Duration.parseIsoStringOrNull(primary)?.toString().orEmpty()
 }
+
+fun getEmptyRun() = Run(
+    category = getEmptyCategory(),
+    comment = "",
+    date = "",
+    game = getEmptyGame(),
+    id = null.orRandomId(),
+    links = emptyList(),
+    splits = null,
+    submitted = "",
+    videos = emptyList(),
+    weblink = "",
+    status = RunStatusEnum.UNKNOWN,
+    primaryTime = "",
+    runners = emptyList()
+)

@@ -86,15 +86,11 @@ fun RunGameCardComponent(
                         modifier = Modifier.weight(1f)
                     )
 
-                    runnerLocationUrl.RunWithNotNullNorEmpty { locationUrl ->
-                        AsyncImage(
-                            model = locationUrl,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            placeholder = painterResource(id = R.drawable.ic_map_marker_radius),
-                            error = painterResource(id = R.drawable.ic_map_marker_radius)
-                        )
-                    }
+                    RunStatusComponent(
+                        runStatus = runStatus,
+                        modifier = Modifier.wrapContentWidth(),
+                        showLabel = false
+                    )
                 }
 
                 Row(
@@ -110,11 +106,15 @@ fun RunGameCardComponent(
                         maxLines = 2
                     )
 
-                    RunStatusComponent(
-                        runStatus = runStatus,
-                        modifier = Modifier.wrapContentWidth(),
-                        showLabel = false
-                    )
+                    runnerLocationUrl.RunWithNotNullNorEmpty { locationUrl ->
+                        AsyncImage(
+                            model = locationUrl,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            placeholder = painterResource(id = R.drawable.ic_map_marker_radius),
+                            error = painterResource(id = R.drawable.ic_map_marker_radius)
+                        )
+                    }
                 }
 
                 Row(

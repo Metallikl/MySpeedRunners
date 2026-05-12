@@ -104,4 +104,17 @@ private fun RunnerDto.getLocationUrl(): String {
     } ?: ""
 }
 
+fun getEmptyRunnerCard() = RunnerCard(
+    id = "",
+    name = "",
+    pronouns = null,
+    japaneseName = null,
+    location = null,
+    locationUrl = null,
+    imageUrl = null,
+    nameStyle = null,
+    role = RoleEnum.UNKNOWN,
+    signup = null
+)
+
 

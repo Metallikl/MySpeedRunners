@@ -15,8 +15,10 @@ import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DATE
 import com.dluche.myspeedrunners.domain.model.common.QueryOrderBy.Companion.DESC
 import com.dluche.myspeedrunners.domain.model.game.Game
+import com.dluche.myspeedrunners.domain.model.leaderboard.Leaderboard
 import com.dluche.myspeedrunners.domain.model.run.Run
 import com.dluche.myspeedrunners.domain.usecase.game.GetGameDetailsUseCase
+import com.dluche.myspeedrunners.domain.usecase.leaderboard.GetDefaultLeaderboardUseCase
 import com.dluche.myspeedrunners.domain.usecase.run.GetGameRunsUseCase
 import com.dluche.myspeedrunners.navigation.routes.MySpeedRunnersRoutes.GameDetails
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
@@ -31,9 +33,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GameDetailsViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getGameDetailsUseCase: GetGameDetailsUseCase,
     private val getGamesRunsUseCase: GetGameRunsUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val getDefaultLeaderboardUseCase: GetDefaultLeaderboardUseCase
+
 ) : ViewModel() {
 
     private var gameId: String = savedStateHandle.toRoute<GameDetails>().gameId
@@ -44,7 +48,6 @@ class GameDetailsViewModel @Inject constructor(
         when (event) {
             GameDetailsEvents.LoadGameDetails -> fetchGameDetails()
         }
-
     }
 
     private fun fetchGameDetails() {
@@ -67,7 +70,7 @@ class GameDetailsViewModel @Inject constructor(
 
             getGamesRunsUseCase(
                 gameId,
-                EmbedParams(GAMES, CATEGORY,PLAYERS),
+                EmbedParams(GAMES, CATEGORY, PLAYERS),
                 QueryOrderBy(DATE, DESC)
             ).onSuccess {
                 handleGameRunsSuccess(it.data)
@@ -82,6 +85,24 @@ class GameDetailsViewModel @Inject constructor(
             it.copy(
                 mainState = MainState.Success(game),
             )
+        }
+        fetchLeaderboard(game)
+    }
+
+    private fun fetchLeaderboard(game: Game) {
+        viewModelScope.launch {
+            game.links.find { LEADERBOARD_REL == it.rel?.lowercase() }?.let { link ->
+                link.uri?.let { url ->
+                    getDefaultLeaderboardUseCase(
+                        link.uri,
+                        EmbedParams(GAMES, CATEGORY, PLAYERS, PLATFORMS)
+                    ).onSuccess {
+                        handleLeaderboardSuccess(it)
+                    }.onFailure {
+                        handleLeaderboardFailure(it)
+                    }
+                }
+            }
         }
     }
 
@@ -107,5 +128,26 @@ class GameDetailsViewModel @Inject constructor(
                 runsState = RunsState.Error(throwable.message.orEmpty()),
             )
         }
+    }
+
+    fun handleLeaderboardSuccess(leaderboard: Leaderboard) {
+        //TODO IMPLEMENTAR COMPONENTE DA LEADERBOARD, LIMITAR URL COM TOP 20 PARA IR PARA TELA VER MAIS.
+        _uiState.update {
+            it.copy(
+                leaderboardState = LeaderboardState.Success(leaderboard.runs),
+            )
+        }
+    }
+
+    fun handleLeaderboardFailure(throwable: Throwable) {
+        _uiState.update {
+            it.copy(
+                leaderboardState = LeaderboardState.Error(throwable.message.orEmpty()),
+            )
+        }
+    }
+
+    companion object {
+        const val LEADERBOARD_REL = "leaderboard"
     }
 }
