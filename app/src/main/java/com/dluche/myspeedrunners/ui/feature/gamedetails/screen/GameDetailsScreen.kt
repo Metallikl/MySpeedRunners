@@ -57,6 +57,7 @@ import com.dluche.myspeedrunners.ui.components.BackgroundImageComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponent
 import com.dluche.myspeedrunners.ui.components.GameCoverComponentV2
 import com.dluche.myspeedrunners.ui.components.GenericErrorWithButtonComponent
+import com.dluche.myspeedrunners.ui.components.LeaderboardRunsContainerComponent
 import com.dluche.myspeedrunners.ui.components.SelectableFlowRowContainer
 import com.dluche.myspeedrunners.ui.components.RunnerCardComponent
 import com.dluche.myspeedrunners.ui.components.RunsGameContainerComponent
@@ -68,6 +69,7 @@ import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsBottomS
 import com.dluche.myspeedrunners.ui.feature.gamedetails.model.GameDetailsTabFactory
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uievents.GameDetailsEvents
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState
+import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState.LeaderboardState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState.MainState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.uistate.GameDetailsUiState.RunsState
 import com.dluche.myspeedrunners.ui.feature.gamedetails.viewmodel.GameDetailsViewModel
@@ -381,7 +383,7 @@ fun ContentComponent(
                     }
 
                     GameDetailTabType.LEADERBOARD -> {
-                        ModeratorsContainer(uiState.mainState, navigateToRunnerDetails)
+                        LeaderboardContainer(uiState.leaderboardState,navigateToRunDetails)
                     }
 
                     GameDetailTabType.RECORDS -> {
@@ -403,6 +405,37 @@ fun ContentComponent(
                     .fillMaxWidth()
                     .height(400.dp)
                     .background(Color.Gray)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LeaderboardContainer(
+    leaderboardState: LeaderboardState,
+    navigateToRunDetail: (String) -> Unit,
+    onRetry: () -> Unit = {},
+    onShowMoreClick: () -> Unit = {}
+) {
+    when (leaderboardState) {
+        is LeaderboardState.Error -> {
+            GenericErrorWithButtonComponent(
+                onRetry = onRetry,
+                modifier = Modifier.fillMaxSize(),
+                interaction = 1
+            )
+        }
+
+        LeaderboardState.Loading -> {
+            RunsSkeletonList()
+        }
+
+        is LeaderboardState.Success -> {
+            LeaderboardRunsContainerComponent(
+                runs = leaderboardState.runs,
+                onNavigateToRunDetails = navigateToRunDetail,
+                onShowMoreClick = onShowMoreClick,
+                modifier = Modifier.padding(8.dp)
             )
         }
     }

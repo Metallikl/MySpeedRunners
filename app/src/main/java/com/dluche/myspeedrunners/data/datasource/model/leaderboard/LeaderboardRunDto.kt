@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LeaderboardRunDto(
     @SerialName("place")
-    val place: String?,
+    val place: Int?,
     @SerialName("run")
     val run: RunDto?
 )

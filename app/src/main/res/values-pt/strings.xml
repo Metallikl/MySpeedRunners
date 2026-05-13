@@ -47,4 +47,5 @@
     <string name="moderator_tab_label">Moderadores</string>
     <string name="records_tab_label">Records</string>
     <string name="role_guest">Convidado</string>
+    <string name="rank_label">Rank</string>
 </resources>

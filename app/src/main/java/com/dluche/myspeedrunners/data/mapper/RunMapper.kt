@@ -7,6 +7,7 @@ import com.dluche.myspeedrunners.domain.model.run.RunStatusEnum
 import com.dluche.myspeedrunners.extension.formatToDate
 import com.dluche.myspeedrunners.extension.orRandomId
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.time.Duration
 
 fun RunDto.asDomainModel(): Run {
@@ -55,7 +56,7 @@ fun getEmptyRun() = Run(
     comment = "",
     date = "",
     game = getEmptyGame(),
-    id = null.orRandomId(),
+    id = getRandomUUId(),
     links = emptyList(),
     splits = null,
     submitted = "",
@@ -65,3 +66,7 @@ fun getEmptyRun() = Run(
     primaryTime = "",
     runners = emptyList()
 )
+
+fun getRandomUUId(): String {
+    return UUID.randomUUID().toString()
+}

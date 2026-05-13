@@ -221,6 +221,11 @@ val twitchColor = Color(0xFF9146FF)
 val youtubeColor = Color(0xFFc4302b)
 val speedrunColor = Color(0xFFc36f09)
 
+//val goldColor = Color(0xFFFCD700)
+val goldColor = Color(0xFFEAB308)
+val silverColor = Color(0xFFC0C0C0)
+val bronzeColor = Color(0xFFCD5F32)
+
 
 
 
