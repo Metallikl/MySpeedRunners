@@ -108,7 +108,9 @@ class RunnersTempRepositoryImpl @Inject constructor(
                 runnerId = runnerId,
                 embedParams = embedParams,
                 queryOrderBy = queryOrderBy
-            )?.data.also {
+            )?.data?.sortedByDescending {
+                it.run?.date
+            }.also {
                 rawPersonalBest = it
             }
         } else rawPersonalBest

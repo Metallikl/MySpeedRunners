@@ -427,7 +427,7 @@ private fun LeaderboardContainer(
         }
 
         LeaderboardState.Loading -> {
-            RunsSkeletonList()
+            RunsSkeletonList(modifier = Modifier.padding(top = 16.dp))
         }
 
         is LeaderboardState.Success -> {
@@ -509,101 +509,9 @@ private fun ModeratorsContainer(
                 }
             }
 
-//
-//
-//            runners.forEach { runner ->
-//                RunnerCardComponent(
-//                    runnerCard = runner,
-//                    onClick = { navigateToRunnerDetails(runner.id) }
-//
-//                )
-//            }
-
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
-}
-
-@Composable
-private fun PlatformContainer(uiState: MainState.Success) {
-    uiState.game.platforms.RunWithNotNullNorEmpty { platforms ->
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .padding(bottom = 16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.platforms_label),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = Bold
-            )
-
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                platforms.forEach { platform ->
-                    OutlinedCard {
-                        Text(
-                            text = platform.name,
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier
-                                .padding(8.dp),
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CategoryContainer(uiState: MainState.Success) {
-
-    uiState.game.categories.RunWithNotNullNorEmpty { categories ->
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .padding(bottom = 16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.category_label),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = Bold
-            )
-
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                categories.forEach { category ->
-                    OutlinedCard {
-                        Text(
-                            text = category.name,
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier
-                                .padding(8.dp),
-                        )
-                    }
-                }
-            }
-        }
-    }
-
 }
 
 @Preview

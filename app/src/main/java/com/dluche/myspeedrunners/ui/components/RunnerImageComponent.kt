@@ -60,7 +60,6 @@ fun RunnerImage(
                 contentDescription = "Runner Image",
                 modifier = modifier
                     .size(imageErrorSize)
-                    .padding(8.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )

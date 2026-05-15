@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -66,7 +67,7 @@ fun RunGameCardComponent(
     size: Dp = 80.dp,
     onClick: () -> Unit = {},
 ) {
-
+    val placeSize = 24.dp
     val colorFilter by remember {
         derivedStateOf {
             when (runPlace) {
@@ -86,19 +87,95 @@ fun RunGameCardComponent(
                 onClick()
             }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(modifier = Modifier.wrapContentSize(align = Alignment.TopStart)) {
 
+        Box(modifier = Modifier.wrapContentSize(align = Alignment.TopStart)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 RunnerImage(runnerUrl.orEmpty(), imageSize = size, imageErrorSize = size)
 
-                runPlace?.let {
-                    Box(
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .padding(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
                         modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = runnerName,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                brush = getRunnerGradientColor(
+                                    nameStyle = runnerNameStyle
+                                )
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        runnerLocationUrl.RunWithNotNullNorEmpty { locationUrl ->
+                            AsyncImage(
+                                model = locationUrl,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                placeholder = painterResource(id = R.drawable.ic_map_marker_radius),
+                                error = painterResource(id = R.drawable.ic_map_marker_radius)
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = runCategory,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 2
+                        )
+
+                        RunStatusComponent(
+                            runStatus = runStatus,
+                            modifier = Modifier.wrapContentWidth(),
+                            showLabel = false
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = runSubmitted,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = runTime,
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+            }
+
+            runPlace?.let {
+                Box(
+                    modifier = Modifier
 //                            .background(
 //                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
 //                                shape = CircleShape
@@ -108,104 +185,31 @@ fun RunGameCardComponent(
 //                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
 //                                CircleShape
 //                            )
-                            .wrapContentSize(align = Alignment.Center)
-                            .padding(2.dp)
-                    ) {
-                        if (it <= 3) {
-                            Image(
-                                imageVector = Icons.Filled.EmojiEvents,
-                                contentDescription = stringResource(R.string.rank_label),
-                                modifier = Modifier.size(16.dp),
-                                colorFilter = ColorFilter.tint(colorFilter)
-                            )
-                        } else {
-                            Text(
-                                text = it.toString(),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .wrapContentSize(align = Alignment.Center)
+                        .padding(top = 4.dp, start = 4.dp)
                 ) {
-                    Text(
-                        text = runnerName,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            brush = getRunnerGradientColor(
-                                nameStyle = runnerNameStyle
-                            )
-                        ),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    runnerLocationUrl.RunWithNotNullNorEmpty { locationUrl ->
-                        AsyncImage(
-                            model = locationUrl,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            placeholder = painterResource(id = R.drawable.ic_map_marker_radius),
-                            error = painterResource(id = R.drawable.ic_map_marker_radius)
+                    if (it <= 3) {
+                        Image(
+                            imageVector = Icons.Filled.EmojiEvents,
+                            contentDescription = stringResource(R.string.rank_label),
+                            modifier = Modifier.size(placeSize),
+                            colorFilter = ColorFilter.tint(colorFilter)
+                        )
+                    } else {
+                        Text(
+                            text = it.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .height(placeSize),
+                            maxLines = 1
                         )
                     }
                 }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = runCategory,
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 2
-                    )
-
-                    RunStatusComponent(
-                        runStatus = runStatus,
-                        modifier = Modifier.wrapContentWidth(),
-                        showLabel = false
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = runSubmitted,
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = runTime,
-                        style = MaterialTheme.typography.labelMedium,
-                        textAlign = TextAlign.End
-                    )
-                }
             }
+
         }
     }
 }
@@ -273,7 +277,7 @@ private fun RunnerCardComponentPreview2() {
             runStatus = RunStatusEnum.VERIFIED,
             runSubmitted = "2021-01-01",
             runTime = run1.primaryTime,
-            runPlace = 4,
+            runPlace = 200,
             onClick = {}
         )
     }
