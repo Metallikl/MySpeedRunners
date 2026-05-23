@@ -163,7 +163,7 @@ fun GameDetailsScreen(
         contentAlignment = Alignment.Center
 
     ) {
-        BackgroundComponent(uiState)
+        BackgroundComponent(uiState.mainState)
 
         Column(
             modifier = Modifier.fillMaxSize()
@@ -217,7 +217,7 @@ fun GameDetailsScreen(
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                if (uiState !is MainState.Error) {
+                if (uiState.mainState !is MainState.Error) {
 
                     GameNameComponent(uiState.mainState)
 
@@ -276,7 +276,7 @@ fun GameCover(
 }
 
 @Composable
-fun BackgroundComponent(state: GameDetailsUiState) {
+fun BackgroundComponent(state: GameDetailsUiState.MainState) {
     when (state) {
         MainState.Loading -> {
             Box(
@@ -435,7 +435,8 @@ private fun LeaderboardContainer(
                 runs = leaderboardState.runs,
                 onNavigateToRunDetails = navigateToRunDetail,
                 onShowMoreClick = onShowMoreClick,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
+                label = stringResource(R.string.leaderboard_tab_label)
             )
         }
     }
@@ -466,7 +467,8 @@ private fun RunsContainer(
                 runs = runState.runs,
                 onNavigateToRunDetails = navigateToRunDetail,
                 onShowMoreClick = onShowMoreClick,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
+                label = stringResource(R.string.last_runs_label)
             )
         }
     }

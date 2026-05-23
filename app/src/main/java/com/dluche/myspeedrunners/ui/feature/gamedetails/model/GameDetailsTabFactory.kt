@@ -26,12 +26,12 @@ object GameDetailsTabFactory {
             selectedIcon = Icons.Filled.RunCircle,
             unselectedIcon = Icons.Outlined.RunCircle
         ),
-        GameDetailTabItem(
-            tabType = GameDetailTabType.RECORDS,
-            title = context.getString(R.string.records_tab_label),
-            selectedIcon = Icons.Filled.EmojiEvents,
-            unselectedIcon = Icons.Outlined.EmojiEvents
-        ),
+//        GameDetailTabItem(
+//            tabType = GameDetailTabType.RECORDS,
+//            title = context.getString(R.string.records_tab_label),
+//            selectedIcon = Icons.Filled.EmojiEvents,
+//            unselectedIcon = Icons.Outlined.EmojiEvents
+//        ),
         GameDetailTabItem(
             tabType = GameDetailTabType.MODERATORS,
             title = context.getString(R.string.moderator_tab_label),
